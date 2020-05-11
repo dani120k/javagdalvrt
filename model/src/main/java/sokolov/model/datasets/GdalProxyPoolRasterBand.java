@@ -2,6 +2,7 @@ package sokolov.model.datasets;
 
 import sokolov.model.enums.GDALColorTableH;
 import sokolov.model.enums.GDALDataType;
+import sokolov.model.supclasses.CPLHashSet;
 
 public class GdalProxyPoolRasterBand extends GdalRasterBand {
     CPLHashSet metadataSet = null;

@@ -5,6 +5,14 @@ import sokolov.model.enums.*;
 import static sokolov.model.enums.GDALColorInterp.GCI_Undefined;
 
 public class GdalRasterBand extends GdalMajorObject {
+    private int GMO_VALID = 0x0001;
+    private int GMO_IGNORE_UNIMPLEMENTED = 0x0002;
+    private int GMO_SUPPORT_MD = 0x0004;
+    private int GMO_SUPPORT_MDMD = 0x0008;
+    private int GMO_MD_DIRTY = 0x0010;
+    private int GMO_PAM_CLASS = 0x0020;
+
+
     GdalDataset poDS = null;
     int nBand = 0;
     int nRasterXSize = 0;
@@ -46,7 +54,7 @@ public class GdalRasterBand extends GdalMajorObject {
      * been emitted.
      */
     public void setRasterNoDataValue(double dfNoData) {
-        if (!(GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED)) {
+        if (!((GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED) == 0)) {
             System.out.println("SetNoDataValue() not supported for this dataset.");
             throw new RuntimeException();
         }
@@ -65,7 +73,7 @@ public class GdalRasterBand extends GdalMajorObject {
      * @return CE_None or success or CE_Failure on failure.
      */
     public void SetOffset(double dfNewOffset) {
-        if (!(GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED)) {
+        if (!((GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED) == 0)) {
             System.out.println("SetOffset() not supported on this raster band.");
             throw new RuntimeException();
         }
@@ -81,7 +89,7 @@ public class GdalRasterBand extends GdalMajorObject {
      * @return CE_None on success or CE_Failure if method is unsupported by format.
      */
     public void SetColorInterpretation(GDALColorInterp eColorInterp) {
-        if (!(GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED)) {
+        if (!((GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED) == 0)) {
             System.out.println("SetColorInterpretation() not supported for this dataset.");
             throw new RuntimeException("SetColorInterpretation() not supported for this dataset.");
         }
@@ -103,7 +111,7 @@ public class GdalRasterBand extends GdalMajorObject {
      * error is issued.
      */
     public void SetColorTable(GDALColorTableH poCT) {
-        if (!(GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED)) {
+        if (!((GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED) == 0)) {
             System.out.println("SetColorTable() not supported for this dataset.");
             throw new RuntimeException("SetColorTable() not supported for this dataset.");
         }
@@ -123,10 +131,14 @@ public class GdalRasterBand extends GdalMajorObject {
      * @return CE_None or success or CE_Failure on failure.
      */
     public void SetScale(double dfNewScale) {
-        if (!(GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED)) {
+        if (!((GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED) == 0)) {
             System.out.println("SetScale() not supported on this raster band.");
             throw new RuntimeException("SetScale() not supported on this raster band.");
         }
+    }
+
+    private int GetMOFlags() {
+        return 0;
     }
 
 
@@ -170,10 +182,10 @@ public class GdalRasterBand extends GdalMajorObject {
                         }
                     }
                     if (i == poDS.GetRasterCount()) {
-                        nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0)? true: false;
+                        nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0) ? true : false;
                         try {
                             poMask = new GDALNoDataValuesMaskBand(poDS);
-                        } catch ( const std::bad_alloc & )
+                        } catch ( Exception ex )
                         {
                             System.out.println("Out of memory");
                             poMask = null;
@@ -196,14 +208,14 @@ public class GdalRasterBand extends GdalMajorObject {
         /* -------------------------------------------------------------------- */
         boolean bHaveNoData = false;
         //TODO link bHaveNoData
-        double dfNoDataValue = GetNoDataValue( bHaveNoData );
+        double dfNoDataValue = GetNoDataValue(bHaveNoData);
 
         if (bHaveNoData &&
-                GDALNoDataMaskBand.IsNoDataInRange(dfNoDataValue, eDataType)) {
-            nMaskFlags = (BandMask.GMF_NODATA.getValue() == 0)? true: false;
+                GdalNoDataMaskBand.IsNoDataInRange(dfNoDataValue, eDataType)) {
+            nMaskFlags = (BandMask.GMF_NODATA.getValue() == 0) ? true : false;
             try {
                 poMask = new GdalNoDataMaskBand(this);
-            } catch ( const std::bad_alloc & )
+            } catch ( Exception ex )
             {
                 System.out.println("Out of memory");
                 poMask = null;
@@ -220,14 +232,14 @@ public class GdalRasterBand extends GdalMajorObject {
                 && this == poDS.GetRasterBand(1)
                 && poDS.GetRasterBand(2).GetColorInterpretation() == GDALColorInterp.GCI_AlphaBand) {
             if (poDS.GetRasterBand(2).GetRasterDataType() == GDALDataType.GDT_Byte) {
-                nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0)? true: false;
+                nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0) ? true : false;
                 poMask = poDS.GetRasterBand(2);
                 return poMask;
             } else if (poDS.GetRasterBand(2).GetRasterDataType() == GDALDataType.GDT_UInt16) {
-                nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0)? true: false;
+                nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0) ? true : false;
                 try {
                     poMask = new GdalRescaledAlphaBand(poDS.GetRasterBand(2));
-                } catch ( const std::bad_alloc & )
+                } catch (Exception ex )
                 {
                     System.out.println("Out of memory");
                     poMask = null;
@@ -244,14 +256,14 @@ public class GdalRasterBand extends GdalMajorObject {
                 || this == poDS.GetRasterBand(3))
                 && poDS.GetRasterBand(4).GetColorInterpretation() == GDALColorInterp.GCI_AlphaBand) {
             if (poDS.GetRasterBand(4).GetRasterDataType() == GDALDataType.GDT_Byte) {
-                nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0)? true: false;
+                nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0) ? true : false;
                 poMask = poDS.GetRasterBand(4);
                 return poMask;
             } else if (poDS.GetRasterBand(4).GetRasterDataType() == GDALDataType.GDT_UInt16) {
-                nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0)? true: false;
+                nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0) ? true : false;
                 try {
                     poMask = new GdalRescaledAlphaBand(poDS.GetRasterBand(4));
-                } catch ( const std::bad_alloc & )
+                } catch ( Exception ex )
                 {
                     System.out.println("Out of memory");
                     poMask = null;
@@ -264,10 +276,10 @@ public class GdalRasterBand extends GdalMajorObject {
         /* -------------------------------------------------------------------- */
         /*      Fallback to all valid case.                                     */
         /* -------------------------------------------------------------------- */
-        nMaskFlags = (BandMask.GMF_ALL_VALID.getValue() == 0)? true : false;
+        nMaskFlags = (BandMask.GMF_ALL_VALID.getValue() == 0) ? true : false;
         try {
             poMask = new GdalAllValidMaskBand(this);
-        } catch ( const std::bad_alloc & )
+        } catch ( Exception ex )
         {
             System.out.println("Out of memory");
             poMask = null;
@@ -275,6 +287,14 @@ public class GdalRasterBand extends GdalMajorObject {
         bOwnMask = true;
 
         return poMask;
+    }
+
+    private int CSLCount(String[] papszNoDataValues) {
+        return 0;
+    }
+
+    private String[] CSLTokenizeStringComplex(String pszNoDataValues, String s, boolean b, boolean b1) {
+        return new String[0];
     }
 
 
@@ -399,6 +419,18 @@ public class GdalRasterBand extends GdalMajorObject {
     }
 
     public GDALColorTableH GetRasterColorTable() {
+        return null;
+    }
+
+    protected double GetXSize() {
+        return 0;
+    }
+
+    protected double GetYSize() {
+        return 0;
+    }
+
+    protected GdalDataset GetDataset() {
         return null;
     }
 }

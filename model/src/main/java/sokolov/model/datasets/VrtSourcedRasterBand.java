@@ -1,16 +1,30 @@
 package sokolov.model.datasets;
 
+import sokolov.model.enums.GDALDataType;
 import sokolov.model.sources.VrtComplexSource;
 import sokolov.model.sources.VrtSimpleSource;
 import sokolov.model.sources.VrtSource;
+import sokolov.model.supclasses.VRTImageReadFunc;
 
 public class VrtSourcedRasterBand extends VrtRasterBand {
     int            m_nRecursionCounter;
-    CPLString      m_osLastLocationInfo{};
+    String      m_osLastLocationInfo;
     String[] m_papszSourceList;
     int            nSources;
     VrtSource[] papoSources;
     int            bSkipBufferInitialization;
+
+    public VrtSourcedRasterBand(){
+
+    }
+
+    public VrtSourcedRasterBand(GdalDataset gdalDataset,
+                                int rasterCount,
+                                GDALDataType eType,
+                                int rasterXSize,
+                                int rasterYSize){
+        //TODO
+    }
 
     public void configureSource(VrtSimpleSource poSimpleSource,
                                 GdalRasterBand poSrcBand,
@@ -59,6 +73,12 @@ public class VrtSourcedRasterBand extends VrtRasterBand {
     }
 
 
+    public void AddFuncSource(VRTImageReadFunc vrtImageReadFunc,
+                              double dfNoDataValue
+                              ){
+
+    }
+
     public void AddSource(VrtSource poNewSource){
         nSources++;
 
@@ -72,15 +92,19 @@ public class VrtSourcedRasterBand extends VrtRasterBand {
             VrtSimpleSource poSS = (VrtSimpleSource) poNewSource;
             if( GetMetadataItem("NBITS", "IMAGE_STRUCTURE") != null)
             {
-                int nBits = atoi(GetMetadataItem("NBITS", "IMAGE_STRUCTURE"));
+                int nBits = Integer.parseInt(GetMetadataItem("NBITS", "IMAGE_STRUCTURE"));
                 if( nBits >= 1 && nBits <= 31 )
                 {
-                    poSS.SetMaxValue( static_cast<int>((1U << nBits) -1) );
+                    poSS.SetMaxValue( (int)((1 << nBits) -1) );
                 }
             }
 
             CheckSource( poSS );
         }
+    }
+
+    private void CheckSource(VrtSimpleSource poSS) {
+
     }
 
     public void AddComplexSource(GdalRasterBand poSrcBand,

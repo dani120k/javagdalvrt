@@ -5,6 +5,7 @@ import sokolov.model.datasets.*;
 import sokolov.model.enums.*;
 import sokolov.model.sources.VrtComplexSource;
 import sokolov.model.sources.VrtSimpleSource;
+import sokolov.model.supclasses.DfScrObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -628,12 +629,12 @@ public class VrtBuilder {
                     (proj == null && pszProjectionRef != null) ||
                     (proj != null && pszProjectionRef != null && projAreEqual(proj, pszProjectionRef) == false)) {
                 if (!bAllowProjectionDifference) {
-                    CPLString osExpected = getProjectionName(pszProjectionRef);
-                    CPLString osGot = getProjectionName(proj);
+                    String osExpected = getProjectionName(pszProjectionRef);
+                    String osGot = getProjectionName(proj);
 
                     System.out.println(String.format("gdalbuildvrt does not support heterogeneous projection: expected %s, got %s. Skipping %s",
-                            osExpected.getStr(),
-                            osGot.getStr(),
+                            osExpected,
+                            osGot,
                             dsFileName));
                     return false;
                 }
@@ -751,7 +752,7 @@ public class VrtBuilder {
         return true;
     }
 
-    private CPLString getProjectionName(String pszProjectionRef) {
+    private String getProjectionName(String pszProjectionRef) {
         return null;
     }
 

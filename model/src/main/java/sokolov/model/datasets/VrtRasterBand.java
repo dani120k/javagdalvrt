@@ -2,6 +2,9 @@ package sokolov.model.datasets;
 
 import sokolov.model.enums.GDALColorInterp;
 import sokolov.model.enums.GDALColorTableH;
+import sokolov.model.supclasses.CPLXMLNode;
+import sokolov.model.supclasses.GDALRasterAttributeTable;
+import sokolov.model.supclasses.VRTOverviewInfo;
 
 import java.util.List;
 

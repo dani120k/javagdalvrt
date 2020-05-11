@@ -21,12 +21,12 @@ public class VrtSimpleSource extends VrtSource {
 
     boolean m_bNoDataSet;
     double m_dfNoDataValue;
-    CPLString m_osResampling;
+    String m_osResampling;
 
     int m_nMaxValue;
 
     int m_bRelativeToVRTOri;
-    CPLString m_osSourceFileNameOri;
+    String m_osSourceFileNameOri;
 
     int m_nExplicitSharedStatus; // -1 unknown, 0 = unshared, 1 = shared
 
@@ -44,5 +44,25 @@ public class VrtSimpleSource extends VrtSource {
 
     public void setResampling(String pszResampling) {
         m_osResampling = (pszResampling != null) ? pszResampling : "";
+    }
+
+    public void SetSrcMaskBand(GdalRasterBand poSrcBand) {
+
+    }
+
+    public void SetSrcBand(GdalRasterBand poSrcBand) {
+
+    }
+
+    public void SetSrcWindow(double dfSrcXOff, double dfSrcYOff, double dfSrcXSize, double dfSrcYSize) {
+
+    }
+
+    public void SetDstWindow(double dfDstXOff, double dfDstYOff, double dfDstXSize, double dfDstYSize) {
+
+    }
+
+    public void SetMaxValue(int i) {
+
     }
 }

@@ -1,7 +1,7 @@
 package sokolov.model.common;
 
 public class CPLStringList {
-    String[] papszList = null;
+    public String[] papszList = null;
     int nCount = 0;
     int nAllocation = 0;
     boolean bOwnList = false;
@@ -68,7 +68,7 @@ public class CPLStringList {
             int iMiddle = (iEnd + iStart) / 2;
             String pszMiddle = papszList[iMiddle];
 
-            if (EQUALN(pszMiddle, pszKey, nKeyLen)
+            if (pszMiddle.equals(pszKey) && pszKey.equals(nKeyLen)
                     && (pszMiddle.toCharArray()[nKeyLen] == '=' || pszMiddle.toCharArray()[nKeyLen] == ':'))
                 return iMiddle;
 
@@ -79,6 +79,18 @@ public class CPLStringList {
         }
 
         return -1;
+    }
+
+    private int CSLFindName(String[] papszList, String pszKey) {
+        return 0;
+    }
+
+    private int CPLCompareKeyValueString(String pszKey, String pszMiddle) {
+        return 0;
+    }
+
+    private boolean IsSorted() {
+        return false;
     }
 
     public CPLStringList AddNameValue(String pszKey,
@@ -93,7 +105,7 @@ public class CPLStringList {
         /* -------------------------------------------------------------------- */
         int nLen = pszKey.length() + pszValue.length() + 2;
         //char *pszLine = static_cast < char *>(CPLMalloc(nLen));
-        String pszLine;
+        String pszLine = "";
 
         /* -------------------------------------------------------------------- */
         /*      If we don't need to keep the sort order things are pretty       */
@@ -105,12 +117,19 @@ public class CPLStringList {
         /* -------------------------------------------------------------------- */
         /*      Find the proper insertion point.                                */
         /* -------------------------------------------------------------------- */
-        CPLAssert(IsSorted());
         int iKey = FindSortedInsertionPoint(pszLine);
         InsertStringDirectly(iKey, pszLine);
         bIsSorted = true;  // We have actually preserved sort order.
 
         return this;
+    }
+
+    private int FindSortedInsertionPoint(String pszLine) {
+        return 0;
+    }
+
+    public CPLStringList AddStringDirectly(String pszLine){
+        return null;
     }
 
     public CPLStringList InsertStringDirectly(int nInsertAtLineNo,
@@ -135,5 +154,21 @@ public class CPLStringList {
         papszList[++nCount] = null;
 
         return this;
+    }
+
+    private void EnsureAllocation(int i) {
+
+    }
+
+    private void Count() {
+
+    }
+
+    public void Sort() {
+
+    }
+
+    public String FetchNameValue(String pszName) {
+        return null;
     }
 }

@@ -12,6 +12,7 @@ public class GdalMajorObject {
     int nFlags; // GMO_* flags.
     String sDescription;
     GDALMultiDomainMetadata oMDMD;
+    public double VRT_NODATA_UNSET = -1234.56;
 
 
     public String getDescription() {
@@ -47,6 +48,14 @@ public class GdalMajorObject {
     protected String GetMetadataItem(String pszName) {
         //set default value
         String pszDomain = "";
+        return oMDMD.GetMetadataItem(pszName, pszDomain);
+    }
+
+    protected String GetMetadataItem(String pszName, String pszDomain) {
+        //set default value
+        if (pszDomain == null)
+            pszDomain = "";
+
         return oMDMD.GetMetadataItem(pszName, pszDomain);
     }
 }

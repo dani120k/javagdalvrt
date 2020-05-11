@@ -1,4 +1,4 @@
-package sokolov.javagdalvrt;
+package sokolov.model.supclasses;
 
 public class DfScrObject {
     public double dfSrcXOff;

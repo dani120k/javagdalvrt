@@ -2,6 +2,9 @@ package sokolov.model.datasets;
 
 import sokolov.model.enums.GDALDataType;
 import sokolov.model.enums.GdalAccess;
+import sokolov.model.supclasses.CPLHashSet;
+import sokolov.model.supclasses.GDALProxyPoolCacheEntry;
+import sokolov.model.supclasses.GDAL_GCP;
 
 public class GdalProxyPoolDataset extends GdalProxyDataset {
     Long responsiblePID = -1L;
@@ -15,8 +18,8 @@ public class GdalProxyPoolDataset extends GdalProxyDataset {
     boolean             bHasSrcGeoTransform = false;
     String pszGCPProjection = null;
     int              nGCPCount = 0;
-    GDAL_GCP        pasGCPList = null;
-    CPLHashSet      metadataSet = null;
+    GDAL_GCP pasGCPList = null;
+    CPLHashSet metadataSet = null;
     CPLHashSet      metadataItemSet = null;
 
     GDALProxyPoolCacheEntry cacheEntry = null;

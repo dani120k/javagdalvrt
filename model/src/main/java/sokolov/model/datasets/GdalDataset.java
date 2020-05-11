@@ -1,7 +1,9 @@
 package sokolov.model.datasets;
 
+import com.sun.org.apache.bcel.internal.generic.PUSH;
 import sokolov.model.enums.GDALDataType;
 import sokolov.model.enums.GdalAccess;
+import sokolov.model.enums.OSRAxisMappingStrategy;
 import sokolov.model.supclasses.GDALDefaultOverviews;
 import sokolov.model.supclasses.GdalDatasetPrivate;
 import sokolov.model.supclasses.GdalDriver;
@@ -9,12 +11,22 @@ import sokolov.model.supclasses.GdalDriver;
 import java.util.HashMap;
 import java.util.Map;
 
+import static sokolov.model.enums.GdalAccess.GA_ReadOnly;
+import static sokolov.model.enums.GdalAccess.GA_Update;
+
 /**
  * A dataset encapsulating one or more raster bands.
  */
 public class GdalDataset extends GdalMajorObject {
+    public int GMO_VALID = 0x0001;
+    public int GMO_IGNORE_UNIMPLEMENTED = 0x0002;
+    public int GMO_SUPPORT_MD = 0x0004;
+    public int GMO_SUPPORT_MDMD = 0x0008;
+    public int GMO_MD_DIRTY = 0x0010;
+    public int GMO_PAM_CLASS = 0x0020;
+
     public GdalDriver poDriver = null;
-    public GdalAccess eAccess = GdalAccess.GA_ReadOnly;
+    public GdalAccess eAccess = GA_ReadOnly;
 
     int nRasterXSize = 512;
     int nRasterYSize = 512;
@@ -283,8 +295,8 @@ public class GdalDataset extends GdalMajorObject {
      */
     public void SetProjection(String pszProjection) {
         if (pszProjection != null && pszProjection.toCharArray()[0] != '\0') {
-            OGRSpatialReference oSRS;
-            oSRS.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+            OGRSpatialReference oSRS = new OGRSpatialReference();
+            oSRS.SetAxisMappingStrategy(OSRAxisMappingStrategy.OAMS_TRADITIONAL_GIS_ORDER);
             if (!oSRS.SetFromUserInput(pszProjection))
                 return;
 
@@ -308,7 +320,7 @@ public class GdalDataset extends GdalMajorObject {
      * @since GDAL 3.0
      */
     public void SetSpatialRef(OGRSpatialReference poSRS) {
-        if (!(GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED))
+        if (!((GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED) == 0))
             System.out.println("Dataset does not support the SetSpatialRef() method.");
     }
 
@@ -367,12 +379,16 @@ public class GdalDataset extends GdalMajorObject {
      * written.
      */
     public boolean SetGeoTransform(double[] padfTransform) {
-        if (!(GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED)) {
+        if (!((GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED) == 0)) {
             System.out.println("SetGeoTransform() not supported for this dataset.");
             return false;
         }
 
         return true;
+    }
+
+    private int GetMOFlags() {
+        return 0;
     }
 
     /**
@@ -441,9 +457,7 @@ public class GdalDataset extends GdalMajorObject {
      */
     public void CreateMaskBand(int nFlagsIn) {
         if (oOvManager.IsInitialized()) {
-            CPLErr eErr = oOvManager.CreateMaskBand(nFlagsIn, -1);
-            if (eErr != CE_None)
-                return eErr;
+            oOvManager.CreateMaskBand(nFlagsIn, -1);
 
             // Invalidate existing raster band masks.
             for (int i = 0; i < nBands; ++i) {
@@ -461,5 +475,98 @@ public class GdalDataset extends GdalMajorObject {
 
     public int GetRasterCount() {
         return (papoBands != null) ? nBands : 0;
+    }
+
+    /**
+     * \brief Open a raster or vector file as a GDALDataset.
+     * <p>
+     * This function will try to open the passed file, or virtual dataset
+     * name by invoking the Open method of each registered GDALDriver in turn.
+     * The first successful open will result in a returned dataset.  If all
+     * drivers fail then NULL is returned and an error is issued.
+     * <p>
+     * Several recommendations :
+     * <ul>
+     * <li>If you open a dataset object with GDAL_OF_UPDATE access, it is not
+     * recommended to open a new dataset on the same underlying file.</li>
+     * <li>The returned dataset should only be accessed by one thread at a time. If
+     * you want to use it from different threads, you must add all necessary code
+     * (mutexes, etc.)  to avoid concurrent use of the object. (Some drivers, such
+     * as GeoTIFF, maintain internal state variables that are updated each time a
+     * new block is read, thus preventing concurrent use.) </li>
+     * </ul>
+     * <p>
+     * For drivers supporting the VSI virtual file API, it is possible to open a
+     * file in a .zip archive (see VSIInstallZipFileHandler()), in a
+     * .tar/.tar.gz/.tgz archive (see VSIInstallTarFileHandler()) or on a HTTP / FTP
+     * server (see VSIInstallCurlFileHandler())
+     * <p>
+     * In some situations (dealing with unverified data), the datasets can be opened
+     * in another process through the \ref gdal_api_proxy mechanism.
+     * <p>
+     * In order to reduce the need for searches through the operating system
+     * file system machinery, it is possible to give an optional list of files with
+     * the papszSiblingFiles parameter.
+     * This is the list of all files at the same level in the file system as the
+     * target file, including the target file. The filenames must not include any
+     * path components, are essentially just the output of VSIReadDir() on the
+     * parent directory. If the target object does not have filesystem semantics
+     * then the file list should be NULL.
+     *
+     * @param pszFilename         the name of the file to access.  In the case of
+     *                            exotic drivers this may not refer to a physical file, but instead contain
+     *                            information for the driver on how to access a dataset.  It should be in UTF-8
+     *                            encoding.
+     * @param nOpenFlags          a combination of GDAL_OF_ flags that may be combined
+     *                            through logical or operator.
+     *                            <ul>
+     *                            <li>Driver kind: GDAL_OF_RASTER for raster drivers, GDAL_OF_VECTOR for vector
+     *                            drivers, GDAL_OF_GNM for Geographic Network Model drivers.
+     *                            If none of the value is specified, all kinds are implied.</li>
+     *                            <li>Access mode: GDAL_OF_READONLY (exclusive)or GDAL_OF_UPDATE.</li>
+     *                            <li>Shared mode: GDAL_OF_SHARED. If set, it allows the sharing of GDALDataset
+     *                            handles for a dataset with other callers that have set GDAL_OF_SHARED.
+     *                            In particular, GDALOpenEx() will first consult its list of currently
+     *                            open and shared GDALDataset's, and if the GetDescription() name for one
+     *                            exactly matches the pszFilename passed to GDALOpenEx() it will be
+     *                            referenced and returned, if GDALOpenEx() is called from the same thread.</li>
+     *                            <li>Verbose error: GDAL_OF_VERBOSE_ERROR. If set, a failed attempt to open
+     *                            the file will lead to an error message to be reported.</li>
+     *                            </ul>
+     * @param papszAllowedDrivers NULL to consider all candidate drivers, or a NULL
+     *                            terminated list of strings with the driver short names that must be
+     *                            considered.
+     * @param papszOpenOptions    NULL, or a NULL terminated list of strings with open
+     *                            options passed to candidate drivers. An option exists for all drivers,
+     *                            OVERVIEW_LEVEL=level, to select a particular overview level of a dataset.
+     *                            The level index starts at 0. The level number can be suffixed by "only" to
+     *                            specify that only this overview level must be visible, and not sub-levels.
+     *                            Open options are validated by default, and a warning is emitted in case the
+     *                            option is not recognized. In some scenarios, it might be not desirable (e.g.
+     *                            when not knowing which driver will open the file), so the special open option
+     *                            VALIDATE_OPEN_OPTIONS can be set to NO to avoid such warnings. Alternatively,
+     *                            since GDAL 2.1, an option name can be preceded by the @ character to indicate
+     *                            that it may not cause a warning if the driver doesn't declare this option.
+     * @param papszSiblingFiles   NULL, or a NULL terminated list of strings that are
+     *                            filenames that are auxiliary to the main filename. If NULL is passed, a
+     *                            probing of the file system will be done.
+     * @return A GDALDatasetH handle or NULL on failure.  For C++ applications
+     * this handle can be cast to a GDALDataset *.
+     * @since GDAL 2.0
+     */
+    public GdalDataset gdalOpenEx(String pszFilename,
+                                  long nOpenFlags,
+                                  String[] papszAllowedDrivers,
+                                  String[] papszOpenOptions,
+                                  String[] papszSiblingFiles) {
+        GdalDataset gdalDataset = new GdalDataset();
+
+        //TODO read From tiff file
+
+        return gdalDataset;
+    }
+
+    public void SetNeedsFlush() {
+
     }
 }

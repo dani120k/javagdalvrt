@@ -1,6 +1,9 @@
 package sokolov.model.datasets;
 
 import sokolov.model.enums.GDALDataType;
+import sokolov.model.supclasses.GByte;
+import sokolov.model.supclasses.GDALPansharpenOperation;
+import sokolov.model.supclasses.GTAdjustment;
 
 import java.util.List;
 import java.util.Map;
@@ -12,18 +15,18 @@ public class VrtPansharpenedDataset extends VrtDataset {
     VrtPansharpenedDataset m_poMainDataset;
     List<VrtPansharpenedDataset> m_apoOverviewDatasets;
     // Map from absolute to relative.
-    Map<CPLString,CPLString> m_oMapToRelativeFilenames;
+    Map<String,String> m_oMapToRelativeFilenames;
 
     int               m_bLoadingOtherBands;
 
-    GByte            m_pabyLastBufferBandRasterIO;
+    GByte m_pabyLastBufferBandRasterIO;
     int               m_nLastBandRasterIOXOff;
     int               m_nLastBandRasterIOYOff;
     int               m_nLastBandRasterIOXSize;
     int               m_nLastBandRasterIOYSize;
     GDALDataType m_eLastBandRasterIODataType;
 
-    GTAdjustment      m_eGTAdjustment;
+    GTAdjustment m_eGTAdjustment;
     int               m_bNoDataDisabled;
 
     List<GdalDataset> m_apoDatasetsToClose;

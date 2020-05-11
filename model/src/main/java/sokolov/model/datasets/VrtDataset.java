@@ -1,11 +1,15 @@
 package sokolov.model.datasets;
 
 import sokolov.model.enums.GDALDataType;
+import sokolov.model.supclasses.GDAL_GCP;
+import sokolov.model.supclasses.VRTGroup;
+import sokolov.model.supclasses.VRTImageReadFunc;
 
 import java.util.List;
 import java.util.Map;
 
 public class VrtDataset extends GdalDataset {
+    public double VRT_NODATA_UNSET = -1234.56;
     boolean m_bGeoTransformSet;
     double[] m_adfGeoTransform = new double[6];
     int m_nGCPCount;
@@ -52,9 +56,9 @@ public class VrtDataset extends GdalDataset {
         m_adfGeoTransform[4] = 0.0;
         m_adfGeoTransform[5] = 1.0;
 
-        GDALRegister_VRT();
+        //GDALRegister_VRT();
 
-        poDriver = static_cast < GDALDriver * > (GDALGetDriverByName("VRT"));
+        //poDriver = static_cast < GDALDriver * > (GDALGetDriverByName("VRT"));
     }
 
     public void AddBand(GDALDataType eType, String[] papszOptions) {
@@ -66,32 +70,30 @@ public class VrtDataset extends GdalDataset {
         String pszSubClass = CSLFetchNameValue(papszOptions, "subclass");
 
         if (pszSubClass != null && pszSubClass.equals("VRTRawRasterBand")) {
-        const int nWordDataSize = GDALGetDataTypeSizeBytes(eType);
+            int nWordDataSize = GDALGetDataTypeSizeBytes(eType);
 
             /* -------------------------------------------------------------------- */
             /*      Collect required information.                                   */
             /* -------------------------------------------------------------------- */
             String pszImageOffset =
                     CSLFetchNameValueDef(papszOptions, "ImageOffset", "0");
-            vsi_l_offset nImageOffset = CPLScanUIntBig(
-                    pszImageOffset, static_cast < int>(strlen(pszImageOffset)) );
+            long nImageOffset = pszImageOffset.length();
 
             int nPixelOffset = nWordDataSize;
             String pszPixelOffset =
                     CSLFetchNameValue(papszOptions, "PixelOffset");
             if (pszPixelOffset != null)
-                nPixelOffset = atoi(pszPixelOffset);
+                nPixelOffset = Integer.parseInt(pszPixelOffset);
 
             int nLineOffset;
             String pszLineOffset =
                     CSLFetchNameValue(papszOptions, "LineOffset");
             if (pszLineOffset != null)
-                nLineOffset = atoi(pszLineOffset);
+                nLineOffset = Integer.parseInt(pszLineOffset);
             else {
                 if (nPixelOffset > Integer.MAX_VALUE / GetRasterXSize() ||
                         nPixelOffset < Integer.MIN_VALUE / GetRasterXSize()) {
                     throw new RuntimeException("Int overflow");
-                    return;
                 }
                 nLineOffset = nPixelOffset * GetRasterXSize();
             }
@@ -103,7 +105,6 @@ public class VrtDataset extends GdalDataset {
                     CSLFetchNameValue(papszOptions, "SourceFilename");
             if (pszFilename == null) {
                 throw new RuntimeException("AddBand() requires a SourceFilename option for VRTRawRasterBands.");
-                return;
             }
 
             boolean bRelativeToVRT =
@@ -116,20 +117,13 @@ public class VrtDataset extends GdalDataset {
             VrtRawRasterBand poBand =
                     new VrtRawRasterBand(this, GetRasterCount() + 1, eType);
 
-            String l_pszVRTPath = CPLStrdup(CPLGetPath(GetDescription()));
+            String l_pszVRTPath = CPLGetPath(getDescription());
             if (l_pszVRTPath.equals("")) {
                 l_pszVRTPath = null;
             }
-
-        const CPLErr eErr =
-                    poBand -> SetRawLink(pszFilename, l_pszVRTPath, bRelativeToVRT,
-                            nImageOffset, nPixelOffset, nLineOffset,
-                            pszByteOrder);
-            CPLFree(l_pszVRTPath);
-            if (eErr != CE_None) {
-                delete poBand;
-                return eErr;
-            }
+            poBand.SetRawLink(pszFilename, l_pszVRTPath, bRelativeToVRT,
+                    nImageOffset, nPixelOffset, nLineOffset,
+                    pszByteOrder);
 
             SetBand(GetRasterCount() + 1, poBand);
 
@@ -165,11 +159,10 @@ public class VrtDataset extends GdalDataset {
                 String pszTransferTypeName =
                         CSLFetchNameValue(papszOptions, "SourceTransferType");
                 if (pszTransferTypeName != null) {
-                const GDALDataType eTransferType =
+                    GDALDataType eTransferType =
                             GDALGetDataTypeByName(pszTransferTypeName);
                     if (eTransferType == GDALDataType.GDT_Unknown) {
                         throw new RuntimeException(String.format("invalid SourceTransferType: \"%s\".", pszTransferTypeName));
-                        return;
                     }
                     poDerivedBand.SetSourceTransferType(eTransferType);
                 }
@@ -208,11 +201,52 @@ public class VrtDataset extends GdalDataset {
                             (CSLCount(papszTokens) > 2) ?
                                     CPLAtof(papszTokens[2]) : VRT_NODATA_UNSET;
 
-                    poBand.AddFuncSource(pfnReadFunc, pCBData, dfNoDataValue);
+                    //TODO poBand.AddFuncSource(pfnReadFunc, pCBData, dfNoDataValue);
+                    poBand.AddFuncSource(pfnReadFunc, dfNoDataValue);
                 }
             }
 
             return;
         }
+    }
+
+    private boolean STARTS_WITH_CI(String papszOption, String s) {
+        return false;
+    }
+
+    private String CPLGetPath(String description) {
+        return null;
+    }
+
+    private boolean CPLFetchBool(String[] papszOptions, String relativeToVRT, boolean b) {
+        return false;
+    }
+
+    private GDALDataType GDALGetDataTypeByName(String pszTransferTypeName) {
+        return null;
+    }
+
+    private String[] CSLTokenizeStringComplex(String s, String s1, boolean b, boolean b1) {
+        return new String[0];
+    }
+
+    private String CSLFetchNameValueDef(String[] papszOptions, String imageOffset, String s) {
+        return null;
+    }
+
+    private double CPLAtof(String papszToken) {
+        return 0;
+    }
+
+    private int GDALGetDataTypeSizeBytes(GDALDataType eType) {
+        return 0;
+    }
+
+    private int CSLCount(String[] papszTokens) {
+        return 0;
+    }
+
+    private String CSLFetchNameValue(String[] papszOptions, String subclass) {
+        return null;
     }
 }
