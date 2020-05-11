@@ -1,5 +1,8 @@
 package sokolov.javagdalvrt;
 
+import sokolov.model.common.CPLStringList;
+import sokolov.model.common.SupportMethods;
+
 public class GDALMultiDomainMetadata {
     String[] papszDomainList;
     CPLStringList[] papoMetadataLists;
@@ -30,7 +33,7 @@ public class GDALMultiDomainMetadata {
 
         if( iDomain == -1 )
         {
-            papszDomainList = CSLAddString( papszDomainList, pszDomain );
+            papszDomainList = SupportMethods.CSLAddString( papszDomainList, pszDomain );
         const int nDomainCount = CSLCount( papszDomainList );
 
             papoMetadataLists = new CPLStringList[nDomainCount + 1];
@@ -39,7 +42,8 @@ public class GDALMultiDomainMetadata {
             iDomain = nDomainCount-1;
         }
 
-        papoMetadataLists[iDomain].Assign( papszMetadata  );
+        //TODO maybe not false
+        papoMetadataLists[iDomain].Assign( papszMetadata  , false);
 
         // we want to mark name/value pair domains as being sorted for fast
         // access. TODO

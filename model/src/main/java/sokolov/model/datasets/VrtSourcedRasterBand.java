@@ -5,6 +5,12 @@ import sokolov.model.sources.VrtSimpleSource;
 import sokolov.model.sources.VrtSource;
 
 public class VrtSourcedRasterBand extends VrtRasterBand {
+    int            m_nRecursionCounter;
+    CPLString      m_osLastLocationInfo{};
+    String[] m_papszSourceList;
+    int            nSources;
+    VrtSource[] papoSources;
+    int            bSkipBufferInitialization;
 
     public void configureSource(VrtSimpleSource poSimpleSource,
                                 GdalRasterBand poSrcBand,
@@ -56,8 +62,7 @@ public class VrtSourcedRasterBand extends VrtRasterBand {
     public void AddSource(VrtSource poNewSource){
         nSources++;
 
-        papoSources = static_cast<VRTSource **>(
-                CPLRealloc( papoSources, sizeof(void*) * nSources ) );
+        papoSources = new VrtSource[nSources];
         papoSources[nSources-1] = poNewSource;
 
         poDS.SetNeedsFlush();

@@ -33,7 +33,7 @@ public class GdalMajorObject {
                                 String pszValue,
                                 String pszDomain){
         //nFlags |= GMO_MD_DIRTY;
-        oMDMD.setMetadataItem(pszName, pszValue, pszDomain);
+        oMDMD.SetMetadataItem(pszName, pszValue, pszDomain);
     }
 
     public String[] GetMetadata(String pszDomain){
@@ -42,5 +42,11 @@ public class GdalMajorObject {
 
     public void SetDescription(String pszNewDesc){
         this.sDescription = pszNewDesc;
+    }
+
+    protected String GetMetadataItem(String pszName) {
+        //set default value
+        String pszDomain = "";
+        return oMDMD.GetMetadataItem(pszName, pszDomain);
     }
 }

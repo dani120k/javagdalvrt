@@ -282,66 +282,62 @@ public class GdalDataset extends GdalMajorObject {
      * @return CE_Failure if an error occurs, otherwise CE_None.
      */
     public void SetProjection(String pszProjection) {
-        if (pszProjection != null && pszProjection.toCharArray()[0] != '\0'){
+        if (pszProjection != null && pszProjection.toCharArray()[0] != '\0') {
             OGRSpatialReference oSRS;
             oSRS.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
             if (!oSRS.SetFromUserInput(pszProjection))
                 return;
 
             SetSpatialRef(oSRS);
-        }
-        else
+        } else
             SetSpatialRef(null);
     }
 
     /**
      * \brief Set the spatial reference system for this dataset.
-     *
+     * <p>
      * An error may occur because the dataset
      * is not writable, or because the dataset does not support the indicated
      * projection. Many formats do not support writing projections.
-     *
+     * <p>
      * This method is the same as the C GDALSetSpatialRef() function.
      *
-     * @since GDAL 3.0
-
      * @param poSRS spatial reference system object. nullptr can potentially be
-     * passed for drivers that support unsetting the SRS.
-     *
+     *              passed for drivers that support unsetting the SRS.
      * @return CE_Failure if an error occurs, otherwise CE_None.
+     * @since GDAL 3.0
      */
-    public void SetSpatialRef(OGRSpatialReference poSRS){
+    public void SetSpatialRef(OGRSpatialReference poSRS) {
         if (!(GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED))
             System.out.println("Dataset does not support the SetSpatialRef() method.");
     }
 
     /**
      * \brief Fetch the affine transformation coefficients.
-     *
+     * <p>
      * Fetches the coefficients for transforming between pixel/line (P,L) raster
      * space, and projection coordinates (Xp,Yp) space.
-     *
+     * <p>
      * \code
-     *   Xp = padfTransform[0] + P*padfTransform[1] + L*padfTransform[2];
-     *   Yp = padfTransform[3] + P*padfTransform[4] + L*padfTransform[5];
+     * Xp = padfTransform[0] + P*padfTransform[1] + L*padfTransform[2];
+     * Yp = padfTransform[3] + P*padfTransform[4] + L*padfTransform[5];
      * \endcode
-     *
+     * <p>
      * In a north up image, padfTransform[1] is the pixel width, and
      * padfTransform[5] is the pixel height.  The upper left corner of the
      * upper left pixel is at position (padfTransform[0],padfTransform[3]).
-     *
+     * <p>
      * The default transform is (0,1,0,0,0,1) and should be returned even when
      * a CE_Failure error is returned, such as for formats that don't support
      * transformation to projection coordinates.
-     *
+     * <p>
      * This method does the same thing as the C GDALGetGeoTransform() function.
      *
      * @param padfTransform an existing six double buffer into which the
-     * transformation will be placed.
-     *
+     *                      transformation will be placed.
      * @return CE_None on success, or CE_Failure if no transform can be fetched.
      */
-    public boolean GetGeoTransform(double[] padfTransform){
+    public boolean GetGeoTransform(double[] padfTransform) {
         if (padfTransform == null)
             throw new RuntimeException("padfTransform cant be null");
 
@@ -359,19 +355,18 @@ public class GdalDataset extends GdalMajorObject {
     /**
      * \fn GDALDataset::SetGeoTransform(double*)
      * \brief Set the affine transformation coefficients.
-     *
+     * <p>
      * See GetGeoTransform() for details on the meaning of the padfTransform
      * coefficients.
-     *
+     * <p>
      * This method does the same thing as the C GDALSetGeoTransform() function.
      *
      * @param padfTransform a six double buffer containing the transformation
-     * coefficients to be written with the dataset.
-     *
+     *                      coefficients to be written with the dataset.
      * @return CE_None on success, or CE_Failure if this transform cannot be
      * written.
      */
-    public boolean SetGeoTransform(double[] padfTransform){
+    public boolean SetGeoTransform(double[] padfTransform) {
         if (!(GetMOFlags() & GMO_IGNORE_UNIMPLEMENTED)) {
             System.out.println("SetGeoTransform() not supported for this dataset.");
             return false;
@@ -382,47 +377,47 @@ public class GdalDataset extends GdalMajorObject {
 
     /**
      * \brief Fetch the driver to which this dataset relates.
-     *
+     * <p>
      * This method is the same as the C GDALGetDatasetDriver() function.
      *
      * @return the driver on which the dataset was created with GDALOpen() or
      * GDALCreate().
      */
 
-    public GdalDriver GetDriver(){
+    public GdalDriver GetDriver() {
         return poDriver;
     }
 
     /**
      * \brief Add one to dataset reference count.
-     *
+     * <p>
      * The reference is one after instantiation.
-     *
+     * <p>
      * This method is the same as the C GDALReferenceDataset() function.
      *
      * @return the post-increment reference count.
      */
-    public int Reference(){
+    public int Reference() {
         return ++nRefCount;
     }
 
     /**
      * \brief Subtract one from dataset reference count.
-     *
+     * <p>
      * The reference is one after instantiation.  Generally when the reference
      * count has dropped to zero the dataset may be safely deleted (closed).
-     *
+     * <p>
      * This method is the same as the C GDALDereferenceDataset() function.
      *
      * @return the post-decrement reference count.
      */
-    public int Dereference(){
+    public int Dereference() {
         return --nRefCount;
     }
 
     /**
      * \brief Adds a mask band to the dataset
-     *
+     * <p>
      * The default implementation of the CreateMaskBand() method is implemented
      * based on similar rules to the .ovr handling implemented using the
      * GDALDefaultOverviews object. A TIFF file with the extension .msk will
@@ -433,30 +428,25 @@ public class GdalDataset extends GdalMajorObject {
      * It will have INTERNAL_MASK_FLAGS_xx metadata items set at the dataset
      * level, where xx matches the band number of a band of the main dataset. The
      * value of those items will be the one of the nFlagsIn parameter.
-     *
+     * <p>
      * Note that if you got a mask band with a previous call to GetMaskBand(), it
      * might be invalidated by CreateMaskBand(). So you have to call GetMaskBand()
      * again.
-     *
-     * @since GDAL 1.5.0
      *
      * @param nFlagsIn 0 or combination of GMF_PER_DATASET / GMF_ALPHA.
      *                 GMF_PER_DATASET will be always set, even if not explicitly
      *                 specified.
      * @return CE_None on success or CE_Failure on an error.
-     *
-     *
+     * @since GDAL 1.5.0
      */
-    public void CreateMaskBand(int nFlagsIn){
-        if( oOvManager.IsInitialized() )
-        {
+    public void CreateMaskBand(int nFlagsIn) {
+        if (oOvManager.IsInitialized()) {
             CPLErr eErr = oOvManager.CreateMaskBand(nFlagsIn, -1);
             if (eErr != CE_None)
                 return eErr;
 
             // Invalidate existing raster band masks.
-            for( int i = 0; i < nBands; ++i )
-            {
+            for (int i = 0; i < nBands; ++i) {
                 GdalRasterBand poBand = papoBands[i];
                 poBand.bOwnMask = false;
                 poBand.poMask = null;

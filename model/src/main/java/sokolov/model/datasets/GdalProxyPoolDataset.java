@@ -4,11 +4,30 @@ import sokolov.model.enums.GDALDataType;
 import sokolov.model.enums.GdalAccess;
 
 public class GdalProxyPoolDataset extends GdalProxyDataset {
+    Long responsiblePID = -1L;
+
+    String pszProjectionRef = null;
+    OGRSpatialReference m_poSRS = null;
+    OGRSpatialReference m_poGCPSRS = null;
+    double[] adfGeoTransform = new double[]{0, 1, 0, 0, 0, 1};
+    boolean             bHasSrcProjection = false;
+    boolean             m_bHasSrcSRS = false;
+    boolean             bHasSrcGeoTransform = false;
+    String pszGCPProjection = null;
+    int              nGCPCount = 0;
+    GDAL_GCP        pasGCPList = null;
+    CPLHashSet      metadataSet = null;
+    CPLHashSet      metadataItemSet = null;
+
+    GDALProxyPoolCacheEntry cacheEntry = null;
+    String m_pszOwner = null;
+
+
     public GdalProxyPoolDataset(String pszSourceDatasetDescription,
                                 int nRasterXSizeIn, int nRasterYSizeIn,
                                 GdalAccess eAccessIn, boolean bSharedIn,
                                 String pszProjectionRefIn,
-                                double[] padfGeoTransform){
+                                double[] padfGeoTransform) {
         SetDescription(pszSourceDatasetDescription);
 
         nRasterXSize = nRasterXSizeIn;
@@ -18,7 +37,7 @@ public class GdalProxyPoolDataset extends GdalProxyDataset {
         bShared = bSharedIn;
         //m_pszOwner = pszOwner ? CPLStrdup(pszOwner) : nullptr;
 
-        if (padfGeoTransform != null){
+        if (padfGeoTransform != null) {
             adfGeoTransform = padfGeoTransform;
             bHasSrcGeoTransform = true;
         } else {
@@ -31,7 +50,7 @@ public class GdalProxyPoolDataset extends GdalProxyDataset {
             bHasSrcGeoTransform = false;
         }
 
-        if (pszProjectionRefIn != null){
+        if (pszProjectionRefIn != null) {
             m_poSRS = new OGRSpatialReference();
             m_poSRS.importFromWkt(pszProjectionRefIn);
             m_bHasSrcSRS = true;
@@ -45,7 +64,7 @@ public class GdalProxyPoolDataset extends GdalProxyDataset {
         cacheEntry = null;
     }
 
-    public void AddSrcBandDescription(GDALDataType eDataType, int nBlockXSize, int nBlockYSize){
+    public void AddSrcBandDescription(GDALDataType eDataType, int nBlockXSize, int nBlockYSize) {
         SetBand(nBands + 1, new GdalProxyPoolRasterBand(this, nBands + 1, eDataType, nBlockXSize, nBlockYSize));
     }
 

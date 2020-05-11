@@ -1,8 +1,20 @@
 package sokolov.model.datasets;
 
+import sokolov.model.enums.GDALColorTableH;
 import sokolov.model.enums.GDALDataType;
 
 public class GdalProxyPoolRasterBand extends GdalRasterBand {
+    CPLHashSet metadataSet = null;
+    CPLHashSet metadataItemSet = null;
+    String pszUnitType = null;
+    String[] papszCategoryNames = null;
+    GDALColorTableH poColorTable = null;
+
+    int                               nSizeProxyOverviewRasterBand = 0;
+
+    GDALProxyPoolOverviewRasterBand[] papoProxyOverviewRasterBand = null;
+    GdalProxyPoolMaskBand poProxyMaskBand = null;
+
     public GdalProxyPoolRasterBand(){
 
     }
@@ -23,6 +35,6 @@ public class GdalProxyPoolRasterBand extends GdalRasterBand {
         if (poProxyMaskBand == null)
             throw new RuntimeException("poProxyMaskBand is null");
 
-        poProxyMaskBand = new GdalProxyPoolMaskBand((GdalProxyPoolDataset) poDs, this, eDataTypeIn, nBlockXSizeIn, nBlockYSizeIn);
+        poProxyMaskBand = new GdalProxyPoolMaskBand((GdalProxyPoolDataset) poDS, this, eDataTypeIn, nBlockXSizeIn, nBlockYSizeIn);
     }
 }
