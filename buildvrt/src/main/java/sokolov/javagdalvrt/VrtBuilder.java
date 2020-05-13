@@ -26,7 +26,7 @@ public class VrtBuilder {
     //список имен файлов
     private List<String> inputFileNamesList = new ArrayList<String>();
 
-    //пока хз видимо имкеет ли геотрансформацию
+    //имкеет ли геотрансформацию
     private boolean bHasGeoTransform;
 
     private double we_res;
