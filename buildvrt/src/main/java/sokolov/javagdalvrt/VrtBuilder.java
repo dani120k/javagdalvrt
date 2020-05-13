@@ -151,7 +151,7 @@ public class VrtBuilder {
     }
 
     /**
-     * TODO input dataset is VrtDatasetH
+     * TODO input dataset should by high level interface
      *
      * @param vrtDataset
      */
