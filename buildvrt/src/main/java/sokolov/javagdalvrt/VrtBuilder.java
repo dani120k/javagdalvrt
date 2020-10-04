@@ -765,14 +765,7 @@ public class VrtBuilder {
         if (papszStrList == null)
             return 0;
 
-        int nItems = 0;
-
-        while (papszStrList != null) {
-            ++nItems;
-            // ++papszStrList;
-        }
-
-        return nItems;
+        return papszStrList.length;
     }
 
     public GdalDataset build() {

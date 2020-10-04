@@ -14,7 +14,7 @@ public class TiffReaderDriver {
     public static void open() throws IOException {
         //GdalDataset gdalDataset = new GdalDataset();
 
-        TIFFImage tiffImage = TiffReader.readTiff(new File("/home/dani120k/Downloads/setsetset/NEON-DS-Airborne-Remote-Sensing/HARV/RGB_Imagery/HARV_Ortho_wNA.tif"));
+        TIFFImage tiffImage = TiffReader.readTiff(new File("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\EO1A0880642007232110P1_B07_L1T.TIF"));
 
 
         System.out.println();

@@ -9,8 +9,8 @@ import java.io.*;
 import java.util.Iterator;
 
 public class TiffFileReader {
-    private IIOMetadata extractMetadataFromTiffFile(String pathToFile) throws IOException {
-        pathToFile = "/home/dani120k/Downloads/javagdalvrt/EO1A0880642007232110P1_B07_L1T.TIF";
+    public IIOMetadata extractMetadataFromTiffFile(String pathToFile) throws IOException {
+        pathToFile = "C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\EO1A0880642007232110P1_B07_L1T.TIF";
         File file = new File(pathToFile);
         ImageInputStream iis = ImageIO.createImageInputStream(
                 new BufferedInputStream(
