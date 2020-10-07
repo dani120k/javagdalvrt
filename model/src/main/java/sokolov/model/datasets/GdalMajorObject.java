@@ -11,7 +11,7 @@ import sokolov.model.supclasses.GDALMultiDomainMetadata;
 public class GdalMajorObject {
     int nFlags; // GMO_* flags.
     String sDescription;
-    GDALMultiDomainMetadata oMDMD;
+    GDALMultiDomainMetadata oMDMD = new GDALMultiDomainMetadata();
     public double VRT_NODATA_UNSET = -1234.56;
 
 
@@ -38,7 +38,9 @@ public class GdalMajorObject {
     }
 
     public String[] GetMetadata(String pszDomain){
-        return oMDMD.GetMetadata(pszDomain);
+        return new String[0];
+
+        //return oMDMD.GetMetadata(pszDomain);
     }
 
     public void SetDescription(String pszNewDesc){

@@ -27,16 +27,16 @@ public class GdalDataset extends GdalMajorObject {
     public GdalDriver poDriver = null;
     public GdalAccess eAccess = GA_ReadOnly;
 
-    int nRasterXSize = 512;
-    int nRasterYSize = 512;
-    int nBands = 0;
-    GdalRasterBand[] papoBands = null;
-    int nOpenFlags = 0;
-    int nRefCount = 1;
-    boolean bForceCachedIO = false;
-    boolean bShared = false;
-    boolean bIsInternal = true;
-    boolean bSupressOnClose = false;
+    public int nRasterXSize = 512;
+    public int nRasterYSize = 512;
+    public int nBands = 0;
+    public GdalRasterBand[] papoBands = null;
+    public int nOpenFlags = 0;
+    public int nRefCount = 1;
+    public boolean bForceCachedIO = false;
+    public boolean bShared = false;
+    public boolean bIsInternal = true;
+    public boolean bSupressOnClose = false;
 
     //TODO idk private
     private GdalDatasetPrivate m_poPrivate;

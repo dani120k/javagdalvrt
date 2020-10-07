@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VrtBuilder {
+    //TODO should be in enum
+    private int GDAL_OF_RASTER = 0x02;
+    private int GDAL_OF_VERBOSE_ERROR =  0x40;
+
+
     //Special value to indicate that nodata is not set.
     private double VRT_NODATA_UNSET = -1234.56;
 
@@ -798,6 +803,9 @@ public class VrtBuilder {
 
 
         pasDatasetProperties = new DatasetProperty[nInputFiles];
+        for(int i = 0; i < nInputFiles; i++){
+            pasDatasetProperties[i] = new DatasetProperty();
+        }
 
         if (pszSrcNoData != null) {
             if (pszSrcNoData.equals("none")) {
@@ -852,14 +860,14 @@ public class VrtBuilder {
             //{                return nullptr;            }
 
             GdalDataset hDS = (pahSrcDS != null) ?
-                    pahSrcDS[i] : null;
-            /*TODO make open
-            gdalOpenEx(ppszInputFilenames[i],
-                    GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR, nullptr,
-                    papszOpenOptions, nullptr)*/
+                    pahSrcDS[i] : gdalOpenEx(ppszInputFilenames[i],
+                    GDAL_OF_RASTER | GDAL_OF_VERBOSE_ERROR, null,
+                    papszOpenOptions, null);
 
+            //todo removed because of null
             pasDatasetProperties[i].setIsFileOK(false);
 
+            //TODO
             if (hDS != null) {
                 if (analyzeRaster(hDS, pasDatasetProperties[i])) {
                     pasDatasetProperties[i].setIsFileOK(true);
@@ -927,6 +935,8 @@ public class VrtBuilder {
 
         return (GdalDataset) hVRTDs;
     }
+
+
 
     private VrtDataset VRTCreate(int nRasterXSize, int nRasterYSize) {
         VrtDataset poDS = new VrtDataset(nRasterXSize, nRasterYSize);
@@ -1054,5 +1064,30 @@ public class VrtBuilder {
         //GDALBuildVRTOptionsFree(psOptions);
 
         return hDstDS;
+    }
+
+
+
+
+
+    public GdalDataset gdalOpenEx(String pszFilename,
+                                  int nOpenFlags,
+                                  String papszAllowedDrivers,
+                                  String[] papszOpenOptions,
+                                  String[] papszSiblingFiles){
+        GdalDataset poDs = new GdalDataset();
+
+        poDs.nRasterXSize = ;
+        poDs.nRasterYSize = ;
+
+        if  (poDs.nRasterXSize <= 0 || poDs.nRasterYSize <= 0 )
+        {
+            throw new RuntimeException("Raster size cant be less then zero");
+        }
+
+        //foreach Band
+        poDs.AddBand();
+
+        return new GdalDataset();
     }
 }

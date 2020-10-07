@@ -1,8 +1,15 @@
 package sokolov.model.datasets;
 
 import sokolov.model.enums.*;
+import sokolov.model.supclasses.GByte;
 
+import java.math.BigInteger;
+
+import static sokolov.model.datasets.GDALRIOResampleAlg.*;
 import static sokolov.model.enums.GDALColorInterp.GCI_Undefined;
+import static sokolov.model.enums.GDALRWFlag.GF_Read;
+import static sokolov.model.enums.GDALRWFlag.GF_Write;
+import static sokolov.model.enums.GdalAccess.GA_Update;
 
 public class GdalRasterBand extends GdalMajorObject {
     private int GMO_VALID = 0x0001;
@@ -185,8 +192,7 @@ public class GdalRasterBand extends GdalMajorObject {
                         nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0) ? true : false;
                         try {
                             poMask = new GDALNoDataValuesMaskBand(poDS);
-                        } catch ( Exception ex )
-                        {
+                        } catch (Exception ex) {
                             System.out.println("Out of memory");
                             poMask = null;
                         }
@@ -215,8 +221,7 @@ public class GdalRasterBand extends GdalMajorObject {
             nMaskFlags = (BandMask.GMF_NODATA.getValue() == 0) ? true : false;
             try {
                 poMask = new GdalNoDataMaskBand(this);
-            } catch ( Exception ex )
-            {
+            } catch (Exception ex) {
                 System.out.println("Out of memory");
                 poMask = null;
             }
@@ -239,8 +244,7 @@ public class GdalRasterBand extends GdalMajorObject {
                 nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0) ? true : false;
                 try {
                     poMask = new GdalRescaledAlphaBand(poDS.GetRasterBand(2));
-                } catch (Exception ex )
-                {
+                } catch (Exception ex) {
                     System.out.println("Out of memory");
                     poMask = null;
                 }
@@ -263,8 +267,7 @@ public class GdalRasterBand extends GdalMajorObject {
                 nMaskFlags = ((BandMask.GMF_ALPHA.getValue() | BandMask.GMF_PER_DATASET.getValue()) == 0) ? true : false;
                 try {
                     poMask = new GdalRescaledAlphaBand(poDS.GetRasterBand(4));
-                } catch ( Exception ex )
-                {
+                } catch (Exception ex) {
                     System.out.println("Out of memory");
                     poMask = null;
                 }
@@ -279,8 +282,7 @@ public class GdalRasterBand extends GdalMajorObject {
         nMaskFlags = (BandMask.GMF_ALL_VALID.getValue() == 0) ? true : false;
         try {
             poMask = new GdalAllValidMaskBand(this);
-        } catch ( Exception ex )
-        {
+        } catch (Exception ex) {
             System.out.println("Out of memory");
             poMask = null;
         }
@@ -422,15 +424,643 @@ public class GdalRasterBand extends GdalMajorObject {
         return null;
     }
 
-    protected double GetXSize() {
+    public int GetXSize() {
         return 0;
     }
 
-    protected double GetYSize() {
+    public int GetYSize() {
         return 0;
     }
 
-    protected GdalDataset GetDataset() {
+    public GdalDataset GetDataset() {
         return null;
     }
+
+    public void flushCache() {
+        //TODO call from VrtSimpleSource
+    }
+
+    /*
+    public void RasterIO(GDALRWFlag eRWFlag,
+                         int nXOff, int nYOff, int nXSize, int nYSize, int nBufXSize, int nBufYSize,
+                         GDALDataType eBufType,
+                         long nPixelSpace,
+                         long nLineSpace,
+                         GDALRasterIOExtraArg psExtraArg) {
+        GDALRasterIOExtraArg sExtraArg;
+        if (psExtraArg == null) {
+            INIT_RASTERIO_EXTRA_ARG(sExtraArg);
+            psExtraArg = sExtraArg;
+        } else if (psExtraArg.nVersion != RASTERIO_EXTRA_ARG_CURRENT_VERSION) {
+            throw new RuntimeException("Unhandled version of GDALRasterIOExtraArg");
+        }
+
+        GDALRasterIOExtraArgSetResampleAlg(psExtraArg, nXSize, nYSize,
+                nBufXSize, nBufYSize);
+
+
+        if (nXSize < 1 || nYSize < 1 || nBufXSize < 1 || nBufYSize < 1) {
+
+
+            return;
+        }
+
+        if (eRWFlag == GF_Write) {
+            if (eFlushBlockErr != CE_None) {
+                throw new RuntimeException(
+                        "An error occurred while writing a dirty block "
+                        "from GDALRasterBand::RasterIO");
+                CPLErr eErr = eFlushBlockErr;
+                eFlushBlockErr = CE_None;
+                return eErr;
+            }
+            if (eAccess != GA_Update) {
+                throw new RuntimeException(
+                        "Write operation not permitted on dataset opened "
+                        "in read-only mode");
+                return;
+            }
+        }
+
+        if (nPixelSpace == 0) {
+            nPixelSpace = GDALGetDataTypeSizeBytes(eBufType);
+        }
+
+        if (nLineSpace == 0) {
+            nLineSpace = nPixelSpace * nBufXSize;
+        }
+
+        if (nXOff < 0 || nXOff > Integer.MAX_VALUE - nXSize || nXOff + nXSize > nRasterXSize
+                || nYOff < 0 || nYOff > Integer.MAX_VALUE - nYSize || nYOff + nYSize > nRasterYSize) {
+            throw new RuntimeException("Access window out of range in RasterIO().  Requested\n (%d,%d) of size %dx%d on raster of %dx%d.");
+            return;
+        }
+
+        if (eRWFlag != GF_Read && eRWFlag != GF_Write) {
+            throw new RuntimeException("eRWFlag = %d, only GF_Read (0) and GF_Write (1) are legal.");
+            return;
+        }
+
+
+        boolean bCallLeaveReadWrite = CPL_TO_BOOL(EnterReadWrite(eRWFlag));
+
+        CPLErr eErr;
+        if (bForceCachedIO == 0)
+            eErr = IRasterIO(eRWFlag, nXOff, nYOff, nXSize, nYSize,
+                    nBufXSize, nBufYSize, eBufType,
+                    nPixelSpace, nLineSpace, psExtraArg);
+        else
+            eErr = IRasterIO(eRWFlag, nXOff, nYOff, nXSize, nYSize,
+                    pData, nBufXSize, nBufYSize, eBufType,
+                    nPixelSpace, nLineSpace, psExtraArg);
+
+        if (bCallLeaveReadWrite) LeaveReadWrite();
+
+        return eErr;
+    }*/
+
+    /*
+    public void IRasterIO(GDALRWFlag eRWFlag,
+                          int nXOff, int nYOff, int nXSize, int nYSize,
+                          int nBufXSize, int nBufYSize,
+                          GDALDataType eBufType,
+                          long nPixelSpace, long nLineSpace,
+                          GDALRasterIOExtraArg psExtraArg) {
+        if (eRWFlag == GF_Write && eFlushBlockErr != CE_None) {
+            throw new RuntimeException(
+                    "An error occurred while writing a dirty block "
+                    "from GDALRasterBand::IRasterIO");
+            return;
+        }
+        if (nBlockXSize <= 0 || nBlockYSize <= 0) {
+            throw new RuntimeException("Invalid block size");
+            return;
+        }
+
+        int nBandDataSize = GDALGetDataTypeSizeBytes(eDataType);
+        int nBufDataSize = GDALGetDataTypeSizeBytes(eBufType);
+        GByte pabySrcBlock = null;
+        GDALRasterBlock poBlock = null;
+        int nLBlockX = -1;
+        int nLBlockY = -1;
+        int iBufYOff = 0;
+        int iBufXOff = 0;
+        int iSrcY = 0;
+        Boolean bUseIntegerRequestCoords =
+                (psExtraArg.bFloatingPointWindowValidity != 0 ||
+                        (nXOff == psExtraArg.dfXOff &&
+                                nYOff == psExtraArg.dfYOff &&
+                                nXSize == psExtraArg.dfXSize &&
+                                nYSize == psExtraArg.dfYSize));
+
+        if (nPixelSpace == nBufDataSize
+                && nLineSpace == nPixelSpace * nXSize
+                && nBlockXSize == GetXSize()
+                && nBufXSize == nXSize
+                && nBufYSize == nYSize
+                && bUseIntegerRequestCoords) {
+            for (iBufYOff = 0; iBufYOff < nBufYSize; iBufYOff++) {
+                iSrcY = iBufYOff + nYOff;
+
+                if (iSrcY < nLBlockY * nBlockYSize
+                        || iSrcY - nBlockYSize >= nLBlockY * nBlockYSize) {
+                    nLBlockY = iSrcY / nBlockYSize;
+                    Boolean bJustInitialize =
+                            eRWFlag == GF_Write
+                                    && nXOff == 0 && nXSize == nBlockXSize
+                                    && nYOff <= nLBlockY * nBlockYSize
+                                    && nYOff + nYSize - nBlockYSize >= nLBlockY * nBlockYSize;
+
+                    // Is this a partial tile at right and/or bottom edges of
+                    // the raster, and that is going to be completely written?
+                    // If so, do not load it from storage, but zero it so that
+                    // the content outsize of the validity area is initialized.
+                    Boolean bMemZeroBuffer = false;
+                    if (eRWFlag == GF_Write && !bJustInitialize &&
+                            nXOff == 0 && nXSize == nBlockXSize &&
+                            nYOff <= nLBlockY * nBlockYSize &&
+                            nYOff + nYSize == GetYSize() &&
+                            nLBlockY * nBlockYSize > GetYSize() - nBlockYSize) {
+                        bJustInitialize = true;
+                        bMemZeroBuffer = true;
+                    }
+
+                    if (poBlock != null)
+                        poBlock.DropLock();
+
+                    Integer nErrorCounter = CPLGetErrorCounter();
+                    poBlock = GetLockedBlockRef(0, nLBlockY, bJustInitialize);
+                    if (poBlock == null) {
+                        if (strstr(CPLGetLastErrorMsg(), "IReadBlock failed") == nullptr) {
+                            CPLError(CE_Failure, CPLE_AppDefined,
+                                    "GetBlockRef failed at X block offset %d, "
+                                    "Y block offset %d%s",
+                                    0, nLBlockY,
+                                    (nErrorCounter != CPLGetErrorCounter()) ?
+                                            CPLSPrintf(": %s", CPLGetLastErrorMsg()) : "");
+                        }
+                        eErr = CE_Failure;
+                        break;
+                    }
+
+                    if (eRWFlag == GF_Write)
+                        poBlock.MarkDirty();
+
+                    pabySrcBlock = static_cast < GByte * > (poBlock -> GetDataRef());
+                    if (bMemZeroBuffer) {
+                        memset(pabySrcBlock, 0,
+                                static_cast < GPtrDiff_t > (nBandDataSize) * nBlockXSize * nBlockYSize);
+                    }
+                }
+
+                // To make Coverity happy. Should not happen by design.
+                if (pabySrcBlock == null) {
+                    CPLAssert(false);
+                    eErr = CE_Failure;
+                    break;
+                }
+
+            const auto nSrcByteOffset =
+                        (static_cast < GPtrDiff_t > (iSrcY - nLBlockY * nBlockYSize) * nBlockXSize + nXOff)
+                                * nBandDataSize;
+
+                if (eDataType == eBufType) {
+                    if (eRWFlag == GF_Read)
+                        memcpy(
+                                static_cast < GByte * > (pData)
+                                        + static_cast < GPtrDiff_t > (iBufYOff) * nLineSpace,
+                                pabySrcBlock + nSrcByteOffset,
+                                static_cast < size_t > (nLineSpace));
+                    else
+                        memcpy(
+                                pabySrcBlock + nSrcByteOffset,
+                                static_cast < GByte * > (pData)
+                                        + static_cast < GPtrDiff_t > (iBufYOff) * nLineSpace,
+                                static_cast < size_t > (nLineSpace));
+                } else {
+                    // Type to type conversion.
+
+                    if (eRWFlag == GF_Read)
+                        GDALCopyWords(
+                                pabySrcBlock + nSrcByteOffset,
+                                eDataType, nBandDataSize,
+                                static_cast < GByte * > (pData)
+                                        + static_cast < GPtrDiff_t > (iBufYOff) * nLineSpace,
+                                eBufType,
+                                static_cast < int>(nPixelSpace), nBufXSize );
+                else
+                    GDALCopyWords(
+                            static_cast < GByte * > (pData)
+                                    + static_cast < GPtrDiff_t > (iBufYOff) * nLineSpace,
+                            eBufType, static_cast < int>(nPixelSpace),
+                            pabySrcBlock + nSrcByteOffset,
+                            eDataType, nBandDataSize, nBufXSize );
+                }
+
+                if (psExtraArg -> pfnProgress != nullptr &&
+                        !psExtraArg -> pfnProgress(1.0 * (iBufYOff + 1) / nBufYSize, "",
+                                psExtraArg -> pProgressData)) {
+                    eErr = CE_Failure;
+                    break;
+                }
+            }
+
+            if (poBlock)
+                poBlock -> DropLock();
+
+            return eErr;
+        }
+
+        if ((nBufXSize < nXSize || nBufYSize < nYSize)
+                && GetOverviewCount() > 0 && eRWFlag == GF_Read) {
+            GDALRasterIOExtraArg sExtraArg;
+            GDALCopyRasterIOExtraArg( & sExtraArg, psExtraArg);
+
+        const int nOverview =
+                    GDALBandGetBestOverviewLevel2(this, nXOff, nYOff, nXSize, nYSize,
+                            nBufXSize, nBufYSize, & sExtraArg );
+            if (nOverview >= 0) {
+                GDALRasterBand * poOverviewBand = GetOverview(nOverview);
+                if (poOverviewBand == nullptr)
+                    return CE_Failure;
+
+                return poOverviewBand -> RasterIO(
+                        eRWFlag, nXOff, nYOff, nXSize, nYSize,
+                        pData, nBufXSize, nBufYSize, eBufType,
+                        nPixelSpace, nLineSpace, & sExtraArg );
+            }
+        }
+
+        if (eRWFlag == GF_Read &&
+                nBufXSize < nXSize / 100 && nBufYSize < nYSize / 100 &&
+                nPixelSpace == nBufDataSize &&
+                nLineSpace == nPixelSpace * nBufXSize &&
+                CPLTestBool(CPLGetConfigOption("GDAL_NO_COSTLY_OVERVIEW", "NO"))) {
+            memset(pData, 0, static_cast < size_t > (nLineSpace * nBufYSize));
+            return CE_None;
+        }
+
+        int iSrcX = 0;
+
+        if ( // nPixelSpace == nBufDataSize &&
+                nXSize == nBufXSize
+                        && nYSize == nBufYSize
+                        && bUseIntegerRequestCoords) {
+
+
+            int nLBlockXStart = nXOff / nBlockXSize;
+            int nXSpanEnd = nBufXSize + nXOff;
+
+            int nYInc = 0;
+            for (iBufYOff = 0, iSrcY = nYOff;
+                 iBufYOff < nBufYSize;
+                 iBufYOff += nYInc, iSrcY += nYInc) {
+                GPtrDiff_t iSrcOffset = 0;
+                int nXSpan = 0;
+
+                GPtrDiff_t iBufOffset =
+                        static_cast < GPtrDiff_t > (iBufYOff) *
+                                static_cast < GPtrDiff_t > (nLineSpace);
+                nLBlockY = iSrcY / nBlockYSize;
+                nLBlockX = nLBlockXStart;
+                iSrcX = nXOff;
+                while (iSrcX < nXSpanEnd) {
+                    nXSpan = nLBlockX * nBlockXSize;
+                    if (nXSpan < Integer.MAX_VALUE - nBlockXSize)
+                        nXSpan += nBlockXSize;
+                    else
+                        nXSpan = Integer.MAX_VALUE;
+                    int nXRight = nXSpan;
+                    nXSpan = (nXSpan < nXSpanEnd ? nXSpan : nXSpanEnd) - iSrcX;
+                    nXSpanSize = nXSpan * nPixelSpace;
+
+                    boolean bJustInitialize =
+                            eRWFlag == GF_Write
+                                    && nYOff <= nLBlockY * nBlockYSize
+                                    && nYOff + nYSize - nBlockYSize >= nLBlockY * nBlockYSize
+                                    && nXOff <= nLBlockX * nBlockXSize
+                                    && nXOff + nXSize >= nXRight;
+
+                    // Is this a partial tile at right and/or bottom edges of
+                    // the raster, and that is going to be completely written?
+                    // If so, do not load it from storage, but zero it so that
+                    // the content outsize of the validity area is initialized.
+                    boolean bMemZeroBuffer = false;
+                    if (eRWFlag == GF_Write && !bJustInitialize &&
+                            nXOff <= nLBlockX * nBlockXSize &&
+                            nYOff <= nLBlockY * nBlockYSize &&
+                            (nXOff + nXSize >= nXRight ||
+                                    (nXOff + nXSize == GetXSize() &&
+                                            nXRight > GetXSize())) &&
+                            (nYOff + nYSize - nBlockYSize >= nLBlockY * nBlockYSize ||
+                                    (nYOff + nYSize == GetYSize() &&
+                                            nLBlockY * nBlockYSize > GetYSize() - nBlockYSize))) {
+                        bJustInitialize = true;
+                        bMemZeroBuffer = true;
+                    }
+
+                    GUInt32 nErrorCounter = CPLGetErrorCounter();
+                    poBlock = GetLockedBlockRef(nLBlockX, nLBlockY,
+                            bJustInitialize);
+                    if (poBlock == null) {
+                        if (strstr(CPLGetLastErrorMsg(), "IReadBlock failed") == nullptr) {
+                            CPLError(CE_Failure, CPLE_AppDefined,
+                                    "GetBlockRef failed at X block offset %d, "
+                                    "Y block offset %d%s",
+                                    nLBlockX, nLBlockY,
+                                    (nErrorCounter != CPLGetErrorCounter()) ?
+                                            CPLSPrintf(": %s", CPLGetLastErrorMsg()) : "");
+                        }
+                        return (CE_Failure);
+                    }
+
+                    if (eRWFlag == GF_Write)
+                        poBlock.MarkDirty();
+
+                    pabySrcBlock = static_cast < GByte * > (poBlock -> GetDataRef());
+                    if (bMemZeroBuffer) {
+                        memset(pabySrcBlock, 0,
+                                static_cast < GPtrDiff_t > (nBandDataSize) * nBlockXSize * nBlockYSize);
+                    }
+                    iSrcOffset =
+                            (static_cast < GPtrDiff_t > (iSrcX)
+                                    - static_cast < GPtrDiff_t > (nLBlockX * nBlockXSize)
+                                    + (static_cast < GPtrDiff_t > (iSrcY)
+                                    - static_cast < GPtrDiff_t > (nLBlockY) * nBlockYSize)
+                                    * nBlockXSize)
+                                    * nBandDataSize;
+                    // Fill up as many rows as possible for the loaded block.
+                    int kmax = Math.min(
+                            nBlockYSize - (iSrcY % nBlockYSize), nBufYSize - iBufYOff);
+                    for (int k = 0; k < kmax; k++) {
+                        if (eDataType == eBufType
+                                && nPixelSpace == nBufDataSize) {
+                            if (eRWFlag == GF_Read)
+                                memcpy(static_cast < GByte * > (pData) + iBufOffset
+                                                + static_cast < GPtrDiff_t > (k) * nLineSpace,
+                                        pabySrcBlock + iSrcOffset,
+                                        nXSpanSize);
+                            else
+                                memcpy(pabySrcBlock + iSrcOffset,
+                                        static_cast < GByte * > (pData) + iBufOffset
+                                                + static_cast < GPtrDiff_t > (k) * nLineSpace,
+                                        nXSpanSize);
+                        } else {
+                            if (eRWFlag == GF_Read)
+                                GDALCopyWords(
+                                        pabySrcBlock + iSrcOffset,
+                                        eDataType, nBandDataSize,
+                                        static_cast < GByte * > (pData) + iBufOffset
+                                                + static_cast < GPtrDiff_t > (k) * nLineSpace,
+                                        eBufType, static_cast < int>(nPixelSpace),
+                                    nXSpan );
+                        else
+                            GDALCopyWords(
+                                    static_cast < GByte * > (pData) + iBufOffset +
+                                            static_cast < GPtrDiff_t > (k) * nLineSpace,
+                                    eBufType, static_cast < int>(nPixelSpace),
+                                    pabySrcBlock + iSrcOffset,
+                                    eDataType, nBandDataSize, nXSpan );
+                        }
+
+                        iSrcOffset += nBlockXSize * nBandDataSize;
+                    }
+
+                    iBufOffset = CPLUnsanitizedAdd < GPtrDiff_t > (iBufOffset, nXSpanSize);
+                    nLBlockX++;
+                    iSrcX += nXSpan;
+
+                    poBlock.DropLock();
+                    poBlock = null;
+                }
+
+                nYInc = nBlockYSize - (iSrcY % nBlockYSize);
+            }
+
+            return;
+        }
+
+
+        double dfXOff = nXOff;
+        double dfYOff = nYOff;
+        double dfXSize = nXSize;
+        double dfYSize = nYSize;
+        if (psExtraArg.bFloatingPointWindowValidity != 0) {
+            dfXOff = psExtraArg.dfXOff;
+            dfYOff = psExtraArg.dfYOff;
+            dfXSize = psExtraArg.dfXSize;
+            dfYSize = psExtraArg.dfYSize;
+        }
+
+        double dfSrcXInc = dfXSize / (double) (nBufXSize);
+        double dfSrcYInc = dfYSize / (double) (nBufYSize);
+
+        if (eRWFlag == GF_Write) {
+            GByte pabyDstBlock = null;
+
+            for (int iDstY = nYOff; iDstY < nYOff + nYSize; iDstY++) {
+                GPtrDiff_t iBufOffset = 0;
+                GPtrDiff_t iDstOffset = 0;
+                iBufYOff = (int) ((iDstY - nYOff) / dfSrcYInc);
+
+                for (int iDstX = nXOff; iDstX < nXOff + nXSize; iDstX++) {
+                    iBufXOff = (int) ((iDstX - nXOff) / dfSrcXInc);
+                    iBufOffset =
+                            static_cast < GPtrDiff_t > (iBufYOff)
+                                    * static_cast < GPtrDiff_t > (nLineSpace)
+                                    + iBufXOff * static_cast < GPtrDiff_t > (nPixelSpace);
+
+                    // FIXME: this code likely doesn't work if the dirty block gets
+                    // flushed to disk before being completely written.
+                    // In the meantime, bJustInitialize should probably be set to
+                    // FALSE even if it is not ideal performance wise, and for
+                    // lossy compression.
+
+                    if (iDstX < nLBlockX * nBlockXSize
+                            || iDstX - nBlockXSize >= nLBlockX * nBlockXSize
+                            || iDstY < nLBlockY * nBlockYSize
+                            || iDstY - nBlockYSize >= nLBlockY * nBlockYSize) {
+                        nLBlockX = iDstX / nBlockXSize;
+                        nLBlockY = iDstY / nBlockYSize;
+
+                        boolean bJustInitialize =
+                                nYOff <= nLBlockY * nBlockYSize
+                                        && nYOff + nYSize - nBlockYSize >= nLBlockY * nBlockYSize
+                                        && nXOff <= nLBlockX * nBlockXSize
+                                        && nXOff + nXSize - nBlockXSize >= nLBlockX * nBlockXSize;
+                        if (poBlock != null)
+                            poBlock.DropLock();
+
+                        poBlock = GetLockedBlockRef(nLBlockX, nLBlockY,
+                                bJustInitialize);
+                        if (poBlock == null) {
+                            return;
+                        }
+
+                        poBlock.MarkDirty();
+
+                        pabyDstBlock = (GByte) (poBlock.GetDataRef());
+                    }
+
+                    // To make Coverity happy. Should not happen by design.
+                    if (pabyDstBlock == null) {
+                        break;
+                    }
+
+                    iDstOffset =
+                            (static_cast < GPtrDiff_t > (iDstX)
+                                    - static_cast < GPtrDiff_t > (nLBlockX) * nBlockXSize
+                                    + (static_cast < GPtrDiff_t > (iDstY)
+                                    - static_cast < GPtrDiff_t > (nLBlockY) * nBlockYSize)
+                                    * nBlockXSize)
+                                    * nBandDataSize;
+
+                    if (eDataType == eBufType) {
+                        memcpy(
+                                pabyDstBlock + iDstOffset,
+                                static_cast < GByte * > (pData) + iBufOffset,
+                                nBandDataSize);
+                    } else {
+
+                        GDALCopyWords(
+                                static_cast < GByte * > (pData) + iBufOffset, eBufType, 0,
+                                pabyDstBlock + iDstOffset, eDataType, 0,
+                                1);
+                    }
+                }
+            }
+        } else {
+            if (psExtraArg.eResampleAlg != GRIORA_NearestNeighbour) {
+                if ((psExtraArg.eResampleAlg == GRIORA_Cubic ||
+                        psExtraArg.eResampleAlg == GRIORA_CubicSpline ||
+                        psExtraArg.eResampleAlg == GRIORA_Bilinear ||
+                        psExtraArg.eResampleAlg == GRIORA_Lanczos) &&
+                        GetColorTable() != null) {
+                    throw new RuntimeException(
+                            "Resampling method not supported on paletted band. " +
+                                    "Falling back to nearest neighbour");
+                } else if (psExtraArg.eResampleAlg == GRIORA_Gauss &&
+                        GDALDataTypeIsComplex(eDataType)) {
+                    throw new RuntimeException(
+                            "Resampling method not supported on complex data type " +
+                                    "band. Falling back to nearest neighbour");
+                } else {
+                    return RasterIOResampled(eRWFlag,
+                            nXOff, nYOff, nXSize, nYSize, nBufXSize, nBufYSize,
+                            eBufType,
+                            nPixelSpace, nLineSpace,
+                            psExtraArg);
+                }
+            }
+
+            double dfSrcX = 0.0;
+            double dfSrcY = 0.0;
+            int nLimitBlockY = 0;
+            boolean bByteCopy = eDataType == eBufType && nBandDataSize == 1;
+            int nStartBlockX = -nBlockXSize;
+            double EPS = 1e-10;
+
+            for (iBufYOff = 0; iBufYOff < nBufYSize; iBufYOff++) {
+                // Add small epsilon to avoid some numeric precision issues.
+                dfSrcY = (iBufYOff + 0.5) * dfSrcYInc + dfYOff + EPS;
+                dfSrcX = 0.5 * dfSrcXInc + dfXOff + EPS;
+                iSrcY = (int) (Math.min(Math.max(0.0, dfSrcY),
+                        (double) (nRasterYSize - 1)));
+
+                GPtrDiff_t iBufOffset =
+                        static_cast < GPtrDiff_t > (iBufYOff)
+                                * static_cast < GPtrDiff_t > (nLineSpace);
+
+                if (iSrcY >= nLimitBlockY) {
+                    nLBlockY = iSrcY / nBlockYSize;
+                    nLimitBlockY = nLBlockY * nBlockYSize;
+                    if (nLimitBlockY < Integer.MAX_VALUE - nBlockYSize)
+                        nLimitBlockY += nBlockYSize;
+                    else
+                        nLimitBlockY = Integer.MAX_VALUE;
+                    // Make sure a new block is loaded.
+                    nStartBlockX = -nBlockXSize;
+                } else if ((int) (dfSrcX) < nStartBlockX) {
+                    // Make sure a new block is loaded.
+                    nStartBlockX = -nBlockXSize;
+                }
+
+                GPtrDiff_t iSrcOffsetCst =
+                        (iSrcY - nLBlockY * nBlockYSize)
+                                * static_cast < GPtrDiff_t > (nBlockXSize);
+
+                GPtrDiff_t iSrcOffset = 0;
+
+                for (iBufXOff = 0;
+                     iBufXOff < nBufXSize;
+                     iBufXOff++, dfSrcX += dfSrcXInc) {
+                    // TODO?: try to avoid the clamping for most iterations
+                    iSrcX = (int) (Math.min(Math.max(0.0, dfSrcX),
+                            (double) (nRasterXSize - 1)));
+
+                    if (iSrcX >= nBlockXSize + nStartBlockX) {
+                        nLBlockX = iSrcX / nBlockXSize;
+                        nStartBlockX = nLBlockX * nBlockXSize;
+
+                        if (poBlock != null)
+                            poBlock.DropLock();
+
+                        poBlock = GetLockedBlockRef(nLBlockX, nLBlockY, false);
+                        if (poBlock == null) {
+                            eErr = CE_Failure;
+                            break;
+                        }
+
+                        pabySrcBlock = (GByte) (poBlock.GetDataRef());
+                    }
+                    GPtrDiff_t nDiffX = (GPtrDiff_t) (iSrcX - nStartBlockX);
+
+                    // To make Coverity happy.  Should not happen by design.
+                    if (pabySrcBlock == null) {
+                        CPLAssert(false);
+                        eErr = CE_Failure;
+                        break;
+                    }
+
+                    if (bByteCopy) {
+                        iSrcOffset = nDiffX + iSrcOffsetCst;
+                        static_cast<GByte *>(pData)[iBufOffset] =
+                                pabySrcBlock[iSrcOffset];
+                    } else if (eDataType == eBufType) {
+                        iSrcOffset =
+                                (nDiffX + iSrcOffsetCst)
+                                        * nBandDataSize;
+                        memcpy(static_cast < GByte * > (pData) + iBufOffset,
+                                pabySrcBlock + iSrcOffset, nBandDataSize);
+                    } else {
+                        // Type to type conversion ... ouch, this is expensive way
+                        // of handling single words.
+                        iSrcOffset =
+                                (nDiffX + iSrcOffsetCst)
+                                        * nBandDataSize;
+                        GDALCopyWords(
+                                pabySrcBlock + iSrcOffset, eDataType, 0,
+                                static_cast < GByte * > (pData) + iBufOffset, eBufType, 0,
+                                1);
+                    }
+
+                    iBufOffset += static_cast < int>(nPixelSpace);
+                }
+                if (eErr == CE_Failure)
+                    break;
+
+                if (psExtraArg.pfnProgress != null &&
+                        !psExtraArg.pfnProgress(1.0 * (iBufYOff + 1) / nBufYSize, "",
+                                psExtraArg.pProgressData)) {
+                    eErr = CE_Failure;
+                    break;
+                }
+            }
+        }
+
+        if (poBlock != null)
+            poBlock.DropLock();
+
+        return;
+    }*/
 }

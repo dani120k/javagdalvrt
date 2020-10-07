@@ -38,6 +38,14 @@ public class App {
                 "pszoutput",
                 "pszresampling",
                 new String[]{"option1"});
-        vrtBuilder.build();
+        //vrtBuilder.build();
+
+        GdalDataset gdalDataset = vrtBuilder.gdalBuildVRT(
+                "/Users/danilsokolov/IdeaProjects/javagdalvrt/destfolder",
+                1,
+                new GdalDataset[]{},
+                new String[]{"test1"},
+                new GdalBuildVrtOptions(0, 0)
+        );
     }
 }
