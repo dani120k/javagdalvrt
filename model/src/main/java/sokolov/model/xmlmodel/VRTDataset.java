@@ -45,10 +45,10 @@ public class VRTDataset {
     private String subClass;
 
     @JacksonXmlProperty(localName = "rasterXSize")
-    private Long rasterXSize;
+    private int rasterXSize;
 
     @JacksonXmlProperty(localName = "rasterYSize")
-    private Long rasterYSize;
+    private int rasterYSize;
 
     public String getSubClass() {
         return subClass;
@@ -58,19 +58,19 @@ public class VRTDataset {
         this.subClass = subClass;
     }
 
-    public Long getRasterXSize() {
+    public int getRasterXSize() {
         return rasterXSize;
     }
 
-    public void setRasterXSize(Long rasterXSize) {
+    public void setRasterXSize(int rasterXSize) {
         this.rasterXSize = rasterXSize;
     }
 
-    public Long getRasterYSize() {
+    public int getRasterYSize() {
         return rasterYSize;
     }
 
-    public void setRasterYSize(Long rasterYSize) {
+    public void setRasterYSize(int rasterYSize) {
         this.rasterYSize = rasterYSize;
     }
 

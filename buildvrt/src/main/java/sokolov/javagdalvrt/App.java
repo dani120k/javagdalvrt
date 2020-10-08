@@ -1,10 +1,17 @@
 package sokolov.javagdalvrt;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import sokolov.model.datasets.GdalDataset;
 import sokolov.model.enums.ResolutionStrategy;
+import sokolov.model.xmlmodel.*;
 
 import javax.imageio.metadata.IIOMetadata;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class App {
     public static void main(String[] args) throws IOException {
@@ -41,11 +48,47 @@ public class App {
         //vrtBuilder.build();*/
 
         GdalDataset gdalDataset = vrtBuilder.gdalBuildVRT(
-                "C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder",
+                "/Users/danilsokolov/IdeaProjects/javagdalvrt/destfolder",
                 1,
                 new GdalDataset[]{},
-                new String[]{"C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\TrueMarble.250m.21600x21600.E1.tif"},
+                new String[]{"/Users/danilsokolov/IdeaProjects/javagdalvrt/EO1A0880642007232110P1_B07_L1T.TIF"},
                 new GdalBuildVrtOptions(0, 0)
         );
+
+        System.out.println();
+
+        VRTDataset vrtDataset = serializeToVrtDataset(gdalDataset);
+
+        XmlMapper xmlMapper = new XmlMapper();
+        xmlMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        String value = xmlMapper.writeValueAsString(vrtDataset);
+
+        Files.write(Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt/destfolder", "test.vrt"),
+                value.getBytes(),
+                StandardOpenOption.CREATE_NEW);
+    }
+
+    public static VRTDataset serializeToVrtDataset(GdalDataset gdalDataset){
+        VRTDataset vrtDataset = new VRTDataset();
+
+        vrtDataset.setBlockXSize(128L);
+        vrtDataset.setBlockYSize(128L);
+        vrtDataset.setVrtRasterBand(new VRTRasterBandType());
+        vrtDataset.setSubClass("subclass");
+        vrtDataset.setSrsType(new SRSType());
+        vrtDataset.setRasterYSize(gdalDataset.nRasterXSize);
+        vrtDataset.setRasterXSize(gdalDataset.nRasterYSize);
+        vrtDataset.setPansharpeningOptions(new PansharpeningOptionsType());
+        vrtDataset.setOverviewList(new OverviewListType());
+        vrtDataset.setMetadata(new MetadataType());
+        vrtDataset.setMaskBand(new MaskBandType());
+        vrtDataset.setGroup(new GroupType());
+
+        StringBuilder geoTransform = new StringBuilder();
+        vrtDataset.setGeoTransform(geoTransform.toString());
+        vrtDataset.setGDALWarpOptions(new GDALWarpOptionsType());
+        vrtDataset.setGcpListType(new GCPListType());
+
+        return vrtDataset;
     }
 }
