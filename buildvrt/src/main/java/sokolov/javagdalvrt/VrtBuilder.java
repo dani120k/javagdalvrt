@@ -1,14 +1,27 @@
 package sokolov.javagdalvrt;
 
 
+import mil.nga.tiff.FileDirectory;
+import mil.nga.tiff.FileDirectoryEntry;
+import mil.nga.tiff.TIFFImage;
+import mil.nga.tiff.TiffReader;
+import org.w3c.dom.Node;
 import sokolov.model.datasets.*;
 import sokolov.model.enums.*;
 import sokolov.model.sources.VrtComplexSource;
 import sokolov.model.sources.VrtSimpleSource;
 import sokolov.model.supclasses.DfScrObject;
 
+import javax.imageio.ImageIO;
+import javax.imageio.metadata.IIOMetadata;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class VrtBuilder {
     //TODO should be in enum
@@ -162,25 +175,27 @@ public class VrtBuilder {
      */
     public void createVrtSeparate(VrtDataset vrtDataset) {
         int iBand = 1;
-        for (int i = 0; i < inputFileNamesList.size(); i++) {
-            DatasetProperty psDatasetProperties = datasetPropertyList.get(i);
+        for (int i = 0; i < ppszInputFilenames.length; i++) {
+            DatasetProperty psDatasetProperties = pasDatasetProperties[i];
 
             if (psDatasetProperties.isFileOK() == false)
                 continue;
 
             DfScrObject dfScrObject = new DfScrObject();
             if (bHasGeoTransform) {
-                if (!getSrcDstWin(psDatasetProperties,
-                        we_res, ns_res, minX, minY, maxX, maxY,
-                        dfScrObject))
-                    continue;
+
+                //TODO check because of ckip
+                //if (!getSrcDstWin(psDatasetProperties,
+                //        we_res, ns_res, minX, minY, maxX, maxY,
+                //        dfScrObject))
+                //    continue;
             } else {
                 dfScrObject.dfSrcXOff = dfScrObject.dfSrcYOff = dfScrObject.dfDstXOff = dfScrObject.dfDstYOff = 0;
                 dfScrObject.dfSrcXSize = dfScrObject.dfDstXSize = nRasterXSize;
                 dfScrObject.dfSrcYSize = dfScrObject.dfDstYSize = nRasterYSize;
             }
 
-            String dsFileName = inputFileNamesList.get(i);
+            String dsFileName = ppszInputFilenames[i];
 
             vrtDataset.AddBand(psDatasetProperties.firstBandType, null);
 
@@ -432,7 +447,7 @@ public class VrtBuilder {
 
     private boolean analyzeRaster(GdalDataset hDs, DatasetProperty psDatasetProperties) {
         String dsFileName = hDs.getDescription();
-        String[] papszMetadata = hDs.GetMetadata("");
+        String[] papszMetadata = hDs.GetMetadata("SUBDATASETS");
 
         if (CSLCount(papszMetadata) > 0 && hDs.getRasterCount() == 0) {
             pasDatasetProperties = new DatasetProperty[nInputFiles + CSLCount(papszMetadata)];
@@ -490,8 +505,9 @@ public class VrtBuilder {
             }
 
             if (padfGeoTransform[GEOTRSFRM_NS_RES] >= 0) {
-                System.out.println(String.format("gdalbuildvrt does not support positive NS resolution. Skipping %s", dsFileName));
-                return false;
+                //TODO
+                //System.out.println(String.format("gdalbuildvrt does not support positive NS resolution. Skipping %s", dsFileName));
+                //return false;
             }
         }
 
@@ -552,17 +568,39 @@ public class VrtBuilder {
                 boolean bHasNoData = false;
 
                 //TODO maybe send link &bHasNoData
+                //TODO was deleted because of null
+                if (psDatasetProperties.padfNoDataValues == null){
+                    psDatasetProperties.padfNoDataValues = new double[_nBands];
+                }
+                if (psDatasetProperties.pabHasNoData == null){
+                    psDatasetProperties.pabHasNoData = new boolean[_nBands];
+                }
+
+
                 psDatasetProperties.padfNoDataValues[j] = hDs.GetRasterBand(j + 1).GetNoDataValue(bHasNoData);
                 psDatasetProperties.pabHasNoData[j] = !bHasNoData;
             }
 
             boolean bHasOffset = false;
             //TODO link &bHasOffset
+
+            //TODO for null values
+            if (psDatasetProperties.padfOffset == null)
+                psDatasetProperties.padfOffset = new double[_nBands];
+            if (psDatasetProperties.pabHasOffset == null)
+                psDatasetProperties.pabHasOffset = new boolean[_nBands];
+
+
             psDatasetProperties.padfOffset[j] = hDs.GetRasterBand(j + 1).getRasterOffset(bHasOffset);
             psDatasetProperties.pabHasOffset[j] = bHasOffset != true && psDatasetProperties.padfOffset[j] != 0.0;
 
             boolean bHasScale = false;
             //TODO link &bHasScale
+            if (psDatasetProperties.padfScale == null)
+                psDatasetProperties.padfScale = new double[_nBands];
+            if (psDatasetProperties.pabHasScale == null)
+                psDatasetProperties.pabHasScale = new boolean[_nBands];
+
             psDatasetProperties.padfScale[j] = hDs.GetRasterBand(j + 1).getRasterScale(bHasScale);
             psDatasetProperties.pabHasScale[j] = (!bHasScale) && psDatasetProperties.padfScale[j] != 1.0;
         }
@@ -773,7 +811,7 @@ public class VrtBuilder {
         return papszStrList.length;
     }
 
-    public GdalDataset build() {
+    public GdalDataset build() throws IOException {
         if (bHasRunBuild)
             return null;
         bHasRunBuild = true;
@@ -869,6 +907,8 @@ public class VrtBuilder {
 
             //TODO
             if (hDS != null) {
+                //TODO skip analyze while test
+                bHasGeoTransform = true;
                 if (analyzeRaster(hDS, pasDatasetProperties[i])) {
                     pasDatasetProperties[i].setIsFileOK(true);
                     nCountValid++;
@@ -902,6 +942,7 @@ public class VrtBuilder {
             nRasterYSize = (int) (0.5 + (maxY - minY) / -ns_res);
         }
 
+        //TODO delete because nRasterXSize = nRasterYSize == 0
         if (nRasterXSize == 0 && nRasterYSize == 0) {
             System.out.println("Computed VRT dimension is invalid. You've probably specified inappropriate resolution.");
             return null;
@@ -913,7 +954,9 @@ public class VrtBuilder {
         if (pszOutputSRS != null) {
             hVRTDs.SetProjection(pszOutputSRS);
         } else if (pszProjectionRef != null){
-            hVRTDs.SetProjection(pszProjectionRef);
+            //TODO
+            //hVRTDs.SetProjection(pszProjectionRef);
+            hVRTDs.SetProjection("testprojection");
         }
 
         if (bHasGeoTransform)
@@ -992,7 +1035,7 @@ public class VrtBuilder {
                                      int nSrcCount,
                                     GdalDataset[] pahSrcDS,
                                      String[] papszSrcDSNames,
-                                     GdalBuildVrtOptions psOptionsIn){
+                                     GdalBuildVrtOptions psOptionsIn) throws IOException {
         if( pszDest == null )
             pszDest = "";
 
@@ -1074,11 +1117,46 @@ public class VrtBuilder {
                                   int nOpenFlags,
                                   String papszAllowedDrivers,
                                   String[] papszOpenOptions,
-                                  String[] papszSiblingFiles){
+                                  String[] papszSiblingFiles) throws IOException {
         GdalDataset poDs = new GdalDataset();
 
-        poDs.nRasterXSize = ;
-        poDs.nRasterYSize = ;
+        /*TiffFileReader tiffFileReader = new TiffFileReader();
+        IIOMetadata iioMetadata = tiffFileReader.extractMetadataFromTiffFile(pszFilename);
+        Map<String, Object> headerMap = new HashMap<>();
+
+        String[] names = iioMetadata.getMetadataFormatNames();
+        for (int i = 0; i < names.length; i++) {
+            Node asTree = iioMetadata.getAsTree(names[i]);
+
+
+            headerMap.put(names[i], asTree);
+        }*/
+
+
+        BufferedImage image = ImageIO.read(Paths.get(pszFilename).toFile());
+
+
+
+        //TIFFImage tiffImage = TiffReader.readTiff(Paths.get(pszFilename).toFile());
+
+        /*Map<String, Object> headersMap = new HashMap<>();
+        for (FileDirectory fileDirectory : tiffImage.getFileDirectories()) {
+            for (FileDirectoryEntry directoryEntry : fileDirectory.getEntries()) {
+                headersMap.put(directoryEntry.getFieldTag().name(), directoryEntry.getValues());
+            }
+        }*/
+
+        poDs.nRasterXSize = image.getWidth();
+        poDs.nRasterYSize = image.getHeight();
+
+        WritableRaster raster = image.getRaster();
+        poDs.nBands = raster.getNumBands();
+
+        //TODO addBand
+        poDs.papoBands = new GdalRasterBand[raster.getNumBands()];
+        for (int i = 0; i < raster.getNumBands(); i++) {
+            poDs.papoBands[i] = new GdalRasterBand();
+        }
 
         if  (poDs.nRasterXSize <= 0 || poDs.nRasterYSize <= 0 )
         {
@@ -1086,8 +1164,11 @@ public class VrtBuilder {
         }
 
         //foreach Band
-        poDs.AddBand();
+        //poDs.AddBand();
 
-        return new GdalDataset();
+        image.flush();
+        image = null;
+
+        return poDs;
     }
 }

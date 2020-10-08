@@ -6,8 +6,8 @@ import sokolov.model.enums.GDALDataType;
 public class DatasetProperty {
     public boolean bHasDatasetMask;
     private boolean isFileOk;
-    //TODO fix to private
-    public double[] adfGeoTransform;
+    //TODO fix to private was null but changed to double[6]
+    public double[] adfGeoTransform = new double[6];
     public int nRasterXSize;
     public int nRasterYSize;
     public GDALDataType firstBandType;

@@ -9,13 +9,13 @@ import java.io.IOException;
 public class App {
     public static void main(String[] args) throws IOException {
         TiffFileReader tiffFileReader = new TiffFileReader();
-        IIOMetadata iioMetadata = tiffFileReader.extractMetadataFromTiffFile("");
+        //IIOMetadata iioMetadata = tiffFileReader.extractMetadataFromTiffFile("");
 
         System.out.println();
 
         VrtBuilder vrtBuilder = new VrtBuilder("test.tiff",
                 1,
-                new String[]{"EO1A0880642007232110P1_B07_L1T.TIF"},
+                new String[]{"C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\NE1_HR_LC.tif"},
                 new GdalDataset[]{new GdalDataset(0)},
                 new int[]{1, 2, 3},
                 3,
@@ -38,13 +38,13 @@ public class App {
                 "pszoutput",
                 "pszresampling",
                 new String[]{"option1"});
-        //vrtBuilder.build();
+        //vrtBuilder.build();*/
 
         GdalDataset gdalDataset = vrtBuilder.gdalBuildVRT(
-                "/Users/danilsokolov/IdeaProjects/javagdalvrt/destfolder",
+                "C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder",
                 1,
                 new GdalDataset[]{},
-                new String[]{"test1"},
+                new String[]{"C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\TrueMarble.250m.21600x21600.E1.tif"},
                 new GdalBuildVrtOptions(0, 0)
         );
     }

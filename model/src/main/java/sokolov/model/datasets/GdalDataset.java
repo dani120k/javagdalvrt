@@ -17,12 +17,12 @@ import static sokolov.model.enums.GdalAccess.GA_Update;
  * A dataset encapsulating one or more raster bands.
  */
 public class GdalDataset extends GdalMajorObject {
-    public int GMO_VALID = 0x0001;
-    public int GMO_IGNORE_UNIMPLEMENTED = 0x0002;
-    public int GMO_SUPPORT_MD = 0x0004;
-    public int GMO_SUPPORT_MDMD = 0x0008;
-    public int GMO_MD_DIRTY = 0x0010;
-    public int GMO_PAM_CLASS = 0x0020;
+    public static int GMO_VALID = 0x0001;
+    public static int GMO_IGNORE_UNIMPLEMENTED = 0x0002;
+    public static int GMO_SUPPORT_MD = 0x0004;
+    public static int GMO_SUPPORT_MDMD = 0x0008;
+    public static int GMO_MD_DIRTY = 0x0010;
+    public static int GMO_PAM_CLASS = 0x0020;
 
     public GdalDriver poDriver = null;
     public GdalAccess eAccess = GA_ReadOnly;

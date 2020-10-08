@@ -32,5 +32,8 @@ public class GdalBuildVrtOptions {
 
     public GdalBuildVrtOptions(Integer hz, Integer tohz) {
         //TODO check this constructor
+        this.bSeparate = true;
+        this.bTargetAlignedPixels = false;
+        this.papszOpenOptions = new String[]{"optionFromBui8ldOption"};
     }
 }
