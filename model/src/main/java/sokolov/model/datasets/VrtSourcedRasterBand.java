@@ -12,10 +12,22 @@ public class VrtSourcedRasterBand extends VrtRasterBand {
     String[] m_papszSourceList;
     int            nSources;
     VrtSource[] papoSources;
-    int            bSkipBufferInitialization;
+    boolean            bSkipBufferInitialization;
 
     public VrtSourcedRasterBand(){
 
+    }
+
+    public VrtSourcedRasterBand(GdalDataset poDSIn, int nBandIn){
+        this.m_nRecursionCounter = 0;
+        this.m_papszSourceList = null;
+        this.nSources = 0;
+        this.papoSources = null;
+        this.bSkipBufferInitialization = false;
+        Initialize(poDSIn.GetRasterXSize(), poDSIn.GetRasterYSize());
+
+        this.poDS = poDSIn;
+        this.nBand = nBandIn;
     }
 
     public VrtSourcedRasterBand(GdalDataset gdalDataset,

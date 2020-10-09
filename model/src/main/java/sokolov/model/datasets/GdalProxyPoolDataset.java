@@ -6,6 +6,8 @@ import sokolov.model.supclasses.CPLHashSet;
 import sokolov.model.supclasses.GDALProxyPoolCacheEntry;
 import sokolov.model.supclasses.GDAL_GCP;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class GdalProxyPoolDataset extends GdalProxyDataset {
     Long responsiblePID = -1L;
 
@@ -67,7 +69,7 @@ public class GdalProxyPoolDataset extends GdalProxyDataset {
         cacheEntry = null;
     }
 
-    public void AddSrcBandDescription(GDALDataType eDataType, int nBlockXSize, int nBlockYSize) {
+    public void AddSrcBandDescription(GDALDataType eDataType, AtomicInteger nBlockXSize, AtomicInteger nBlockYSize) {
         SetBand(nBands + 1, new GdalProxyPoolRasterBand(this, nBands + 1, eDataType, nBlockXSize, nBlockYSize));
     }
 

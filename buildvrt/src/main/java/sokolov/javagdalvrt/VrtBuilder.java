@@ -631,6 +631,8 @@ public class VrtBuilder {
                 pasBandProperties = new BandProperty[nMaxBandNo];
                 for (j = 0; j < nMaxBandNo; j++) {
                     GdalRasterBand hRasterBand = hDs.GetRasterBand(j + 1);
+                    if (pasBandProperties == null)
+
                     pasBandProperties[j].colorInterpretation = hRasterBand.GetColorInterpretation();
                     pasBandProperties[j].dataType = hRasterBand.GetRasterDataType();
 

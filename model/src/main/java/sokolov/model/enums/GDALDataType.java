@@ -1,5 +1,7 @@
 package sokolov.model.enums;
 
+import sokolov.model.xmlmodel.DataTypeType;
+
 public enum GDALDataType {
     GDT_Unknown(0), /*! Unknown or unspecified type */
 
@@ -31,6 +33,49 @@ public enum GDALDataType {
 
     GDALDataType(int value) {
         this.value = value;
+    }
+
+    public static String getValue(GDALDataType eDataType) {
+        switch (eDataType){
+            case GDT_Unknown:
+                return "Unknown";
+
+            case GDT_Byte:
+                return "Byte";
+
+            case GDT_UInt16:
+                return "UInt16";
+
+            case GDT_Int16:
+                return "Int16";
+
+            case GDT_UInt32:
+                return "UInt32";
+
+            case GDT_Int32:
+                return "Int32";
+
+            case GDT_Float32:
+                return "Float32";
+
+            case GDT_Float64:
+                return "Float64";
+
+            case GDT_CInt16:
+                return "CInt16";
+
+            case GDT_CInt32:
+                return "CInt32";
+
+            case GDT_CFloat32:
+                return "CFloat32";
+
+            case GDT_CFloat64:
+                return "CFloat64";
+
+            default:
+                return null;
+        }
     }
 
     public String getDataTypeName() {

@@ -1,5 +1,7 @@
 package sokolov.model.enums;
 
+import sokolov.model.xmlmodel.ColorInterpType;
+
 public enum GDALColorInterp {
     /*! Undefined */                                      GCI_Undefined(0),
     /*! Greyscale */                                      GCI_GrayIndex(1),
@@ -24,6 +26,74 @@ public enum GDALColorInterp {
 
     GDALColorInterp(int value){
         this.value = value;
+    }
+
+    public static ColorInterpType getValue(GDALColorInterp m_eColorInterp) {
+        if (m_eColorInterp == null)
+            return null;
+
+        String value;
+
+        switch( m_eColorInterp )
+        {
+            case GCI_Undefined:
+                value = "Undefined";
+
+            case GCI_GrayIndex:
+                value =  "Gray";
+
+            case GCI_PaletteIndex:
+                value = "Palette";
+
+            case GCI_RedBand:
+                value = "Red";
+
+            case GCI_GreenBand:
+                value = "Green";
+
+            case GCI_BlueBand:
+                value = "Blue";
+
+            case GCI_AlphaBand:
+                value = "Alpha";
+
+            case GCI_HueBand:
+                value = "Hue";
+
+            case GCI_SaturationBand:
+                value = "Saturation";
+
+            case GCI_LightnessBand:
+                value = "Lightness";
+
+            case GCI_CyanBand:
+                value = "Cyan";
+
+            case GCI_MagentaBand:
+                value = "Magenta";
+
+            case GCI_YellowBand:
+                value = "Yellow";
+
+            case GCI_BlackBand:
+                value = "Black";
+
+            case GCI_YCbCr_YBand:
+                value = "YCbCr_Y";
+
+            case GCI_YCbCr_CbBand:
+                value = "YCbCr_Cb";
+
+            case GCI_YCbCr_CrBand:
+                value = "YCbCr_Cr";
+
+            default:
+                value = "Unknown";
+        }
+
+        ColorInterpType colorInterpType = ColorInterpType.getByValue(value);
+
+        return colorInterpType;
     }
 
     public String getColorInterpretationName() {

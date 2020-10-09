@@ -3,16 +3,18 @@ package sokolov.model.xmlmodel;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
+import java.util.List;
+
 @JsonRootName(value = "VRTDataset")
 public class VRTDataset {
     @JacksonXmlProperty(localName = "SRS")
-    public SRSType srsType;
+    public SRSType srs;
 
     @JacksonXmlProperty(localName = "GeoTransform")
     private String geoTransform;
 
     @JacksonXmlProperty(localName = "GCPList")
-    private GCPListType gcpListType;
+    private GCPListType gcpList;
 
     @JacksonXmlProperty(localName = "BlockXSize")
     private Long blockXSize;
@@ -21,10 +23,10 @@ public class VRTDataset {
     private Long blockYSize;
 
     @JacksonXmlProperty(localName = "Metadata")
-    private MetadataType metadata;
+    private List<MetadataType> metadata;
 
     @JacksonXmlProperty(localName = "VRTRasterBand")
-    private VRTRasterBandType vrtRasterBand;
+    private List<VRTRasterBandType> vrtRasterBand;
 
     @JacksonXmlProperty(localName = "MaskBand")
     private MaskBandType maskBand;
@@ -45,10 +47,10 @@ public class VRTDataset {
     private String subClass;
 
     @JacksonXmlProperty(localName = "rasterXSize")
-    private int rasterXSize;
+    private Integer rasterXSize;
 
     @JacksonXmlProperty(localName = "rasterYSize")
-    private int rasterYSize;
+    private Integer rasterYSize;
 
     public String getSubClass() {
         return subClass;
@@ -58,28 +60,28 @@ public class VRTDataset {
         this.subClass = subClass;
     }
 
-    public int getRasterXSize() {
+    public Integer getRasterXSize() {
         return rasterXSize;
     }
 
-    public void setRasterXSize(int rasterXSize) {
+    public void setRasterXSize(Integer rasterXSize) {
         this.rasterXSize = rasterXSize;
     }
 
-    public int getRasterYSize() {
+    public Integer getRasterYSize() {
         return rasterYSize;
     }
 
-    public void setRasterYSize(int rasterYSize) {
+    public void setRasterYSize(Integer rasterYSize) {
         this.rasterYSize = rasterYSize;
     }
 
-    public SRSType getSrsType() {
-        return srsType;
+    public SRSType getSrs() {
+        return srs;
     }
 
-    public void setSrsType(SRSType srsType) {
-        this.srsType = srsType;
+    public void setSrs(SRSType srs) {
+        this.srs = srs;
     }
 
     public String getGeoTransform() {
@@ -90,12 +92,12 @@ public class VRTDataset {
         this.geoTransform = geoTransform;
     }
 
-    public GCPListType getGcpListType() {
-        return gcpListType;
+    public GCPListType getGcpList() {
+        return gcpList;
     }
 
-    public void setGcpListType(GCPListType gcpListType) {
-        this.gcpListType = gcpListType;
+    public void setGcpList(GCPListType gcpList) {
+        this.gcpList = gcpList;
     }
 
     public Long getBlockXSize() {
@@ -114,19 +116,19 @@ public class VRTDataset {
         this.blockYSize = blockYSize;
     }
 
-    public MetadataType getMetadata() {
+    public List<MetadataType> getMetadata() {
         return metadata;
     }
 
-    public void setMetadata(MetadataType metadata) {
+    public void setMetadata(List<MetadataType> metadata) {
         this.metadata = metadata;
     }
 
-    public VRTRasterBandType getVrtRasterBand() {
+    public List<VRTRasterBandType> getVrtRasterBand() {
         return vrtRasterBand;
     }
 
-    public void setVrtRasterBand(VRTRasterBandType vrtRasterBand) {
+    public void setVrtRasterBand(List<VRTRasterBandType> vrtRasterBand) {
         this.vrtRasterBand = vrtRasterBand;
     }
 

@@ -22,6 +22,17 @@ public class GroupType {
     @JacksonXmlElementWrapper(useWrapping = false)
     private List<GroupType> groupTypeList;
 
+    @JacksonXmlProperty(localName = "name", isAttribute = true)
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public List<DimensionType> getDimensionTypeList() {
         return dimensionTypeList;
     }

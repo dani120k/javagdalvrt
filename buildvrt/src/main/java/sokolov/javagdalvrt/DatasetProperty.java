@@ -3,6 +3,8 @@ package sokolov.javagdalvrt;
 
 import sokolov.model.enums.GDALDataType;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class DatasetProperty {
     public boolean bHasDatasetMask;
     private boolean isFileOk;
@@ -11,16 +13,16 @@ public class DatasetProperty {
     public int nRasterXSize;
     public int nRasterYSize;
     public GDALDataType firstBandType;
-    public int nBlockXSize;
-    public int nBlockYSize;
+    public AtomicInteger nBlockXSize;
+    public AtomicInteger nBlockYSize;
     public boolean[] pabHasNoData;
     public double[] padfNoDataValues;
     public boolean[] pabHasOffset;
     public double[] padfOffset;
     public boolean[] pabHasScale;
     public double[] padfScale;
-    public int nMaskBlockXSize;
-    public int nMaskBlockYSize;
+    public AtomicInteger nMaskBlockXSize;
+    public AtomicInteger nMaskBlockYSize;
 
     /**
      * Возвращает результат анализа датасета

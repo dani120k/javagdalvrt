@@ -1,0 +1,1 @@
+change integer to ATomicInteger when we want to send it by link in method (examples VrtWarpedRasterBand() constructor and etc)

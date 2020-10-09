@@ -4,9 +4,13 @@ import sokolov.model.enums.GDALDataType;
 import sokolov.model.supclasses.GDAL_GCP;
 import sokolov.model.supclasses.VRTGroup;
 import sokolov.model.supclasses.VRTImageReadFunc;
+import sokolov.model.xmlmodel.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static sokolov.model.enums.OSRAxisMappingStrategy.OAMS_TRADITIONAL_GIS_ORDER;
 
 public class VrtDataset extends GdalDataset {
     public double VRT_NODATA_UNSET = -1234.56;
@@ -15,6 +19,7 @@ public class VrtDataset extends GdalDataset {
     int m_nGCPCount;
     GDAL_GCP m_pasGCPList;
     OGRSpatialReference m_poGCP_SRS = null;
+    OGRSpatialReference m_poSRS = null;
 
     boolean m_bNeedsFlush;
     boolean m_bWritable;
@@ -59,6 +64,137 @@ public class VrtDataset extends GdalDataset {
         //GDALRegister_VRT();
 
         //poDriver = static_cast < GDALDriver * > (GDALGetDriverByName("VRT"));
+    }
+
+    public void initDataset(VRTDataset poDS, String pszVRTPathIn) {
+        if (pszVRTPathIn != null)
+            m_pszVRTPath = pszVRTPathIn;
+
+        /* -------------------------------------------------------------------- */
+        /*      Check for an SRS node.                                          */
+        /* -------------------------------------------------------------------- */
+        if (poDS.getSrs() != null) {
+            //TODO
+            //if (m_poSRS != null)
+            //m_poSRS.Release()
+            m_poSRS = new OGRSpatialReference();
+            //m_poSRS.setFromUserInput(poDS.getSrs());
+            String pszMapping = poDS.getSrs().getDataAxisToSRSAxisMapping();
+
+            if (pszMapping != null) {
+                //m_poSRS.setDataAxisToSRSAxisMapping(anMapping);
+            } else {
+                m_poSRS.SetAxisMappingStrategy(OAMS_TRADITIONAL_GIS_ORDER);
+            }
+        }
+
+        /* -------------------------------------------------------------------- */
+        /*      Check for a GeoTransform node.                                  */
+        /* -------------------------------------------------------------------- */
+        if (poDS.getGeoTransform() != null) {
+            String pszGT = poDS.getGeoTransform();
+            String[] papszTokens = pszGT.split(",");
+
+            if (papszTokens.length != 6) {
+                throw new RuntimeException("GeoTransform node does not have expected six values.");
+            } else {
+                for (int i = 0; i < papszTokens.length; i++)
+                    m_adfGeoTransform[i] = Double.parseDouble(papszTokens[i]);
+
+                m_bGeoTransformSet = true;
+            }
+        }
+
+        /* -------------------------------------------------------------------- */
+        /*      Check for GCPs.                                                 */
+        /* -------------------------------------------------------------------- */
+        if (poDS.getGcpList() != null) {
+            /*GDALDeserializeGCPListFromXML( psGCPList,
+                    &m_pasGCPList,
+                                       &m_nGCPCount,
+                                       &m_poGCP_SRS );*/
+        }
+
+        /* -------------------------------------------------------------------- */
+        /*      Apply any dataset level metadata.                               */
+        /* -------------------------------------------------------------------- */
+        //TODO
+        //oMDMD.XMLInit();
+
+        /* -------------------------------------------------------------------- */
+        /*      Create dataset mask band.                                       */
+        /* -------------------------------------------------------------------- */
+        MaskBandType maskBand = poDS.getMaskBand();
+
+        if (maskBand != null && maskBand.getVrtRasterBand() != null) {
+            VRTRasterBandType vrtRasterBand = maskBand.getVrtRasterBand();
+            String pszSubClass = vrtRasterBand.getSubClass().name();
+
+            VrtRasterBand poBand = InitBand(pszSubClass, 0, false);
+
+            if (poBand != null &&
+                    poBand.XMLInit(vrtRasterBand, pszVRTPathIn, this, m_oMapSharedSources)) {
+                this.setMaskBand(poBand);
+            }
+        }
+
+        /* -------------------------------------------------------------------- */
+        /*      Create band information objects.                                */
+        /* -------------------------------------------------------------------- */
+        int l_nBands = 0;
+        List<VRTRasterBandType> vrtRasterBandList = poDS.getVrtRasterBand();
+        for (VRTRasterBandType vrtRasterBand : vrtRasterBandList) {
+            VrtRasterBand poBand = InitBand(vrtRasterBand.getSubClass().getValue(), l_nBands + 1, true);
+            if (poBand != null && poBand.XMLInit(vrtRasterBand, pszVRTPathIn, this, m_oMapSharedSources)) {
+                l_nBands++;
+                SetBand(l_nBands, poBand);
+            } else {
+                //TODO clean objects
+            }
+        }
+
+
+        GroupType group = poDS.getGroup();
+        if (group != null) {
+            String pszName = group.getName();
+
+            if (pszName == null || !pszName.equals("/")) {
+                throw new RuntimeException("Missing name or not equal to '/'");
+            }
+
+            //m_poRootGroup = new VRTGroup("/");
+            //m_poRootGroup.setIsRootGroup();
+            //if (!m_poRootGroup.XMLInit(m_poRootGroup, group, pszVRTPathIn))
+            //    throw new RuntimeException();
+        }
+
+        return;
+    }
+
+    private void setMaskBand(VrtRasterBand poMaskBandIn) {
+        m_poMaskBand = null;
+        m_poMaskBand = poMaskBandIn;
+        m_poMaskBand.SetIsMaskBand();
+    }
+
+    private VrtRasterBand InitBand(String pszSubclass, int nBand, boolean bAllowPansharpened) {
+        VrtRasterBand poBand = null;
+
+        if (pszSubclass.equals("VRTSourcedRasterBand"))
+            poBand = new VrtSourcedRasterBand(this, nBand);
+        else if (pszSubclass.equals("VRTDerivedRasterBand"))
+            poBand = new VrtDerivedRasterBand(this, nBand);
+        else if (pszSubclass.equals("VRTRawRasterBand"))
+            poBand = new VrtRawRasterBand(this, nBand, GDALDataType.GDT_Unknown);
+        else if (pszSubclass.equals("VRTWarpedRasterBand")) //todo check that dynamic_cast<VRTWarpedDataset*>(this) != nullptr  )
+            poBand = new VrtWarpedRasterBand(this, nBand, GDALDataType.GDT_Unknown);
+        else if (bAllowPansharpened &&
+                pszSubclass.equals("VRTPansharpenedRasterBand"))//todo check that dynamic_cast<VRTWarpedDataset*>(this) != nullptr  )
+            poBand = new VrtPansharpenedRasterBand(this, nBand);
+        else
+            throw new RuntimeException(String.format("VRTRasterBand of unrecognized subclass '%s'.", pszSubclass));
+
+        return poBand;
     }
 
     public void AddBand(GDALDataType eType, String[] papszOptions) {
@@ -248,5 +384,164 @@ public class VrtDataset extends GdalDataset {
 
     private String CSLFetchNameValue(String[] papszOptions, String subclass) {
         return null;
+    }
+
+    public VRTDataset SerializeToXML(String pszVRTPathIn) {
+        VRTDataset vrtDataset = new VRTDataset();
+
+        if (m_poRootGroup != null)
+            return m_poRootGroup.SerializeToXML(vrtDataset, pszVRTPathIn);
+
+        /* -------------------------------------------------------------------- */
+        /*      Setup root node and attributes.                                 */
+        /* -------------------------------------------------------------------- */
+        vrtDataset.setRasterXSize(GetRasterXSize());
+        vrtDataset.setRasterYSize(GetRasterYSize());
+
+        /* -------------------------------------------------------------------- */
+        /*      SRS                                                             */
+        /* -------------------------------------------------------------------- */
+        if (m_poSRS != null && !m_poSRS.isEmpty()) {
+            SRSType srsType = new SRSType();
+
+            String pszWKT = m_poSRS.exportToWkt();
+            //TODO srsType.setSRS(pszWKT);
+            //TODO CPLCreateXMLElementAndValue( psDSTree, "SRS", pszWKT );
+
+            List<Integer> mapping = m_poSRS.GetDataAxisToSRSAxisMapping();
+            String osMapping = "";
+            for (int i = 0; i < mapping.size(); i++) {
+                if (osMapping.length() != 0)
+                    osMapping += ",";
+                osMapping += mapping.get(i);
+            }
+            srsType.setDataAxisToSRSAxisMapping(osMapping);
+
+            vrtDataset.setSrs(srsType);
+        }
+
+        /* -------------------------------------------------------------------- */
+        /*      Geotransform.                                                   */
+        /* -------------------------------------------------------------------- */
+        if (m_bGeoTransformSet) {
+            vrtDataset.setGeoTransform(String.format("%d,%d,%d,%d,%d,%d",
+                    m_adfGeoTransform[0],
+                    m_adfGeoTransform[1],
+                    m_adfGeoTransform[2],
+                    m_adfGeoTransform[3],
+                    m_adfGeoTransform[4],
+                    m_adfGeoTransform[5]));
+        }
+
+        /* -------------------------------------------------------------------- */
+        /*      Metadata                                                        */
+        /* -------------------------------------------------------------------- */
+        /*
+            CPLXMLNode *psMD = oMDMD.Serialize();
+    if( psMD != nullptr )
+    {
+        CPLAddXMLChild( psDSTree, psMD );
+    }
+         */
+
+        if (m_nGCPCount > 0){
+            GdalSerializeGCPListTOXML(vrtDataset, m_pasGCPList, m_nGCPCount, m_poGCP_SRS);
+        }
+
+        /* -------------------------------------------------------------------- */
+        /*      Serialize bands.                                                */
+        /* -------------------------------------------------------------------- */
+        List<VRTRasterBandType> vrtRasterBandTypeList = new ArrayList<>();
+
+        for(int iBand = 0; iBand < nBands; iBand++){
+            VRTRasterBandType rasterBand = ((VrtRasterBand)papoBands[iBand]).SerializeToXML(vrtDataset, pszVRTPathIn);
+
+            vrtRasterBandTypeList.add(rasterBand);
+        }
+
+        vrtDataset.setVrtRasterBand(vrtRasterBandTypeList);
+
+        /* -------------------------------------------------------------------- */
+        /*      Serialize dataset mask band.                                    */
+        /* -------------------------------------------------------------------- */
+        if (m_poMaskBand != null){
+            VRTRasterBandType rasterBand = m_poMaskBand.SerializeToXML(vrtDataset, pszVRTPathIn);
+
+            if (rasterBand != null){
+                MaskBandType maskBandType = new MaskBandType();
+                maskBandType.setVrtRasterBand(rasterBand);
+
+                vrtDataset.setMaskBand(maskBandType);
+            }
+        }
+
+        return vrtDataset;
+    }
+
+    private void GdalSerializeGCPListTOXML(VRTDataset vrtDataset, GDAL_GCP m_pasGCPList, int nGCPCount, OGRSpatialReference poGCP_SRS) {
+        //TODO
+        /*
+        CPLString oFmt;
+
+    CPLXMLNode *psPamGCPList = CPLCreateXMLNode( psParentNode, CXT_Element,
+                                                 "GCPList" );
+
+    CPLXMLNode* psLastChild = nullptr;
+
+    if( poGCP_SRS != nullptr && !poGCP_SRS->IsEmpty() )
+    {
+        char* pszWKT = nullptr;
+        poGCP_SRS->exportToWkt(&pszWKT);
+        CPLSetXMLValue( psPamGCPList, "#Projection",
+                        pszWKT );
+        CPLFree(pszWKT);
+        const auto& mapping = poGCP_SRS->GetDataAxisToSRSAxisMapping();
+        CPLString osMapping;
+        for( size_t i = 0; i < mapping.size(); ++i )
+        {
+            if( !osMapping.empty() )
+                osMapping += ",";
+            osMapping += CPLSPrintf("%d", mapping[i]);
+        }
+        CPLSetXMLValue(psPamGCPList, "#dataAxisToSRSAxisMapping",
+                      osMapping.c_str());
+
+        psLastChild = psPamGCPList->psChild->psNext;
+    }
+
+    for( int iGCP = 0; iGCP < nGCPCount; iGCP++ )
+    {
+        GDAL_GCP *psGCP = pasGCPList + iGCP;
+
+        CPLXMLNode *psXMLGCP = CPLCreateXMLNode( nullptr, CXT_Element, "GCP" );
+
+        if( psLastChild == nullptr )
+            psPamGCPList->psChild = psXMLGCP;
+        else
+            psLastChild->psNext = psXMLGCP;
+        psLastChild = psXMLGCP;
+
+        CPLSetXMLValue( psXMLGCP, "#Id", psGCP->pszId );
+
+        if( psGCP->pszInfo != nullptr && strlen(psGCP->pszInfo) > 0 )
+            CPLSetXMLValue( psXMLGCP, "Info", psGCP->pszInfo );
+
+        CPLSetXMLValue( psXMLGCP, "#Pixel",
+                        oFmt.Printf( "%.4f", psGCP->dfGCPPixel ) );
+
+        CPLSetXMLValue( psXMLGCP, "#Line",
+                        oFmt.Printf( "%.4f", psGCP->dfGCPLine ) );
+
+        CPLSetXMLValue( psXMLGCP, "#X",
+                        oFmt.Printf( "%.12E", psGCP->dfGCPX ) );
+
+        CPLSetXMLValue( psXMLGCP, "#Y",
+                        oFmt.Printf( "%.12E", psGCP->dfGCPY ) );
+
+        if( psGCP->dfGCPZ != 0.0 )
+            CPLSetXMLValue( psXMLGCP, "#Z",
+                    oFmt.Printf( "%.12E", psGCP->dfGCPZ ) );
+    }
+         */
     }
 }

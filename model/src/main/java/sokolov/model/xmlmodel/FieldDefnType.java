@@ -7,13 +7,13 @@ public class FieldDefnType {
     private String name;
 
     @JacksonXmlProperty(localName = "Type")
-    private int type;
+    private Integer type;
 
     @JacksonXmlProperty(localName = "Usage")
-    private int usage;
+    private Integer usage;
 
     @JacksonXmlProperty(localName = "index", isAttribute = true)
-    private int index;
+    private Integer index;
 
     public String getName() {
         return name;
@@ -23,7 +23,7 @@ public class FieldDefnType {
         this.name = name;
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 
@@ -31,7 +31,7 @@ public class FieldDefnType {
         this.type = type;
     }
 
-    public int getUsage() {
+    public Integer getUsage() {
         return usage;
     }
 
@@ -39,7 +39,7 @@ public class FieldDefnType {
         this.usage = usage;
     }
 
-    public int getIndex() {
+    public Integer getIndex() {
         return index;
     }
 

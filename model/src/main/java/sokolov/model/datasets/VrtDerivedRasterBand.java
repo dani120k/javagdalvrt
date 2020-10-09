@@ -15,6 +15,15 @@ public class VrtDerivedRasterBand extends VrtSourcedRasterBand {
         //TODO
     }
 
+    VrtDerivedRasterBand(GdalDataset poDSIn, int nBandIn){
+        super(poDSIn, nBandIn);
+
+        m_poPrivate = null;
+        pszFuncName = null;
+        eSourceTransferType = GDALDataType.GDT_Unknown;
+        m_poPrivate = new VRTDerivedRasterBandPrivateData();
+    }
+
     public void SetPixelFunctionName(String pszFuncName) {
 
     }

@@ -4,6 +4,7 @@ import sokolov.model.enums.*;
 import sokolov.model.supclasses.GByte;
 
 import java.math.BigInteger;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static sokolov.model.datasets.GDALRIOResampleAlg.*;
 import static sokolov.model.enums.GDALColorInterp.GCI_Undefined;
@@ -26,8 +27,8 @@ public class GdalRasterBand extends GdalMajorObject {
     int nRasterYSize = 0;
     GDALDataType eDataType = GDALDataType.GDT_Byte;
     GdalAccess eAccess = GdalAccess.GA_ReadOnly;
-    int nBlockXSize = -1;
-    int nBlockYSize = -1;
+    AtomicInteger nBlockXSize = new AtomicInteger(-1);
+    AtomicInteger nBlockYSize = new AtomicInteger(-1);
     int nBlocksPerRow = 0;
     int nBlocksPerColumn = 0;
 
@@ -300,20 +301,20 @@ public class GdalRasterBand extends GdalMajorObject {
     }
 
 
-    public void GetBlockSize(Integer pnXSize, Integer pnYSize) {
+    public void GetBlockSize(AtomicInteger pnXSize, AtomicInteger pnYSize) {
         //TODO maybe link
-        if (nBlockXSize <= 0 || nBlockYSize <= 0) {
+        if (nBlockXSize.get() <= 0 || nBlockYSize.get() <= 0) {
             System.out.println(String.format("Invalid block dimension : %d * %d",
-                    nBlockXSize, nBlockYSize));
+                    nBlockXSize.get(), nBlockYSize.get()));
             if (pnXSize != null)
-                pnXSize = 0;
+                pnXSize.set(0);
             if (pnYSize != null)
-                pnYSize = 0;
+                pnYSize.set(0);
         } else {
             if (pnXSize != null)
-                pnXSize = nBlockXSize;
+                pnXSize.set(nBlockXSize.get());
             if (pnYSize != null)
-                pnYSize = nBlockYSize;
+                pnYSize.set(nBlockYSize.get());
         }
     }
 

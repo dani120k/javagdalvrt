@@ -25,13 +25,13 @@ public class VRTRasterBandType {
     private GDALRasterAttributeTableType gdalRasterAttributeTable;
 
     @JacksonXmlProperty(localName = "NoDataValue")
-    private Double noDataValue;
+    private String noDataValue;
 
     @JacksonXmlProperty(localName = "NodataValue")
     private Double nodataValue;
 
     @JacksonXmlProperty(localName = "HideNoDataValue")
-    private int hideNoDataValue;
+    private Integer hideNoDataValue;
 
     @JacksonXmlProperty(localName = "Metadata")
     private MetadataType metadata;
@@ -84,7 +84,7 @@ public class VRTRasterBandType {
     //@JacksonXmlProperty(localName = "PixelFunctionArguments")
 
     @JacksonXmlProperty(localName = "BufferRadius")
-    private int bufferRadius;
+    private Integer bufferRadius;
 
 
     //for a VRTRawRasterBand
@@ -92,37 +92,37 @@ public class VRTRasterBandType {
     private SourceFilenameType sourceFilename;
 
     @JacksonXmlProperty(localName = "ImageOffset")
-    private int imageOffset;
+    private Integer imageOffset;
 
     @JacksonXmlProperty(localName = "PixelOffset")
-    private int pixelOffset;
+    private Integer pixelOffset;
 
     @JacksonXmlProperty(localName = "LineOffset")
-    private int lineOffset;
+    private Integer lineOffset;
 
     @JacksonXmlProperty(localName = "ByteOrder")
-    private int byteOrder;
+    private Integer byteOrder;
 
     @JacksonXmlProperty(localName = "dataType", isAttribute = true)
     private DataTypeType dataType;
 
     @JacksonXmlProperty(localName = "band", isAttribute = true)
-    private int band;
+    private Integer band;
 
     @JacksonXmlProperty(localName = "subClass", isAttribute = true)
     private VRTRasterBandSubClassType subClass;
 
     @JacksonXmlProperty(localName = "BlockXSize", isAttribute = true)
-    private int blockXSize;
+    private Integer blockXSize;
 
     @JacksonXmlProperty(localName = "BlockYSize", isAttribute = true)
-    private int blockYSize;
+    private Integer blockYSize;
 
-    public int getHideNoDataValue() {
+    public Integer getHideNoDataValue() {
         return hideNoDataValue;
     }
 
-    public void setHideNoDataValue(int hideNoDataValue) {
+    public void setHideNoDataValue(Integer hideNoDataValue) {
         this.hideNoDataValue = hideNoDataValue;
     }
 
@@ -182,11 +182,11 @@ public class VRTRasterBandType {
         this.gdalRasterAttributeTable = gdalRasterAttributeTable;
     }
 
-    public Double getNoDataValue() {
+    public String getNoDataValue() {
         return noDataValue;
     }
 
-    public void setNoDataValue(Double noDataValue) {
+    public void setNoDataValue(String noDataValue) {
         this.noDataValue = noDataValue;
     }
 
@@ -303,11 +303,11 @@ public class VRTRasterBandType {
         this.pixelFunctionCode = pixelFunctionCode;
     }
 
-    public int getBufferRadius() {
+    public Integer getBufferRadius() {
         return bufferRadius;
     }
 
-    public void setBufferRadius(int bufferRadius) {
+    public void setBufferRadius(Integer bufferRadius) {
         this.bufferRadius = bufferRadius;
     }
 
@@ -319,35 +319,35 @@ public class VRTRasterBandType {
         this.sourceFilename = sourceFilename;
     }
 
-    public int getImageOffset() {
+    public Integer getImageOffset() {
         return imageOffset;
     }
 
-    public void setImageOffset(int imageOffset) {
+    public void setImageOffset(Integer imageOffset) {
         this.imageOffset = imageOffset;
     }
 
-    public int getPixelOffset() {
+    public Integer getPixelOffset() {
         return pixelOffset;
     }
 
-    public void setPixelOffset(int pixelOffset) {
+    public void setPixelOffset(Integer pixelOffset) {
         this.pixelOffset = pixelOffset;
     }
 
-    public int getLineOffset() {
+    public Integer getLineOffset() {
         return lineOffset;
     }
 
-    public void setLineOffset(int lineOffset) {
+    public void setLineOffset(Integer lineOffset) {
         this.lineOffset = lineOffset;
     }
 
-    public int getByteOrder() {
+    public Integer getByteOrder() {
         return byteOrder;
     }
 
-    public void setByteOrder(int byteOrder) {
+    public void setByteOrder(Integer byteOrder) {
         this.byteOrder = byteOrder;
     }
 
@@ -359,11 +359,11 @@ public class VRTRasterBandType {
         this.dataType = dataType;
     }
 
-    public int getBand() {
+    public Integer getBand() {
         return band;
     }
 
-    public void setBand(int band) {
+    public void setBand(Integer band) {
         this.band = band;
     }
 
@@ -375,19 +375,19 @@ public class VRTRasterBandType {
         this.subClass = subClass;
     }
 
-    public int getBlockXSize() {
+    public Integer getBlockXSize() {
         return blockXSize;
     }
 
-    public void setBlockXSize(int blockXSize) {
+    public void setBlockXSize(Integer blockXSize) {
         this.blockXSize = blockXSize;
     }
 
-    public int getBlockYSize() {
+    public Integer getBlockYSize() {
         return blockYSize;
     }
 
-    public void setBlockYSize(int blockYSize) {
+    public void setBlockYSize(Integer blockYSize) {
         this.blockYSize = blockYSize;
     }
 }
