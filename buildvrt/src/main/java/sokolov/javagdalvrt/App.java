@@ -48,10 +48,10 @@ public class App {
         //vrtBuilder.build();*/
 
         GdalDataset gdalDataset = vrtBuilder.gdalBuildVRT(
-                "/Users/danilsokolov/IdeaProjects/javagdalvrt/destfolder",
+                "C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder",
                 1,
                 new GdalDataset[]{},
-                new String[]{"/Users/danilsokolov/IdeaProjects/javagdalvrt/EO1A0880642007232110P1_B07_L1T.TIF"},
+                new String[]{"C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\EO1A0880642007232110P1_B07_L1T.TIF"},
                 new GdalBuildVrtOptions(0, 0)
         );
 
@@ -61,11 +61,24 @@ public class App {
 
         XmlMapper xmlMapper = new XmlMapper();
         xmlMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
         String value = xmlMapper.writeValueAsString(vrtDataset);
 
-        Files.write(Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt/destfolder", "test.vrt"),
+        Files.write(Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder", "test.vrt"),
                 value.getBytes(),
                 StandardOpenOption.CREATE_NEW);
+
+        byte[] bytes = Files.readAllBytes(Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder", "test.vrt"));
+
+        VRTDataset deserializedVrtDataset = xmlMapper.readValue(bytes, VRTDataset.class);
+
+        extractFromVRTXml(deserializedVrtDataset);
+
+        System.out.println();
+    }
+
+    private static GdalDataset extractFromVRTXml(VRTDataset deserializedVrtDataset) {
+
     }
 
     public static VRTDataset serializeToVrtDataset(GdalDataset gdalDataset){
