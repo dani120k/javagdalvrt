@@ -1,5 +1,6 @@
 package sokolov.model.datasets;
 
+import sokolov.model.common.SupportMethods;
 import sokolov.model.enums.*;
 import sokolov.model.supclasses.CPLXMLNode;
 import sokolov.model.supclasses.GDALRasterAttributeTable;
@@ -431,7 +432,7 @@ public class VrtRasterBand extends GdalRasterBand {
             vrtRasterBandType.setDescription(getDescription());
 
         if (m_bNoDataValueSet)
-            vrtRasterBandType.setNoDataValue(VRTSerializeNoData(m_dfNoDataValue, eDataType, 16));
+            vrtRasterBandType.setNoDataValue(SupportMethods.VRTSerializeNoData(m_dfNoDataValue, eDataType, 16));
 
         if (m_bHideNoDataValue)
             vrtRasterBandType.setHideNoDataValue((m_bHideNoDataValue) ? 1 : 0);
@@ -554,17 +555,5 @@ public class VrtRasterBand extends GdalRasterBand {
         return vrtRasterBandType;
     }
 
-    private String VRTSerializeNoData(Double dfVal, GDALDataType eDataType, int nPrecision) {
-        if (dfVal.isNaN())
-            return "nan";
-        else if (eDataType == GDALDataType.GDT_Float32 && dfVal == -Double.MAX_VALUE){
-            return "-3.4028234663852886e+38";
-        } else if (eDataType == GDALDataType.GDT_Float32 && dfVal == Double.MAX_VALUE){
-            return "3.4028234663852886e+38";
-        } else {
-            return String.format("%s", BigDecimal.valueOf(dfVal)
-                    .setScale(nPrecision, RoundingMode.HALF_UP)
-                    .doubleValue());
-        }
-    }
+
 }

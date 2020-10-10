@@ -1,5 +1,10 @@
 package sokolov.model.common;
 
+import sokolov.model.enums.GDALDataType;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class SupportMethods {
     /** Append a string to a StringList and return a pointer to the modified
      * StringList.
@@ -21,5 +26,19 @@ public class SupportMethods {
         newPapszStrList[papszStrList.length] = pszNewString;
 
         return newPapszStrList;
+    }
+
+    public static String VRTSerializeNoData(Double dfVal, GDALDataType eDataType, int nPrecision) {
+        if (dfVal.isNaN())
+            return "nan";
+        else if (eDataType == GDALDataType.GDT_Float32 && dfVal == -Double.MAX_VALUE){
+            return "-3.4028234663852886e+38";
+        } else if (eDataType == GDALDataType.GDT_Float32 && dfVal == Double.MAX_VALUE){
+            return "3.4028234663852886e+38";
+        } else {
+            return String.format("%s", BigDecimal.valueOf(dfVal)
+                    .setScale(nPrecision, RoundingMode.HALF_UP)
+                    .doubleValue());
+        }
     }
 }

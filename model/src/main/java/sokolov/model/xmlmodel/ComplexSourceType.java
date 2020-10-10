@@ -46,13 +46,23 @@ public class ComplexSourceType {
     private Double dstMax;
 
     @JacksonXmlProperty(localName = "NODATA")
-    private Double NODATA;
+    private String NODATA;
 
     @JacksonXmlProperty(localName = "LUT")
     private String LUT;
 
     @JacksonXmlProperty(localName = "resampling", isAttribute = true)
     private String resampling;
+
+    public ComplexSourceType(SimpleSourceType simpleSourceType) {
+        this.dstRect = simpleSourceType.getDstRect();
+        this.openOptions = simpleSourceType.getOpenOptions();
+        this.srcRect = simpleSourceType.getSrcRect();
+        this.sourceProperties = simpleSourceType.getSourceProperties();
+        this.sourceFilename = simpleSourceType.getSourceFilename();
+        this.sourceBand = simpleSourceType.getSourceBand();
+        this.resampling = simpleSourceType.getResampling();
+    }
 
     public SourceFilenameType getSourceFilename() {
         return sourceFilename;
@@ -166,11 +176,11 @@ public class ComplexSourceType {
         this.dstMax = dstMax;
     }
 
-    public Double getNODATA() {
+    public String getNODATA() {
         return NODATA;
     }
 
-    public void setNODATA(Double NODATA) {
+    public void setNODATA(String NODATA) {
         this.NODATA = NODATA;
     }
 

@@ -21,7 +21,7 @@ public class App {
 
         System.out.println();
 
-        VrtBuilder vrtBuilder = new VrtBuilder("test.tiff",
+        /*VrtBuilder vrtBuilder = new VrtBuilder("test.tiff",
                 2,
                 new String[]{"C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\EO1A0880642007232110P1_B07_L1T.TIF", "C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\clearcuts_174016_20101018_clip.tif"},
                 new GdalDataset[]{new GdalDataset(0)},
@@ -36,7 +36,7 @@ public class App {
                 0.0,
                 0.0,
                 0.0,
-                false,
+                true,
                 true,
                 false,
                 true,
@@ -48,9 +48,10 @@ public class App {
                 new String[]{"option1"});
         //vrtBuilder.build();*/
 
-        VrtDataset gdalDataset = (VrtDataset)vrtBuilder.gdalBuildVRT(
+
+        VrtDataset gdalDataset = (VrtDataset)new VrtBuilder().gdalBuildVRT(
                 "C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder",
-                2,
+                1,
                 null,
                 new String[]{"C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\TrueMarble.250m.21600x21600.E1.tif", "C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\TrueMarble.250m.21600x21600.E2.tif"},
                 new GdalBuildVrtOptions(0, 0)

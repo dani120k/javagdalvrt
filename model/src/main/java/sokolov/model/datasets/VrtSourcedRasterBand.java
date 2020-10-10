@@ -144,7 +144,7 @@ public class VrtSourcedRasterBand extends VrtRasterBand {
                                  double dfScaleOff,
                                  double dfScaleRatio,
                                  double dfNoDataValueIn,
-                                 int nColorTableComponent){
+                                 boolean nColorTableComponent){
         /* -------------------------------------------------------------------- */
         /*      Create source.                                                  */
         /* -------------------------------------------------------------------- */
@@ -181,21 +181,12 @@ public class VrtSourcedRasterBand extends VrtRasterBand {
         /* -------------------------------------------------------------------- */
         /*      Process Sources.                                                */
         /* -------------------------------------------------------------------- */
-        List<SimpleSourceType> simpleSourceTypeList = new ArrayList<>();
-
         for(int iSource = 0; iSource < nSources; iSource++){
             //TODO can be another type?
             //check for null is only for test
-            SimpleSourceType psXMLSrc = null;
             if (papoSources[iSource] != null)
-                psXMLSrc = papoSources[iSource].serializeToXML(vrtRasterBandType, this, pszVrtPath);
-
-            if (psXMLSrc != null){
-                simpleSourceTypeList.add(psXMLSrc);
-            }
+                papoSources[iSource].serializeToXML(vrtRasterBandType, this, pszVrtPath);
         }
-
-        vrtRasterBandType.setSimpleSource(simpleSourceTypeList);
 
         return vrtRasterBandType;
     }

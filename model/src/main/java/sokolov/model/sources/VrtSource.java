@@ -46,5 +46,5 @@ public interface VrtSource {
 
     void FlushCache();
 
-    SimpleSourceType serializeToXML(VRTRasterBandType vrtRasterBandType, GdalRasterBand gdalRasterBand, String pszVrtPath);
+    void serializeToXML(VRTRasterBandType vrtRasterBandType, GdalRasterBand gdalRasterBand, String pszVrtPath);
 }

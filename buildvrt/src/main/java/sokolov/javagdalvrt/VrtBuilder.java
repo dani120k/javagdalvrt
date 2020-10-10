@@ -87,6 +87,8 @@ public class VrtBuilder {
     private String pszVRTNoData;
     private String pszOutputSRS;
 
+    public VrtBuilder(){}
+
     public VrtBuilder(String pszOutputFilenameIn,
                       int nInputFilesIn,
                       String[] ppszInputFilenamesIn,
@@ -179,11 +181,10 @@ public class VrtBuilder {
             DfScrObject dfScrObject = new DfScrObject();
             if (bHasGeoTransform) {
 
-                //TODO check because of ckip
-                //if (!getSrcDstWin(psDatasetProperties,
-                //        we_res, ns_res, minX, minY, maxX, maxY,
-                //        dfScrObject))
-                //    continue;
+                if (!getSrcDstWin(psDatasetProperties,
+                        we_res, ns_res, minX, minY, maxX, maxY,
+                        dfScrObject))
+                    continue;
             } else {
                 dfScrObject.dfSrcXOff = dfScrObject.dfSrcYOff = dfScrObject.dfDstXOff = dfScrObject.dfDstYOff = 0;
                 dfScrObject.dfSrcXSize = dfScrObject.dfDstXSize = nRasterXSize;
@@ -361,7 +362,7 @@ public class VrtBuilder {
                         dfScrObject.dfSrcXSize, dfScrObject.dfSrcYSize,
                         dfScrObject.dfDstXOff, dfScrObject.dfDstYOff,
                         dfScrObject.dfDstXSize, dfScrObject.dfDstYSize,
-                        255, 0, VRT_NODATA_UNSET, 0);
+                        255, 0, VRT_NODATA_UNSET, false);
             } else if (bHasDatasetMask) {
                 VrtSimpleSource poSimpleSource = new VrtSimpleSource();
                 if (pszResampling != null)
@@ -397,9 +398,9 @@ public class VrtBuilder {
                                  double minX, double minY, double maxX, double maxY,
                                  DfScrObject dfScrObject) {
         //this is real boolshit
-        double proxyMinY = minY;
+        /*double proxyMinY = minY;
         minY = maxY;
-        maxY = proxyMinY;
+        maxY = proxyMinY;*/
 
 
         //TODO dome links to changed double

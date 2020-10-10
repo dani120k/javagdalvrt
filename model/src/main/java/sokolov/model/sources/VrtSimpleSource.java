@@ -8,6 +8,7 @@ import sokolov.model.supclasses.CPLHashSet;
 import sokolov.model.xmlmodel.*;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -1018,8 +1019,16 @@ public class VrtSimpleSource implements VrtSource {
         m_osResampling = (pszResampling != null) ? pszResampling : "";
     }
 
-    @Override
-    public SimpleSourceType serializeToXML(VRTRasterBandType vrtRasterBandType, GdalRasterBand gdalRasterBand, String pszVRTPath) {
+    public void serializeToXML(VRTRasterBandType vrtRasterBandType, GdalRasterBand gdalRasterBand, String pszVRTPath){
+        SimpleSourceType simpleSourceType = this.serializeToXml(vrtRasterBandType, gdalRasterBand, pszVRTPath);
+
+        if (vrtRasterBandType.getSimpleSource() == null)
+            vrtRasterBandType.setSimpleSource(new ArrayList<>());
+
+        vrtRasterBandType.getSimpleSource().add(simpleSourceType);
+    }
+
+    public SimpleSourceType serializeToXml(VRTRasterBandType vrtRasterBandType, GdalRasterBand gdalRasterBand, String pszVRTPath) {
         m_poRasterBand = gdalRasterBand;
         SimpleSourceType simpleSourceType = new SimpleSourceType();
 
