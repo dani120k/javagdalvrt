@@ -78,8 +78,8 @@ public enum GDALDataType {
         }
     }
 
+
     public String getDataTypeName() {
-        //TODO swith by values for debug
         return null;
     }
 }

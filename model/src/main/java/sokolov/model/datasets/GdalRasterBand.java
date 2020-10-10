@@ -434,11 +434,15 @@ public class GdalRasterBand extends GdalMajorObject {
     }
 
     public GdalDataset GetDataset() {
-        return null;
+        return poDS;
     }
 
     public void flushCache() {
         //TODO call from VrtSimpleSource
+    }
+
+    public int GetBand() {
+        return nBand;
     }
 
     /*

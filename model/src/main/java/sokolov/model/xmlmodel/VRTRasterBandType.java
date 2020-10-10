@@ -1,6 +1,9 @@
 package sokolov.model.xmlmodel;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+import java.util.List;
 
 public class VRTRasterBandType {
     @JacksonXmlProperty(localName = "Description")
@@ -50,16 +53,20 @@ public class VRTRasterBandType {
 
     //for a VRTSourcedRasterBand. Each element may be repeated
     @JacksonXmlProperty(localName = "SimpleSource")
-    private SimpleSourceType simpleSource;
+    @JacksonXmlElementWrapper(useWrapping = false)
+    private List<SimpleSourceType> simpleSource;
 
     @JacksonXmlProperty(localName = "ComplexSource")
-    private ComplexSourceType complexSource;
+    @JacksonXmlElementWrapper(useWrapping = false)
+    private List<ComplexSourceType> complexSource;
 
     @JacksonXmlProperty(localName = "AveragedSource")
-    private SimpleSourceType averagedSource;
+    @JacksonXmlElementWrapper(useWrapping = false)
+    private List<SimpleSourceType> averagedSource;
 
     @JacksonXmlProperty(localName = "KernelFilteredSource")
-    private KernelFilteredSourceType kernelFilteredSource;
+    @JacksonXmlElementWrapper(useWrapping = false)
+    private List<KernelFilteredSourceType> kernelFilteredSource;
 
     //for a VRTDerivedRasterBand
     @JacksonXmlProperty(localName = "PixelFunctionType")
@@ -239,35 +246,35 @@ public class VRTRasterBandType {
         this.histograms = histograms;
     }
 
-    public SimpleSourceType getSimpleSource() {
+    public List<SimpleSourceType> getSimpleSource() {
         return simpleSource;
     }
 
-    public void setSimpleSource(SimpleSourceType simpleSource) {
+    public void setSimpleSource(List<SimpleSourceType> simpleSource) {
         this.simpleSource = simpleSource;
     }
 
-    public ComplexSourceType getComplexSource() {
+    public List<ComplexSourceType> getComplexSource() {
         return complexSource;
     }
 
-    public void setComplexSource(ComplexSourceType complexSource) {
+    public void setComplexSource(List<ComplexSourceType> complexSource) {
         this.complexSource = complexSource;
     }
 
-    public SimpleSourceType getAveragedSource() {
+    public List<SimpleSourceType> getAveragedSource() {
         return averagedSource;
     }
 
-    public void setAveragedSource(SimpleSourceType averagedSource) {
+    public void setAveragedSource(List<SimpleSourceType> averagedSource) {
         this.averagedSource = averagedSource;
     }
 
-    public KernelFilteredSourceType getKernelFilteredSource() {
+    public List<KernelFilteredSourceType> getKernelFilteredSource() {
         return kernelFilteredSource;
     }
 
-    public void setKernelFilteredSource(KernelFilteredSourceType kernelFilteredSource) {
+    public void setKernelFilteredSource(List<KernelFilteredSourceType> kernelFilteredSource) {
         this.kernelFilteredSource = kernelFilteredSource;
     }
 

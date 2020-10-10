@@ -22,8 +22,8 @@ public class App {
         System.out.println();
 
         VrtBuilder vrtBuilder = new VrtBuilder("test.tiff",
-                1,
-                new String[]{"C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\TrueMarble.250m.21600x21600.E1.tif"},
+                2,
+                new String[]{"C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\EO1A0880642007232110P1_B07_L1T.TIF", "C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\clearcuts_174016_20101018_clip.tif"},
                 new GdalDataset[]{new GdalDataset(0)},
                 new int[]{1, 2, 3},
                 3,
@@ -31,11 +31,11 @@ public class App {
                 ResolutionStrategy.AVERAGE_RESOLUTION,
                 0.0,
                 0.0,
-                false,
+                true,
                 0.0,
                 0.0,
-                100.0,
-                100.0,
+                0.0,
+                0.0,
                 false,
                 true,
                 false,
@@ -50,9 +50,9 @@ public class App {
 
         VrtDataset gdalDataset = (VrtDataset)vrtBuilder.gdalBuildVRT(
                 "C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder",
-                1,
-                new GdalDataset[]{},
-                new String[]{"C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\TrueMarble.250m.21600x21600.E1.tif"},
+                2,
+                null,
+                new String[]{"C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\TrueMarble.250m.21600x21600.E1.tif", "C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\TrueMarble.250m.21600x21600.E2.tif"},
                 new GdalBuildVrtOptions(0, 0)
         );
 
@@ -81,7 +81,7 @@ public class App {
 
         VRTDataset deserializedVrtDataset = xmlMapper.readValue(bytes, VRTDataset.class);
 
-        GdalDataset resultedDataset = extractFromVRTXml(deserializedVrtDataset, Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder", "test.vrt").toString());
+        //GdalDataset resultedDataset = extractFromVRTXml(deserializedVrtDataset, Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder", "test.vrt").toString());
 
         System.out.println();
     }
@@ -89,7 +89,7 @@ public class App {
     private static GdalDataset extractFromVRTXml(VRTDataset deserializedVrtDataset, String path) {
         String subClass = deserializedVrtDataset.getSubClass();
 
-        boolean bIsPansharpened = subClass.equals("VRTPansharpenedDataset");
+        boolean bIsPansharpened = "VRTPansharpenedDataset".equals(subClass);
 
         if (!bIsPansharpened &&
         deserializedVrtDataset.getGroup() == null &&

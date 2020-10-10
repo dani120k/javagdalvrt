@@ -5,13 +5,19 @@ import sokolov.model.sources.VrtComplexSource;
 import sokolov.model.sources.VrtSimpleSource;
 import sokolov.model.sources.VrtSource;
 import sokolov.model.supclasses.VRTImageReadFunc;
+import sokolov.model.xmlmodel.SimpleSourceType;
+import sokolov.model.xmlmodel.VRTDataset;
+import sokolov.model.xmlmodel.VRTRasterBandType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class VrtSourcedRasterBand extends VrtRasterBand {
     int            m_nRecursionCounter;
     String      m_osLastLocationInfo;
     String[] m_papszSourceList;
     int            nSources;
-    VrtSource[] papoSources;
+    VrtSource[] papoSources; //TODO switch to List
     boolean            bSkipBufferInitialization;
 
     public VrtSourcedRasterBand(){
@@ -94,7 +100,18 @@ public class VrtSourcedRasterBand extends VrtRasterBand {
     public void AddSource(VrtSource poNewSource){
         nSources++;
 
-        papoSources = new VrtSource[nSources];
+        if (nSources > 1) {
+            VrtSource[] vrtSourceArray = new VrtSource[nSources];
+            for (int i = 0; i < nSources - 1; i++) {
+                vrtSourceArray[i] = papoSources[i];
+            }
+
+            papoSources = null;
+            papoSources = vrtSourceArray;
+        } else {
+            papoSources = new VrtSource[nSources];
+        }
+
         papoSources[nSources-1] = poNewSource;
 
         poDS.SetNeedsFlush();
@@ -156,5 +173,30 @@ public class VrtSourcedRasterBand extends VrtRasterBand {
         /*      add to list.                                                    */
         /* -------------------------------------------------------------------- */
         AddSource( poSource );
+    }
+
+    public VRTRasterBandType SerializeToXML(VRTDataset vrtDataset, String pszVrtPath){
+        VRTRasterBandType vrtRasterBandType = super.SerializeToXML(vrtDataset, pszVrtPath);
+
+        /* -------------------------------------------------------------------- */
+        /*      Process Sources.                                                */
+        /* -------------------------------------------------------------------- */
+        List<SimpleSourceType> simpleSourceTypeList = new ArrayList<>();
+
+        for(int iSource = 0; iSource < nSources; iSource++){
+            //TODO can be another type?
+            //check for null is only for test
+            SimpleSourceType psXMLSrc = null;
+            if (papoSources[iSource] != null)
+                psXMLSrc = papoSources[iSource].serializeToXML(vrtRasterBandType, this, pszVrtPath);
+
+            if (psXMLSrc != null){
+                simpleSourceTypeList.add(psXMLSrc);
+            }
+        }
+
+        vrtRasterBandType.setSimpleSource(simpleSourceTypeList);
+
+        return vrtRasterBandType;
     }
 }

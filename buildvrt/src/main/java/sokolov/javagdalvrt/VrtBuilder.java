@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class VrtBuilder {
     //TODO should be in enum
@@ -38,11 +39,6 @@ public class VrtBuilder {
     private static int GEOTRSFRM_TOPLEFT_Y = 3;
     private static int GEOTRSFRM_ROTATION_PARAM2 = 4;
     private static int GEOTRSFRM_NS_RES = 5;
-
-    //список свойств датасетов was pasDatasetProperties
-    private List<DatasetProperty> datasetPropertyList = new ArrayList();
-    //список имен файлов
-    private List<String> inputFileNamesList = new ArrayList<String>();
 
     //имкеет ли геотрансформацию
     private boolean bHasGeoTransform;
@@ -109,7 +105,6 @@ public class VrtBuilder {
         this.pszOutputFilename = pszOutputFilenameIn;
         this.nInputFiles = nInputFilesIn;
         this.pahSrcDS = null;
-        this.inputFileNamesList = null;
         this.papszOpenOptions = papszOpenOptionsIn;
 
         if (ppszInputFilenamesIn != null) {
@@ -295,8 +290,8 @@ public class VrtBuilder {
             poMaskVRTBand = (VrtSourcedRasterBand) hVRTDS.GetRasterBand(1).GetMaskBand();
         }
 
-        for (int i = 0; i < inputFileNamesList.size(); i++) {
-            DatasetProperty psDatasetProperties = datasetPropertyList.get(i);
+        for (int i = 0; i < ppszInputFilenames.length; i++) {
+            DatasetProperty psDatasetProperties = pasDatasetProperties[i];
 
             if (psDatasetProperties.isFileOK() == false)
                 continue;
@@ -307,7 +302,7 @@ public class VrtBuilder {
                     dfScrObject))
                 continue;
 
-            String dsFileName = inputFileNamesList.get(i);
+            String dsFileName = ppszInputFilenames[i];
 
             GdalProxyPoolDataset hProxyDS =
                     new GdalProxyPoolDataset(dsFileName,
@@ -401,6 +396,12 @@ public class VrtBuilder {
                                  double we_res, double ns_res,
                                  double minX, double minY, double maxX, double maxY,
                                  DfScrObject dfScrObject) {
+        //this is real boolshit
+        double proxyMinY = minY;
+        minY = maxY;
+        maxY = proxyMinY;
+
+
         //TODO dome links to changed double
         /* Check that the destination bounding box intersects the source bounding box */
         if (psDP.adfGeoTransform[GEOTRSFRM_TOPLEFT_X] +
@@ -592,7 +593,8 @@ public class VrtBuilder {
 
 
             psDatasetProperties.padfOffset[j] = hDs.GetRasterBand(j + 1).getRasterOffset(bHasOffset);
-            psDatasetProperties.pabHasOffset[j] = bHasOffset != true && psDatasetProperties.padfOffset[j] != 0.0;
+
+            psDatasetProperties.pabHasOffset[j] = !bHasOffset && psDatasetProperties.padfOffset[j] != 0.0;
 
             boolean bHasScale = false;
             //TODO link &bHasScale
@@ -629,9 +631,13 @@ public class VrtBuilder {
 
             if (!bSeparate) {
                 pasBandProperties = new BandProperty[nMaxBandNo];
+                for (int i = 0; i < nMaxBandNo; i++) {
+                    pasBandProperties[i] = new BandProperty();
+                }
+
                 for (j = 0; j < nMaxBandNo; j++) {
                     GdalRasterBand hRasterBand = hDs.GetRasterBand(j + 1);
-                    if (pasBandProperties == null)
+
 
                     pasBandProperties[j].colorInterpretation = hRasterBand.GetColorInterpretation();
                     pasBandProperties[j].dataType = hRasterBand.GetRasterDataType();
@@ -748,14 +754,14 @@ public class VrtBuilder {
                     if (psDatasetProperties.pabHasOffset[j] != pasBandProperties[j].bHasOffset ||
                             (pasBandProperties[j].bHasOffset &&
                                     psDatasetProperties.padfOffset[j] != pasBandProperties[j].dfOffset)) {
-                        System.out.println(String.format("gdalbuildvrt does not support heterogeneous band offset: expected (%d,%f), got (%d,%f). Skipping %s",
+                        /*TODO System.out.println(String.format("gdalbuildvrt does not support heterogeneous band offset: expected (%s,%s), got (%s,%s). Skipping %s",
                                 pasBandProperties[j].bHasOffset,
                                 pasBandProperties[j].dfOffset,
                                 psDatasetProperties.pabHasOffset[j],
                                 psDatasetProperties.padfOffset[j],
                                 dsFileName));
 
-                        return false;
+                        return false;*/
                     }
 
                     if (psDatasetProperties.pabHasScale[j] != pasBandProperties[j].bHasScale ||
@@ -821,7 +827,7 @@ public class VrtBuilder {
         //if( pfnProgress == nullptr )
         //    pfnProgress = GDALDummyProgress;
 
-        bUserExtent = (minX != 0 || minY != 0 || maxX != 0 || maxY != 0);
+        bUserExtent = (minX != 0.0 || minY != 0.0 || maxX != 0.0 || maxY != 0.0);
         if (bUserExtent) {
             if (minX >= maxX || minY >= maxY) {
                 System.out.println("Invalid user extent");
@@ -1093,6 +1099,10 @@ public class VrtBuilder {
         /* specified */
         if (psOptions.pszSrcNoData != null && psOptions.pszVRTNoData == null)
             psOptions.pszVRTNoData = psOptions.pszSrcNoData;
+
+        //TODO
+        //just for test
+        psOptions.bAllowProjectionDifference = true;
 
         VrtBuilder oBuilder = new VrtBuilder(pszDest, nSrcCount, papszSrcDSNames, pahSrcDS,
                             psOptions.panBandList, psOptions.nBandCount, psOptions.nMaxBandNo,

@@ -1,8 +1,11 @@
 package sokolov.model.sources;
 
 import sokolov.model.datasets.GDALRasterIOExtraArg;
+import sokolov.model.datasets.GdalRasterBand;
 import sokolov.model.enums.GDALDataType;
 import sokolov.model.supclasses.CPLHashSet;
+import sokolov.model.xmlmodel.SimpleSourceType;
+import sokolov.model.xmlmodel.VRTRasterBandType;
 
 import java.util.List;
 
@@ -36,8 +39,6 @@ public interface VrtSource {
 
     void XmlInit();
 
-    public String SerializeToXml();
-
     void GetFileList(List<List<String>> ppapszFileList, Integer pnSize,
                 Integer pnMaxSize, List<CPLHashSet> hSetFiles);
 
@@ -45,4 +46,5 @@ public interface VrtSource {
 
     void FlushCache();
 
+    SimpleSourceType serializeToXML(VRTRasterBandType vrtRasterBandType, GdalRasterBand gdalRasterBand, String pszVrtPath);
 }
