@@ -398,9 +398,9 @@ public class VrtBuilder {
                                  double minX, double minY, double maxX, double maxY,
                                  DfScrObject dfScrObject) {
         //this is real boolshit
-        /*double proxyMinY = minY;
+        double proxyMinY = minY;
         minY = maxY;
-        maxY = proxyMinY;*/
+        maxY = proxyMinY;
 
 
         //TODO dome links to changed double

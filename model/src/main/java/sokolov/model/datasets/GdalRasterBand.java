@@ -2,8 +2,10 @@ package sokolov.model.datasets;
 
 import sokolov.model.enums.*;
 import sokolov.model.supclasses.GByte;
+import sokolov.model.xmlmodel.*;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static sokolov.model.datasets.GDALRIOResampleAlg.*;
@@ -443,6 +445,36 @@ public class GdalRasterBand extends GdalMajorObject {
 
     public int GetBand() {
         return nBand;
+    }
+
+    public void initXml(VRTRasterBandType vrtRasterBandType, int nBand) {
+        this.nBand = nBand;
+
+        List<SimpleSourceType> simpleSource = vrtRasterBandType.getSimpleSource();
+        if (simpleSource != null){
+
+        }
+
+        List<ComplexSourceType> complexSource = vrtRasterBandType.getComplexSource();
+        if (complexSource != null){
+
+        }
+
+        List<SimpleSourceType> averagedSource = vrtRasterBandType.getAveragedSource();
+        if (averagedSource != null){
+
+        }
+
+        List<KernelFilteredSourceType> kernelFilteredSource = vrtRasterBandType.getKernelFilteredSource();
+        if (kernelFilteredSource != null){
+
+        }
+
+        MaskBandType maskBand = vrtRasterBandType.getMaskBand();
+
+        if (maskBand != null){
+
+        }
     }
 
     /*

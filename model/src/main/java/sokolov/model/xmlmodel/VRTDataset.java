@@ -1,6 +1,7 @@
 package sokolov.model.xmlmodel;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class VRTDataset {
     private List<MetadataType> metadata;
 
     @JacksonXmlProperty(localName = "VRTRasterBand")
+    @JacksonXmlElementWrapper(useWrapping = false)
     private List<VRTRasterBandType> vrtRasterBand;
 
     @JacksonXmlProperty(localName = "MaskBand")
@@ -46,10 +48,10 @@ public class VRTDataset {
     @JacksonXmlProperty(localName = "subClass")
     private String subClass;
 
-    @JacksonXmlProperty(localName = "rasterXSize")
+    @JacksonXmlProperty(localName = "rasterXSize", isAttribute = true)
     private Integer rasterXSize;
 
-    @JacksonXmlProperty(localName = "rasterYSize")
+    @JacksonXmlProperty(localName = "rasterYSize", isAttribute = true)
     private Integer rasterYSize;
 
     public String getSubClass() {

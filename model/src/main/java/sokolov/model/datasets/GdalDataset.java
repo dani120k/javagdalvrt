@@ -6,6 +6,8 @@ import sokolov.model.enums.OSRAxisMappingStrategy;
 import sokolov.model.supclasses.GDALDefaultOverviews;
 import sokolov.model.supclasses.GdalDatasetPrivate;
 import sokolov.model.supclasses.GdalDriver;
+import sokolov.model.xmlmodel.VRTDataset;
+import sokolov.model.xmlmodel.VRTRasterBandType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +26,6 @@ public class GdalDataset extends GdalMajorObject {
     public static int GMO_MD_DIRTY = 0x0010;
     public static int GMO_PAM_CLASS = 0x0020;
 
-    public GdalDriver poDriver = null;
     public GdalAccess eAccess = GA_ReadOnly;
 
     public int nRasterXSize = 512;
@@ -391,19 +392,6 @@ public class GdalDataset extends GdalMajorObject {
     }
 
     /**
-     * \brief Fetch the driver to which this dataset relates.
-     * <p>
-     * This method is the same as the C GDALGetDatasetDriver() function.
-     *
-     * @return the driver on which the dataset was created with GDALOpen() or
-     * GDALCreate().
-     */
-
-    public GdalDriver GetDriver() {
-        return poDriver;
-    }
-
-    /**
      * \brief Add one to dataset reference count.
      * <p>
      * The reference is one after instantiation.
@@ -567,5 +555,23 @@ public class GdalDataset extends GdalMajorObject {
 
     public void SetNeedsFlush() {
 
+    }
+
+    public void InitXml(VRTDataset deserializedVrtDataset) {
+        this.nRasterXSize = deserializedVrtDataset.getRasterXSize();
+        this.nRasterYSize = deserializedVrtDataset.getRasterYSize();
+
+        if (deserializedVrtDataset.getVrtRasterBand() != null) {
+            this.nBands = deserializedVrtDataset.getVrtRasterBand().size();
+            this.papoBands = new GdalRasterBand[this.nBands];
+            for(int i = 0; i < this.nBands; i++)
+                this.papoBands[i] = new GdalRasterBand();
+
+
+            int it = 0;
+            for (VRTRasterBandType vrtRasterBandType : deserializedVrtDataset.getVrtRasterBand()) {
+                this.papoBands[it++].initXml(vrtRasterBandType, it);
+            }
+        }
     }
 }

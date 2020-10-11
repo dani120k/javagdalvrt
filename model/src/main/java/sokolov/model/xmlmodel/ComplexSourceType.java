@@ -64,6 +64,9 @@ public class ComplexSourceType {
         this.resampling = simpleSourceType.getResampling();
     }
 
+    public ComplexSourceType() {
+    }
+
     public SourceFilenameType getSourceFilename() {
         return sourceFilename;
     }

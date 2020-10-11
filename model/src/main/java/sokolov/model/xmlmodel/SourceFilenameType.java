@@ -1,6 +1,7 @@
 package sokolov.model.xmlmodel;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
 
 public class SourceFilenameType {
     @JacksonXmlProperty(localName = "relativeToVRT", isAttribute = true)
@@ -11,6 +12,17 @@ public class SourceFilenameType {
 
     @JacksonXmlProperty(localName = "shared", isAttribute = true)
     private OGRBooleanType shared;
+
+    @JacksonXmlText
+    private String sourceFileName;
+
+    public String getSourceFileName() {
+        return sourceFileName;
+    }
+
+    public void setSourceFileName(String sourceFileName) {
+        this.sourceFileName = sourceFileName;
+    }
 
     public int getRelativeToVRT() {
         return relativeToVRT;

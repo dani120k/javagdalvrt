@@ -16,7 +16,7 @@ import java.nio.file.StandardOpenOption;
 
 public class App {
     public static void main(String[] args) throws IOException {
-        TiffFileReader tiffFileReader = new TiffFileReader();
+        //TiffFileReader tiffFileReader = new TiffFileReader();
         //IIOMetadata iioMetadata = tiffFileReader.extractMetadataFromTiffFile("");
 
         System.out.println();
@@ -49,25 +49,25 @@ public class App {
         //vrtBuilder.build();*/
 
 
-        VrtDataset gdalDataset = (VrtDataset)new VrtBuilder().gdalBuildVRT(
+        /*VrtDataset gdalDataset = (VrtDataset)new VrtBuilder().gdalBuildVRT(
                 "C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder",
-                1,
+                2,
                 null,
                 new String[]{"C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\TrueMarble.250m.21600x21600.E1.tif", "C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\TrueMarble.250m.21600x21600.E2.tif"},
                 new GdalBuildVrtOptions(0, 0)
-        );
+        );*/
 
         System.out.println();
         String pszVRTPathIn = null;
 
-        VRTDataset vrtDataset = gdalDataset.SerializeToXML(pszVRTPathIn);
+        //VRTDataset vrtDataset = gdalDataset.SerializeToXML(pszVRTPathIn);
 
         //VRTDataset vrtDataset = serializeToVrtDataset(gdalDataset);
 
         XmlMapper xmlMapper = new XmlMapper();
         xmlMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        xmlMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        xmlMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);/*
         String value = xmlMapper.writeValueAsString(vrtDataset);
 
         Path pathToVrt = Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder", "test.vrt");
@@ -76,13 +76,16 @@ public class App {
 
         Files.write(pathToVrt,
                 value.getBytes(),
-                StandardOpenOption.CREATE_NEW);
+                StandardOpenOption.CREATE_NEW);*/
 
-        byte[] bytes = Files.readAllBytes(Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder", "test.vrt"));
+        byte[] bytes = Files.readAllBytes(Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt", "test_mosaic.vrt"));
 
         VRTDataset deserializedVrtDataset = xmlMapper.readValue(bytes, VRTDataset.class);
 
         //GdalDataset resultedDataset = extractFromVRTXml(deserializedVrtDataset, Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder", "test.vrt").toString());
+
+        GdalDataset gdalDataset = new GdalDataset();
+        gdalDataset.InitXml(deserializedVrtDataset);
 
         System.out.println();
     }
