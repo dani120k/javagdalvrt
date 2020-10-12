@@ -9,6 +9,12 @@ import sokolov.model.supclasses.GdalDriver;
 import sokolov.model.xmlmodel.VRTDataset;
 import sokolov.model.xmlmodel.VRTRasterBandType;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -558,9 +564,16 @@ public class GdalDataset extends GdalMajorObject {
 
     }
 
+    public BufferedImage bufferedImage;
+    WritableRaster interleavedRaster;
+    private static int t = 0;
+
     public void InitXml(VRTDataset deserializedVrtDataset) throws IOException {
         this.nRasterXSize = deserializedVrtDataset.getRasterXSize();
         this.nRasterYSize = deserializedVrtDataset.getRasterYSize();
+
+        bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_3BYTE_BGR);
+        interleavedRaster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, nRasterXSize, nRasterYSize, 3, null);
 
         if (deserializedVrtDataset.getVrtRasterBand() != null) {
             this.nBands = deserializedVrtDataset.getVrtRasterBand().size();
@@ -571,8 +584,12 @@ public class GdalDataset extends GdalMajorObject {
 
             int it = 0;
             for (VRTRasterBandType vrtRasterBandType : deserializedVrtDataset.getVrtRasterBand()) {
-                this.papoBands[it++].initXml(deserializedVrtDataset, vrtRasterBandType, it);
+                this.papoBands[it++].initXml(deserializedVrtDataset, vrtRasterBandType, it, interleavedRaster);
             }
+
+            bufferedImage.getRaster().setRect(interleavedRaster);
+
+            ImageIO.write(bufferedImage, "png", new File(String.format("result-%s.png", t)));
         }
     }
 }

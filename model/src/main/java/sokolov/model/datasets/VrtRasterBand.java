@@ -82,6 +82,7 @@ public class VrtRasterBand extends GdalRasterBand {
 
 
     public boolean XMLInit(VRTRasterBandType vrtRasterBand, String pszVRTPathIn, VrtDataset vrtDataset, Map<String, GdalDataset> m_oMapSharedSources) {
+
         /* -------------------------------------------------------------------- */
         /*      Set the band if provided as an attribute.                       */
         /* -------------------------------------------------------------------- */

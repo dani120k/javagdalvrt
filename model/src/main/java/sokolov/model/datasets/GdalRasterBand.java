@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,7 +32,7 @@ public class GdalRasterBand extends GdalMajorObject {
     private int GMO_PAM_CLASS = 0x0020;
 
 
-    private byte[][] band;
+    private int[][] band;
 
     GdalDataset poDS = null;
     int nBand = 0;
@@ -457,7 +458,10 @@ public class GdalRasterBand extends GdalMajorObject {
         return nBand;
     }
 
-    public void initXml(VRTDataset vrtDataset, VRTRasterBandType vrtRasterBandType, int nBand) throws IOException {
+
+
+
+    public void initXml(VRTDataset vrtDataset, VRTRasterBandType vrtRasterBandType, int nBand, WritableRaster interleavedRaster) throws IOException {
         this.nBand = nBand;
         this.nRasterXSize = vrtDataset.getRasterXSize();
         this.nRasterYSize = vrtDataset.getRasterYSize();
@@ -468,9 +472,9 @@ public class GdalRasterBand extends GdalMajorObject {
         if (vrtDataset.getBlockYSize() != null)
             this.nBlockYSize = new AtomicInteger(vrtDataset.getBlockYSize().intValue());
 
-        this.band = new byte[this.nRasterXSize][];
+        this.band = new int[this.nRasterXSize][];
         for (int i = 0; i < nRasterXSize; i++) {
-            this.band[i] = new byte[nRasterYSize];
+            this.band[i] = new int[nRasterYSize];
         }
 
         /*SourceFilenameType sourceFilename = vrtRasterBandType.getSourceFilename();
@@ -492,6 +496,14 @@ public class GdalRasterBand extends GdalMajorObject {
 
         List<ComplexSourceType> complexSourceList = vrtRasterBandType.getComplexSource();
         if (complexSourceList != null){
+            //BufferedImage image_share1 = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_INT_RGB);
+
+
+            SampleModel sampleModel = interleavedRaster.getSampleModel();
+            //SampleModel sampleModel = image_share1.getSampleModel();
+
+            //WritableRaster rast = image_share1.getRaster(); // Faster! No copy, and live updated
+
             for (ComplexSourceType complexSourceType : complexSourceList) {
                 SourceFilenameType sourceFilename = complexSourceType.getSourceFilename();
 
@@ -521,6 +533,7 @@ public class GdalRasterBand extends GdalMajorObject {
                 int ySize = srcRect.getySize().intValue();
 
 
+                int counter = 0;
                 int realX = 0;
                 for(int i = startX; i < startX + xSize; i++) {
                     int realY = 0;
@@ -528,7 +541,7 @@ public class GdalRasterBand extends GdalMajorObject {
                         int[] array = new int[data.getNumBands()];
                         data.getPixel(i, j, array);
 
-                        this.band[realX][realY] = (byte)array[nBand - 1];
+                        this.band[realX][realY] = array[nBand - 1];
 
                         realY++;
                                 System.out.println();
@@ -538,17 +551,44 @@ public class GdalRasterBand extends GdalMajorObject {
                 }
 
 
-                WritableRaster raster = image.getRaster();
-                DataBufferByte buffer = (DataBufferByte) raster.getDataBuffer();
+                //WritableRaster writableRaster = Raster.createBandedRaster(0, nRasterXSize, nRasterYSize, 3, new Point(0, 0));
+                //WritableRaster raster = image.getRaster();
+                /*DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
                 byte[] test = buffer.getData();
-                ColorModel colorModel = image.getColorModel();
+                ColorModel colorModel = new DirectColorModel(8, 255, 255, 255);*/
 
-                BufferedImage asdf = new BufferedImage(colorModel, raster, false, null);
-                ImageIO.write(asdf, "jpg", new File("image.jpg"));
+                RectType dstRect = complexSourceType.getDstRect();
+
+                int dstX = dstRect.getxOff().intValue();
+                int dstY = dstRect.getyOff().intValue();
+                int dstXSize = dstRect.getxSize().intValue();
+                int dstYSize = dstRect.getySize().intValue();
+
+                for (int i = dstX; i< dstX + dstXSize; i++) {
+                    for (int j = dstY; j < dstY + dstYSize; j++) {
+                        int b = this.band[i - dstX][j - dstY];
+
+                        String noDataValue = vrtRasterBandType.getNoDataValue();
+                        if (b != Integer.parseInt(noDataValue)) {
+                            sampleModel.setSample(i, j++, nBand - 1, b, interleavedRaster.getDataBuffer());
+                        }
+                    }
+                }
+
+
+                //rast.setDataElements(dstX, dstY, dstXSize, dstYSize, testBand);
+
+                //BufferedImage asdf = new BufferedImage(ColorModel.getRGBdefault(), writableRaster, false, null);
+                //ImageIO.write(image_share1, "tiff", new File(String.format("image_%s.tiff", t++)));
+
+                ColorInterpType colorInterp = vrtRasterBandType.getColorInterp();
 
                 System.out.println();
 
             }
+
+
+
         }
 
         List<SimpleSourceType> averagedSource = vrtRasterBandType.getAveragedSource();
