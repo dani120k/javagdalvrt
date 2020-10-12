@@ -589,7 +589,9 @@ public class GdalDataset extends GdalMajorObject {
 
             bufferedImage.getRaster().setRect(interleavedRaster);
 
-            ImageIO.write(bufferedImage, "png", new File(String.format("result-%s.png", t)));
+            ImageIO.write(bufferedImage, "tiff", new File(String.format("result-%s.tiff", t)));
+
+            System.out.println();
         }
     }
 }

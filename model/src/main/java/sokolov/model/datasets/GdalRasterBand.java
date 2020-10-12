@@ -519,8 +519,6 @@ public class GdalRasterBand extends GdalMajorObject {
 
                 BufferedImage image = ImageIO.read(file);
 
-
-
                 RectType srcRect = complexSourceType.getSrcRect();
 
                 Rectangle rectangle = new Rectangle(srcRect.getxOff().intValue(), srcRect.getyOff().intValue(), srcRect.getxSize().intValue(), srcRect.getySize().intValue());
