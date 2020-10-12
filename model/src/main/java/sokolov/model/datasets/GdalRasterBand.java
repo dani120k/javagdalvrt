@@ -4,7 +4,15 @@ import sokolov.model.enums.*;
 import sokolov.model.supclasses.GByte;
 import sokolov.model.xmlmodel.*;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,6 +30,8 @@ public class GdalRasterBand extends GdalMajorObject {
     private int GMO_MD_DIRTY = 0x0010;
     private int GMO_PAM_CLASS = 0x0020;
 
+
+    private byte[][] band;
 
     GdalDataset poDS = null;
     int nBand = 0;
@@ -447,17 +457,98 @@ public class GdalRasterBand extends GdalMajorObject {
         return nBand;
     }
 
-    public void initXml(VRTRasterBandType vrtRasterBandType, int nBand) {
+    public void initXml(VRTDataset vrtDataset, VRTRasterBandType vrtRasterBandType, int nBand) throws IOException {
         this.nBand = nBand;
+        this.nRasterXSize = vrtDataset.getRasterXSize();
+        this.nRasterYSize = vrtDataset.getRasterYSize();
+
+        if (vrtDataset.getBlockXSize() != null)
+            this.nBlockXSize = new AtomicInteger(vrtDataset.getBlockXSize().intValue());
+
+        if (vrtDataset.getBlockYSize() != null)
+            this.nBlockYSize = new AtomicInteger(vrtDataset.getBlockYSize().intValue());
+
+        this.band = new byte[this.nRasterXSize][];
+        for (int i = 0; i < nRasterXSize; i++) {
+            this.band[i] = new byte[nRasterYSize];
+        }
+
+        /*SourceFilenameType sourceFilename = vrtRasterBandType.getSourceFilename();
+        if (sourceFilename.getSourceFileName() == null){
+            throw new RuntimeException(String.format("Не указан источник для RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
+        }
+
+        String sourceFileName = sourceFilename.getSourceFileName();
+        File file = Paths.get(sourceFileName).toFile();
+        if (!file.exists()){
+            throw new RuntimeException(String.format("Отсутствует файл-источник для RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
+        }*/
+        String pathToVrtFolder = vrtDataset.getPathToFile().substring(0, vrtDataset.getPathToFile().lastIndexOf(File.separator));
 
         List<SimpleSourceType> simpleSource = vrtRasterBandType.getSimpleSource();
         if (simpleSource != null){
 
         }
 
-        List<ComplexSourceType> complexSource = vrtRasterBandType.getComplexSource();
-        if (complexSource != null){
+        List<ComplexSourceType> complexSourceList = vrtRasterBandType.getComplexSource();
+        if (complexSourceList != null){
+            for (ComplexSourceType complexSourceType : complexSourceList) {
+                SourceFilenameType sourceFilename = complexSourceType.getSourceFilename();
 
+                if (sourceFilename.getSourceFileName() == null){
+                    throw new RuntimeException(String.format("Не указан источник для ComplexSource RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
+                }
+
+                Path sourceFileName = Paths.get(pathToVrtFolder, sourceFilename.getSourceFileName());
+                File file = sourceFileName.toFile();
+                if (!file.exists()){
+                    throw new RuntimeException(String.format("Отсутствует файл-источник для ComplexSource для RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
+                }
+
+                BufferedImage image = ImageIO.read(file);
+
+
+
+                RectType srcRect = complexSourceType.getSrcRect();
+
+                Rectangle rectangle = new Rectangle(srcRect.getxOff().intValue(), srcRect.getyOff().intValue(), srcRect.getxSize().intValue(), srcRect.getySize().intValue());
+
+                Raster data = image.getData(rectangle);
+
+                int startX = srcRect.getxOff().intValue();
+                int startY = srcRect.getyOff().intValue();
+                int xSize = srcRect.getxSize().intValue();
+                int ySize = srcRect.getySize().intValue();
+
+
+                int realX = 0;
+                for(int i = startX; i < startX + xSize; i++) {
+                    int realY = 0;
+                    for (int j = startY; j < startY + ySize; j++) {
+                        int[] array = new int[data.getNumBands()];
+                        data.getPixel(i, j, array);
+
+                        this.band[realX][realY] = (byte)array[nBand - 1];
+
+                        realY++;
+                                System.out.println();
+                    }
+
+                    realX++;
+                }
+
+
+                WritableRaster raster = image.getRaster();
+                DataBufferByte buffer = (DataBufferByte) raster.getDataBuffer();
+                byte[] test = buffer.getData();
+                ColorModel colorModel = image.getColorModel();
+
+                BufferedImage asdf = new BufferedImage(colorModel, raster, false, null);
+                ImageIO.write(asdf, "jpg", new File("image.jpg"));
+
+                System.out.println();
+
+            }
         }
 
         List<SimpleSourceType> averagedSource = vrtRasterBandType.getAveragedSource();

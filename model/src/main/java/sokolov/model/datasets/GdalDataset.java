@@ -9,6 +9,7 @@ import sokolov.model.supclasses.GdalDriver;
 import sokolov.model.xmlmodel.VRTDataset;
 import sokolov.model.xmlmodel.VRTRasterBandType;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -557,7 +558,7 @@ public class GdalDataset extends GdalMajorObject {
 
     }
 
-    public void InitXml(VRTDataset deserializedVrtDataset) {
+    public void InitXml(VRTDataset deserializedVrtDataset) throws IOException {
         this.nRasterXSize = deserializedVrtDataset.getRasterXSize();
         this.nRasterYSize = deserializedVrtDataset.getRasterYSize();
 
@@ -570,7 +571,7 @@ public class GdalDataset extends GdalMajorObject {
 
             int it = 0;
             for (VRTRasterBandType vrtRasterBandType : deserializedVrtDataset.getVrtRasterBand()) {
-                this.papoBands[it++].initXml(vrtRasterBandType, it);
+                this.papoBands[it++].initXml(deserializedVrtDataset, vrtRasterBandType, it);
             }
         }
     }

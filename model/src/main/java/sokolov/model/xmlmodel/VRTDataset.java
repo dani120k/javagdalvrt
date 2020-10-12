@@ -1,5 +1,6 @@
 package sokolov.model.xmlmodel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -53,6 +54,17 @@ public class VRTDataset {
 
     @JacksonXmlProperty(localName = "rasterYSize", isAttribute = true)
     private Integer rasterYSize;
+
+    @JsonIgnore
+    private String pathToFile;
+
+    public String getPathToFile() {
+        return pathToFile;
+    }
+
+    public void setPathToFile(String pathToFile) {
+        this.pathToFile = pathToFile;
+    }
 
     public String getSubClass() {
         return subClass;
