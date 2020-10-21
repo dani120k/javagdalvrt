@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.geotools:gt-opengis:25-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-opengis/25-SNAPSHOT/gt-opengis-25-20201014.113523-22.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-opengis/25-SNAPSHOT/gt-opengis-25-20201014.113523-22-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-opengis/25-SNAPSHOT/gt-opengis-25-20201014.113523-22-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

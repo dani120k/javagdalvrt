@@ -40,12 +40,10 @@ public class VrtSimpleSource implements VrtSource {
 
     @Override
     public void GetHistogram(int nXSize, int nYSize, double dfMin, double dfMax, int nBuckets, int bIncludeOutOfRange, int bApproxOK) {
-
     }
 
     @Override
     public void GetFileList(List<List<String>> ppapszFileList, Integer pnSize, Integer pnMaxSize, List<CPLHashSet> hSetFiles) {
-
     }
 
     @Override
@@ -55,7 +53,6 @@ public class VrtSimpleSource implements VrtSource {
 
     @Override
     public void FlushCache() {
-
     }
 
 

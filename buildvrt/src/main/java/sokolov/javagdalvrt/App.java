@@ -3,11 +3,16 @@ package sokolov.javagdalvrt;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.GridCoverage2DReader;
+import org.geotools.coverage.grid.io.GridFormatFinder;
+import org.geotools.coverageio.gdal.mrsid.MrSIDReader;
 import sokolov.model.datasets.*;
 import sokolov.model.enums.GdalAccess;
 import sokolov.model.enums.ResolutionStrategy;
 import sokolov.model.xmlmodel.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,8 +21,6 @@ import java.nio.file.StandardOpenOption;
 
 public class App {
     public static void main(String[] args) throws IOException {
-        //TiffFileReader tiffFileReader = new TiffFileReader();
-        //IIOMetadata iioMetadata = tiffFileReader.extractMetadataFromTiffFile("");
 
         System.out.println();
 
