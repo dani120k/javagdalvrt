@@ -1,24 +1,24 @@
-package ru.sokolov.alghorithms;
+package sokolov.model.resamplng;
 
-import ru.sokolov.alghorithms.resamplingimplementation.AverageResampling;
-import ru.sokolov.alghorithms.resamplingimplementation.BilinearResampling;
-import ru.sokolov.alghorithms.resamplingimplementation.NearestNeighbourResampling;
+import sokolov.model.resamplng.resamplingimplementation.AverageResampling;
+import sokolov.model.resamplng.resamplingimplementation.BilinearResampling;
+import sokolov.model.resamplng.resamplingimplementation.NearestNeighbourResampling;
 import sokolov.model.xmlmodel.RectType;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.SampleModel;
 
 public class ResamplingAlghorithmExecutor {
 
     public byte[] imageRescaling(int bandNumber,
                                RectType srcRect,
                                RectType dstRect,
+                               int noDataValue,
                                BufferedImage originalImage,
-                               String rescaling){
+                               String resampling){
         return this.imageRescaling(bandNumber,
-                srcRect.getxOff().intValue(), srcRect.getxSize().intValue(), srcRect.getyOff().intValue(), srcRect.getySize().intValue(),
-                dstRect.getxOff().intValue(), dstRect.getxSize().intValue(), dstRect.getyOff().intValue(), dstRect.getySize().intValue(),
-                originalImage, rescaling);
+                srcRect.getxOff().intValue(), srcRect.getyOff().intValue(), srcRect.getxSize().intValue(), srcRect.getySize().intValue(),
+                dstRect.getxOff().intValue(),  dstRect.getyOff().intValue(), dstRect.getxSize().intValue(),dstRect.getySize().intValue(),
+                noDataValue, originalImage, resampling);
     }
 
     public byte[] imageRescaling(int bandNumber,
@@ -28,8 +28,9 @@ public class ResamplingAlghorithmExecutor {
                                int ySizeOriginal,
                                int xOffResult,
                                int yOffResult,
-                               int xSizeReuslt,
+                               int xSizeResult,
                                int ySizeResult,
+                               int noDataValue,
                                BufferedImage originalImage,
                                String resampling){
         ResamplingAlgorithm resamplingAlgorithm = null;
@@ -51,7 +52,8 @@ public class ResamplingAlghorithmExecutor {
 
         byte[] resamplingResultedArray = resamplingAlgorithm.resampling(bandNumber,
                 xOffOriginal, yOffOriginal, xSizeOriginal, ySizeOriginal,
-                xOffResult, yOffResult, xSizeReuslt, ySizeResult,
+                xOffResult, yOffResult, xSizeResult, ySizeResult,
+                noDataValue,
                 originalImage);
 
         return resamplingResultedArray;

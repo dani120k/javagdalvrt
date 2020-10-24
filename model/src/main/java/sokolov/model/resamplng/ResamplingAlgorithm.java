@@ -1,4 +1,4 @@
-package ru.sokolov.alghorithms;
+package sokolov.model.resamplng;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.SampleModel;
@@ -13,5 +13,6 @@ public interface ResamplingAlgorithm {
                                int yOffResult,
                                int xSizeResult,
                                int ySizeResult,
+                               int noDataValue,
                                BufferedImage originalImage);
 }

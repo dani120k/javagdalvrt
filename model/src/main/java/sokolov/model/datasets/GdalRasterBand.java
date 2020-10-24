@@ -1,6 +1,8 @@
 package sokolov.model.datasets;
 
+import org.geotools.coverage.processing.operation.Resample;
 import sokolov.model.enums.*;
+import sokolov.model.resamplng.ResamplingAlghorithmExecutor;
 import sokolov.model.supclasses.GByte;
 import sokolov.model.xmlmodel.*;
 
@@ -31,8 +33,6 @@ public class GdalRasterBand extends GdalMajorObject {
     private int GMO_MD_DIRTY = 0x0010;
     private int GMO_PAM_CLASS = 0x0020;
 
-
-    private int[][] band;
 
     GdalDataset poDS = null;
     int nBand = 0;
@@ -472,126 +472,63 @@ public class GdalRasterBand extends GdalMajorObject {
         if (vrtDataset.getBlockYSize() != null)
             this.nBlockYSize = new AtomicInteger(vrtDataset.getBlockYSize().intValue());
 
-        this.band = new int[this.nRasterXSize][];
-        for (int i = 0; i < nRasterXSize; i++) {
-            this.band[i] = new int[nRasterYSize];
-        }
-
-        /*SourceFilenameType sourceFilename = vrtRasterBandType.getSourceFilename();
-        if (sourceFilename.getSourceFileName() == null){
-            throw new RuntimeException(String.format("Не указан источник для RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
-        }
-
-        String sourceFileName = sourceFilename.getSourceFileName();
-        File file = Paths.get(sourceFileName).toFile();
-        if (!file.exists()){
-            throw new RuntimeException(String.format("Отсутствует файл-источник для RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
-        }*/
         String pathToVrtFolder = vrtDataset.getPathToFile().substring(0, vrtDataset.getPathToFile().lastIndexOf(File.separator));
 
-        List<SimpleSourceType> simpleSource = vrtRasterBandType.getSimpleSource();
-        if (simpleSource != null){
+        List<SimpleSourceType> simpleSourceList = vrtRasterBandType.getSimpleSource();
+        if (simpleSourceList != null){
+            SampleModel sampleModel = interleavedRaster.getSampleModel();
 
+            for (SimpleSourceType simpleSourceType : simpleSourceList) {
+                String resampling = simpleSourceType.getResampling();
+                if (resampling == null)
+                    resampling = "nearest";
+
+                initSimpleSource(sampleModel,
+                        simpleSourceType,
+                        pathToVrtFolder,
+                        vrtRasterBandType,
+                        interleavedRaster,
+                        resampling);
+            }
         }
 
         List<ComplexSourceType> complexSourceList = vrtRasterBandType.getComplexSource();
         if (complexSourceList != null){
-            //BufferedImage image_share1 = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_INT_RGB);
 
 
             SampleModel sampleModel = interleavedRaster.getSampleModel();
-            //SampleModel sampleModel = image_share1.getSampleModel();
-
-            //WritableRaster rast = image_share1.getRaster(); // Faster! No copy, and live updated
 
             for (ComplexSourceType complexSourceType : complexSourceList) {
-                SourceFilenameType sourceFilename = complexSourceType.getSourceFilename();
+                String resampling = complexSourceType.getResampling();
+                if (resampling == null)
+                    resampling = "nearest";
 
-                if (sourceFilename.getSourceFileName() == null){
-                    throw new RuntimeException(String.format("Не указан источник для ComplexSource RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
-                }
-
-                Path sourceFileName = Paths.get(pathToVrtFolder, sourceFilename.getSourceFileName());
-                File file = sourceFileName.toFile();
-                if (!file.exists()){
-                    throw new RuntimeException(String.format("Отсутствует файл-источник для ComplexSource для RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
-                }
-
-                BufferedImage image = ImageIO.read(file);
-
-                RectType srcRect = complexSourceType.getSrcRect();
-
-                Rectangle rectangle = new Rectangle(srcRect.getxOff().intValue(), srcRect.getyOff().intValue(), srcRect.getxSize().intValue(), srcRect.getySize().intValue());
-
-                Raster data = image.getData(rectangle);
-
-                int startX = srcRect.getxOff().intValue();
-                int startY = srcRect.getyOff().intValue();
-                int xSize = srcRect.getxSize().intValue();
-                int ySize = srcRect.getySize().intValue();
-
-
-                int counter = 0;
-                int realX = 0;
-                for(int i = startX; i < startX + xSize; i++) {
-                    int realY = 0;
-                    for (int j = startY; j < startY + ySize; j++) {
-                        int[] array = new int[data.getNumBands()];
-                        data.getPixel(i, j, array);
-
-                        this.band[realX][realY] = array[nBand - 1];
-
-                        realY++;
-                                System.out.println();
-                    }
-
-                    realX++;
-                }
-
-
-                //WritableRaster writableRaster = Raster.createBandedRaster(0, nRasterXSize, nRasterYSize, 3, new Point(0, 0));
-                //WritableRaster raster = image.getRaster();
-                /*DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
-                byte[] test = buffer.getData();
-                ColorModel colorModel = new DirectColorModel(8, 255, 255, 255);*/
-
-                RectType dstRect = complexSourceType.getDstRect();
-
-                int dstX = dstRect.getxOff().intValue();
-                int dstY = dstRect.getyOff().intValue();
-                int dstXSize = dstRect.getxSize().intValue();
-                int dstYSize = dstRect.getySize().intValue();
-
-                for (int i = dstX; i< dstX + dstXSize; i++) {
-                    for (int j = dstY; j < dstY + dstYSize; j++) {
-                        int b = this.band[i - dstX][j - dstY];
-
-                        String noDataValue = vrtRasterBandType.getNoDataValue();
-                        if (b != Integer.parseInt(noDataValue)) {
-                            sampleModel.setSample(i, j++, nBand - 1, b, interleavedRaster.getDataBuffer());
-                        }
-                    }
-                }
-
-
-                //rast.setDataElements(dstX, dstY, dstXSize, dstYSize, testBand);
-
-                //BufferedImage asdf = new BufferedImage(ColorModel.getRGBdefault(), writableRaster, false, null);
-                //ImageIO.write(image_share1, "tiff", new File(String.format("image_%s.tiff", t++)));
-
-                ColorInterpType colorInterp = vrtRasterBandType.getColorInterp();
-
-                System.out.println();
-
+                initComplexSource(sampleModel,
+                        complexSourceType,
+                        pathToVrtFolder,
+                        vrtRasterBandType,
+                        interleavedRaster,
+                        resampling);
             }
-
-
-
         }
 
         List<SimpleSourceType> averagedSource = vrtRasterBandType.getAveragedSource();
         if (averagedSource != null){
+            SampleModel sampleModel = interleavedRaster.getSampleModel();
 
+            for (SimpleSourceType averageSourceType : averagedSource) {
+                String resampling = averageSourceType.getResampling();
+                if (resampling == null)
+                    resampling = "average";
+
+                initSimpleSource(sampleModel,
+                        averageSourceType,
+                        pathToVrtFolder,
+                        vrtRasterBandType,
+                        interleavedRaster,
+                        resampling
+                        );
+            }
         }
 
         List<KernelFilteredSourceType> kernelFilteredSource = vrtRasterBandType.getKernelFilteredSource();
@@ -606,627 +543,169 @@ public class GdalRasterBand extends GdalMajorObject {
         }
     }
 
-    /*
-    public void RasterIO(GDALRWFlag eRWFlag,
-                         int nXOff, int nYOff, int nXSize, int nYSize, int nBufXSize, int nBufYSize,
-                         GDALDataType eBufType,
-                         long nPixelSpace,
-                         long nLineSpace,
-                         GDALRasterIOExtraArg psExtraArg) {
-        GDALRasterIOExtraArg sExtraArg;
-        if (psExtraArg == null) {
-            INIT_RASTERIO_EXTRA_ARG(sExtraArg);
-            psExtraArg = sExtraArg;
-        } else if (psExtraArg.nVersion != RASTERIO_EXTRA_ARG_CURRENT_VERSION) {
-            throw new RuntimeException("Unhandled version of GDALRasterIOExtraArg");
+    private void initComplexSource(SampleModel sampleModel,
+                                   ComplexSourceType complexSourceType,
+                                   String pathToVrtFolder,
+                                   VRTRasterBandType vrtRasterBandType,
+                                   WritableRaster interleavedRaster,
+                                   String resampling) throws IOException {
+        SourceFilenameType sourceFilename = complexSourceType.getSourceFilename();
+
+        if (sourceFilename.getSourceFileName() == null){
+            throw new RuntimeException(String.format("Не указан источник для ComplexSource RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
         }
 
-        GDALRasterIOExtraArgSetResampleAlg(psExtraArg, nXSize, nYSize,
-                nBufXSize, nBufYSize);
-
-
-        if (nXSize < 1 || nYSize < 1 || nBufXSize < 1 || nBufYSize < 1) {
-
-
-            return;
+        Path sourceFileName = Paths.get(pathToVrtFolder, sourceFilename.getSourceFileName());
+        File file = sourceFileName.toFile();
+        if (!file.exists()){
+            throw new RuntimeException(String.format("Отсутствует файл-источник для ComplexSource для RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
         }
 
-        if (eRWFlag == GF_Write) {
-            if (eFlushBlockErr != CE_None) {
-                throw new RuntimeException(
-                        "An error occurred while writing a dirty block "
-                        "from GDALRasterBand::RasterIO");
-                CPLErr eErr = eFlushBlockErr;
-                eFlushBlockErr = CE_None;
-                return eErr;
-            }
-            if (eAccess != GA_Update) {
-                throw new RuntimeException(
-                        "Write operation not permitted on dataset opened "
-                        "in read-only mode");
-                return;
-            }
-        }
+        BufferedImage image = ImageIO.read(file);
 
-        if (nPixelSpace == 0) {
-            nPixelSpace = GDALGetDataTypeSizeBytes(eBufType);
-        }
+        RectType srcRect = complexSourceType.getSrcRect();
 
-        if (nLineSpace == 0) {
-            nLineSpace = nPixelSpace * nBufXSize;
-        }
+        Rectangle rectangle = new Rectangle(srcRect.getxOff().intValue(), srcRect.getyOff().intValue(), srcRect.getxSize().intValue(), srcRect.getySize().intValue());
 
-        if (nXOff < 0 || nXOff > Integer.MAX_VALUE - nXSize || nXOff + nXSize > nRasterXSize
-                || nYOff < 0 || nYOff > Integer.MAX_VALUE - nYSize || nYOff + nYSize > nRasterYSize) {
-            throw new RuntimeException("Access window out of range in RasterIO().  Requested\n (%d,%d) of size %dx%d on raster of %dx%d.");
-            return;
-        }
+        Raster data = image.getData(rectangle);
 
-        if (eRWFlag != GF_Read && eRWFlag != GF_Write) {
-            throw new RuntimeException("eRWFlag = %d, only GF_Read (0) and GF_Write (1) are legal.");
-            return;
-        }
+        int startX = srcRect.getxOff().intValue();
+        int startY = srcRect.getyOff().intValue();
+        int xSize = srcRect.getxSize().intValue();
+        int ySize = srcRect.getySize().intValue();
 
 
-        boolean bCallLeaveReadWrite = CPL_TO_BOOL(EnterReadWrite(eRWFlag));
+        RectType dstRect = complexSourceType.getDstRect();
 
-        CPLErr eErr;
-        if (bForceCachedIO == 0)
-            eErr = IRasterIO(eRWFlag, nXOff, nYOff, nXSize, nYSize,
-                    nBufXSize, nBufYSize, eBufType,
-                    nPixelSpace, nLineSpace, psExtraArg);
-        else
-            eErr = IRasterIO(eRWFlag, nXOff, nYOff, nXSize, nYSize,
-                    pData, nBufXSize, nBufYSize, eBufType,
-                    nPixelSpace, nLineSpace, psExtraArg);
+        int dstX = dstRect.getxOff().intValue();
+        int dstY = dstRect.getyOff().intValue();
+        int dstXSize = dstRect.getxSize().intValue();
+        int dstYSize = dstRect.getySize().intValue();
 
-        if (bCallLeaveReadWrite) LeaveReadWrite();
+        if (xSize == dstXSize && ySize == dstYSize){
+            for (int i = startX; i< startX + xSize; i++) {
+                for (int j = startY; j < startY + ySize; j++) {
+                    int realX = i - startX;
+                    int realY = j - startY;
+                    int b = RasterService.getValue(complexSourceType.getSourceBand(),
+                            realX,
+                            realY,
+                            data);
 
-        return eErr;
-    }*/
+                    //int b = this.band[i - dstX][j - dstY];
 
-    /*
-    public void IRasterIO(GDALRWFlag eRWFlag,
-                          int nXOff, int nYOff, int nXSize, int nYSize,
-                          int nBufXSize, int nBufYSize,
-                          GDALDataType eBufType,
-                          long nPixelSpace, long nLineSpace,
-                          GDALRasterIOExtraArg psExtraArg) {
-        if (eRWFlag == GF_Write && eFlushBlockErr != CE_None) {
-            throw new RuntimeException(
-                    "An error occurred while writing a dirty block "
-                    "from GDALRasterBand::IRasterIO");
-            return;
-        }
-        if (nBlockXSize <= 0 || nBlockYSize <= 0) {
-            throw new RuntimeException("Invalid block size");
-            return;
-        }
-
-        int nBandDataSize = GDALGetDataTypeSizeBytes(eDataType);
-        int nBufDataSize = GDALGetDataTypeSizeBytes(eBufType);
-        GByte pabySrcBlock = null;
-        GDALRasterBlock poBlock = null;
-        int nLBlockX = -1;
-        int nLBlockY = -1;
-        int iBufYOff = 0;
-        int iBufXOff = 0;
-        int iSrcY = 0;
-        Boolean bUseIntegerRequestCoords =
-                (psExtraArg.bFloatingPointWindowValidity != 0 ||
-                        (nXOff == psExtraArg.dfXOff &&
-                                nYOff == psExtraArg.dfYOff &&
-                                nXSize == psExtraArg.dfXSize &&
-                                nYSize == psExtraArg.dfYSize));
-
-        if (nPixelSpace == nBufDataSize
-                && nLineSpace == nPixelSpace * nXSize
-                && nBlockXSize == GetXSize()
-                && nBufXSize == nXSize
-                && nBufYSize == nYSize
-                && bUseIntegerRequestCoords) {
-            for (iBufYOff = 0; iBufYOff < nBufYSize; iBufYOff++) {
-                iSrcY = iBufYOff + nYOff;
-
-                if (iSrcY < nLBlockY * nBlockYSize
-                        || iSrcY - nBlockYSize >= nLBlockY * nBlockYSize) {
-                    nLBlockY = iSrcY / nBlockYSize;
-                    Boolean bJustInitialize =
-                            eRWFlag == GF_Write
-                                    && nXOff == 0 && nXSize == nBlockXSize
-                                    && nYOff <= nLBlockY * nBlockYSize
-                                    && nYOff + nYSize - nBlockYSize >= nLBlockY * nBlockYSize;
-
-                    // Is this a partial tile at right and/or bottom edges of
-                    // the raster, and that is going to be completely written?
-                    // If so, do not load it from storage, but zero it so that
-                    // the content outsize of the validity area is initialized.
-                    Boolean bMemZeroBuffer = false;
-                    if (eRWFlag == GF_Write && !bJustInitialize &&
-                            nXOff == 0 && nXSize == nBlockXSize &&
-                            nYOff <= nLBlockY * nBlockYSize &&
-                            nYOff + nYSize == GetYSize() &&
-                            nLBlockY * nBlockYSize > GetYSize() - nBlockYSize) {
-                        bJustInitialize = true;
-                        bMemZeroBuffer = true;
-                    }
-
-                    if (poBlock != null)
-                        poBlock.DropLock();
-
-                    Integer nErrorCounter = CPLGetErrorCounter();
-                    poBlock = GetLockedBlockRef(0, nLBlockY, bJustInitialize);
-                    if (poBlock == null) {
-                        if (strstr(CPLGetLastErrorMsg(), "IReadBlock failed") == nullptr) {
-                            CPLError(CE_Failure, CPLE_AppDefined,
-                                    "GetBlockRef failed at X block offset %d, "
-                                    "Y block offset %d%s",
-                                    0, nLBlockY,
-                                    (nErrorCounter != CPLGetErrorCounter()) ?
-                                            CPLSPrintf(": %s", CPLGetLastErrorMsg()) : "");
-                        }
-                        eErr = CE_Failure;
-                        break;
-                    }
-
-                    if (eRWFlag == GF_Write)
-                        poBlock.MarkDirty();
-
-                    pabySrcBlock = static_cast < GByte * > (poBlock -> GetDataRef());
-                    if (bMemZeroBuffer) {
-                        memset(pabySrcBlock, 0,
-                                static_cast < GPtrDiff_t > (nBandDataSize) * nBlockXSize * nBlockYSize);
-                    }
-                }
-
-                // To make Coverity happy. Should not happen by design.
-                if (pabySrcBlock == null) {
-                    CPLAssert(false);
-                    eErr = CE_Failure;
-                    break;
-                }
-
-            const auto nSrcByteOffset =
-                        (static_cast < GPtrDiff_t > (iSrcY - nLBlockY * nBlockYSize) * nBlockXSize + nXOff)
-                                * nBandDataSize;
-
-                if (eDataType == eBufType) {
-                    if (eRWFlag == GF_Read)
-                        memcpy(
-                                static_cast < GByte * > (pData)
-                                        + static_cast < GPtrDiff_t > (iBufYOff) * nLineSpace,
-                                pabySrcBlock + nSrcByteOffset,
-                                static_cast < size_t > (nLineSpace));
-                    else
-                        memcpy(
-                                pabySrcBlock + nSrcByteOffset,
-                                static_cast < GByte * > (pData)
-                                        + static_cast < GPtrDiff_t > (iBufYOff) * nLineSpace,
-                                static_cast < size_t > (nLineSpace));
-                } else {
-                    // Type to type conversion.
-
-                    if (eRWFlag == GF_Read)
-                        GDALCopyWords(
-                                pabySrcBlock + nSrcByteOffset,
-                                eDataType, nBandDataSize,
-                                static_cast < GByte * > (pData)
-                                        + static_cast < GPtrDiff_t > (iBufYOff) * nLineSpace,
-                                eBufType,
-                                static_cast < int>(nPixelSpace), nBufXSize );
-                else
-                    GDALCopyWords(
-                            static_cast < GByte * > (pData)
-                                    + static_cast < GPtrDiff_t > (iBufYOff) * nLineSpace,
-                            eBufType, static_cast < int>(nPixelSpace),
-                            pabySrcBlock + nSrcByteOffset,
-                            eDataType, nBandDataSize, nBufXSize );
-                }
-
-                if (psExtraArg -> pfnProgress != nullptr &&
-                        !psExtraArg -> pfnProgress(1.0 * (iBufYOff + 1) / nBufYSize, "",
-                                psExtraArg -> pProgressData)) {
-                    eErr = CE_Failure;
-                    break;
-                }
-            }
-
-            if (poBlock)
-                poBlock -> DropLock();
-
-            return eErr;
-        }
-
-        if ((nBufXSize < nXSize || nBufYSize < nYSize)
-                && GetOverviewCount() > 0 && eRWFlag == GF_Read) {
-            GDALRasterIOExtraArg sExtraArg;
-            GDALCopyRasterIOExtraArg( & sExtraArg, psExtraArg);
-
-        const int nOverview =
-                    GDALBandGetBestOverviewLevel2(this, nXOff, nYOff, nXSize, nYSize,
-                            nBufXSize, nBufYSize, & sExtraArg );
-            if (nOverview >= 0) {
-                GDALRasterBand * poOverviewBand = GetOverview(nOverview);
-                if (poOverviewBand == nullptr)
-                    return CE_Failure;
-
-                return poOverviewBand -> RasterIO(
-                        eRWFlag, nXOff, nYOff, nXSize, nYSize,
-                        pData, nBufXSize, nBufYSize, eBufType,
-                        nPixelSpace, nLineSpace, & sExtraArg );
-            }
-        }
-
-        if (eRWFlag == GF_Read &&
-                nBufXSize < nXSize / 100 && nBufYSize < nYSize / 100 &&
-                nPixelSpace == nBufDataSize &&
-                nLineSpace == nPixelSpace * nBufXSize &&
-                CPLTestBool(CPLGetConfigOption("GDAL_NO_COSTLY_OVERVIEW", "NO"))) {
-            memset(pData, 0, static_cast < size_t > (nLineSpace * nBufYSize));
-            return CE_None;
-        }
-
-        int iSrcX = 0;
-
-        if ( // nPixelSpace == nBufDataSize &&
-                nXSize == nBufXSize
-                        && nYSize == nBufYSize
-                        && bUseIntegerRequestCoords) {
-
-
-            int nLBlockXStart = nXOff / nBlockXSize;
-            int nXSpanEnd = nBufXSize + nXOff;
-
-            int nYInc = 0;
-            for (iBufYOff = 0, iSrcY = nYOff;
-                 iBufYOff < nBufYSize;
-                 iBufYOff += nYInc, iSrcY += nYInc) {
-                GPtrDiff_t iSrcOffset = 0;
-                int nXSpan = 0;
-
-                GPtrDiff_t iBufOffset =
-                        static_cast < GPtrDiff_t > (iBufYOff) *
-                                static_cast < GPtrDiff_t > (nLineSpace);
-                nLBlockY = iSrcY / nBlockYSize;
-                nLBlockX = nLBlockXStart;
-                iSrcX = nXOff;
-                while (iSrcX < nXSpanEnd) {
-                    nXSpan = nLBlockX * nBlockXSize;
-                    if (nXSpan < Integer.MAX_VALUE - nBlockXSize)
-                        nXSpan += nBlockXSize;
-                    else
-                        nXSpan = Integer.MAX_VALUE;
-                    int nXRight = nXSpan;
-                    nXSpan = (nXSpan < nXSpanEnd ? nXSpan : nXSpanEnd) - iSrcX;
-                    nXSpanSize = nXSpan * nPixelSpace;
-
-                    boolean bJustInitialize =
-                            eRWFlag == GF_Write
-                                    && nYOff <= nLBlockY * nBlockYSize
-                                    && nYOff + nYSize - nBlockYSize >= nLBlockY * nBlockYSize
-                                    && nXOff <= nLBlockX * nBlockXSize
-                                    && nXOff + nXSize >= nXRight;
-
-                    // Is this a partial tile at right and/or bottom edges of
-                    // the raster, and that is going to be completely written?
-                    // If so, do not load it from storage, but zero it so that
-                    // the content outsize of the validity area is initialized.
-                    boolean bMemZeroBuffer = false;
-                    if (eRWFlag == GF_Write && !bJustInitialize &&
-                            nXOff <= nLBlockX * nBlockXSize &&
-                            nYOff <= nLBlockY * nBlockYSize &&
-                            (nXOff + nXSize >= nXRight ||
-                                    (nXOff + nXSize == GetXSize() &&
-                                            nXRight > GetXSize())) &&
-                            (nYOff + nYSize - nBlockYSize >= nLBlockY * nBlockYSize ||
-                                    (nYOff + nYSize == GetYSize() &&
-                                            nLBlockY * nBlockYSize > GetYSize() - nBlockYSize))) {
-                        bJustInitialize = true;
-                        bMemZeroBuffer = true;
-                    }
-
-                    GUInt32 nErrorCounter = CPLGetErrorCounter();
-                    poBlock = GetLockedBlockRef(nLBlockX, nLBlockY,
-                            bJustInitialize);
-                    if (poBlock == null) {
-                        if (strstr(CPLGetLastErrorMsg(), "IReadBlock failed") == nullptr) {
-                            CPLError(CE_Failure, CPLE_AppDefined,
-                                    "GetBlockRef failed at X block offset %d, "
-                                    "Y block offset %d%s",
-                                    nLBlockX, nLBlockY,
-                                    (nErrorCounter != CPLGetErrorCounter()) ?
-                                            CPLSPrintf(": %s", CPLGetLastErrorMsg()) : "");
-                        }
-                        return (CE_Failure);
-                    }
-
-                    if (eRWFlag == GF_Write)
-                        poBlock.MarkDirty();
-
-                    pabySrcBlock = static_cast < GByte * > (poBlock -> GetDataRef());
-                    if (bMemZeroBuffer) {
-                        memset(pabySrcBlock, 0,
-                                static_cast < GPtrDiff_t > (nBandDataSize) * nBlockXSize * nBlockYSize);
-                    }
-                    iSrcOffset =
-                            (static_cast < GPtrDiff_t > (iSrcX)
-                                    - static_cast < GPtrDiff_t > (nLBlockX * nBlockXSize)
-                                    + (static_cast < GPtrDiff_t > (iSrcY)
-                                    - static_cast < GPtrDiff_t > (nLBlockY) * nBlockYSize)
-                                    * nBlockXSize)
-                                    * nBandDataSize;
-                    // Fill up as many rows as possible for the loaded block.
-                    int kmax = Math.min(
-                            nBlockYSize - (iSrcY % nBlockYSize), nBufYSize - iBufYOff);
-                    for (int k = 0; k < kmax; k++) {
-                        if (eDataType == eBufType
-                                && nPixelSpace == nBufDataSize) {
-                            if (eRWFlag == GF_Read)
-                                memcpy(static_cast < GByte * > (pData) + iBufOffset
-                                                + static_cast < GPtrDiff_t > (k) * nLineSpace,
-                                        pabySrcBlock + iSrcOffset,
-                                        nXSpanSize);
-                            else
-                                memcpy(pabySrcBlock + iSrcOffset,
-                                        static_cast < GByte * > (pData) + iBufOffset
-                                                + static_cast < GPtrDiff_t > (k) * nLineSpace,
-                                        nXSpanSize);
-                        } else {
-                            if (eRWFlag == GF_Read)
-                                GDALCopyWords(
-                                        pabySrcBlock + iSrcOffset,
-                                        eDataType, nBandDataSize,
-                                        static_cast < GByte * > (pData) + iBufOffset
-                                                + static_cast < GPtrDiff_t > (k) * nLineSpace,
-                                        eBufType, static_cast < int>(nPixelSpace),
-                                    nXSpan );
-                        else
-                            GDALCopyWords(
-                                    static_cast < GByte * > (pData) + iBufOffset +
-                                            static_cast < GPtrDiff_t > (k) * nLineSpace,
-                                    eBufType, static_cast < int>(nPixelSpace),
-                                    pabySrcBlock + iSrcOffset,
-                                    eDataType, nBandDataSize, nXSpan );
-                        }
-
-                        iSrcOffset += nBlockXSize * nBandDataSize;
-                    }
-
-                    iBufOffset = CPLUnsanitizedAdd < GPtrDiff_t > (iBufOffset, nXSpanSize);
-                    nLBlockX++;
-                    iSrcX += nXSpan;
-
-                    poBlock.DropLock();
-                    poBlock = null;
-                }
-
-                nYInc = nBlockYSize - (iSrcY % nBlockYSize);
-            }
-
-            return;
-        }
-
-
-        double dfXOff = nXOff;
-        double dfYOff = nYOff;
-        double dfXSize = nXSize;
-        double dfYSize = nYSize;
-        if (psExtraArg.bFloatingPointWindowValidity != 0) {
-            dfXOff = psExtraArg.dfXOff;
-            dfYOff = psExtraArg.dfYOff;
-            dfXSize = psExtraArg.dfXSize;
-            dfYSize = psExtraArg.dfYSize;
-        }
-
-        double dfSrcXInc = dfXSize / (double) (nBufXSize);
-        double dfSrcYInc = dfYSize / (double) (nBufYSize);
-
-        if (eRWFlag == GF_Write) {
-            GByte pabyDstBlock = null;
-
-            for (int iDstY = nYOff; iDstY < nYOff + nYSize; iDstY++) {
-                GPtrDiff_t iBufOffset = 0;
-                GPtrDiff_t iDstOffset = 0;
-                iBufYOff = (int) ((iDstY - nYOff) / dfSrcYInc);
-
-                for (int iDstX = nXOff; iDstX < nXOff + nXSize; iDstX++) {
-                    iBufXOff = (int) ((iDstX - nXOff) / dfSrcXInc);
-                    iBufOffset =
-                            static_cast < GPtrDiff_t > (iBufYOff)
-                                    * static_cast < GPtrDiff_t > (nLineSpace)
-                                    + iBufXOff * static_cast < GPtrDiff_t > (nPixelSpace);
-
-                    // FIXME: this code likely doesn't work if the dirty block gets
-                    // flushed to disk before being completely written.
-                    // In the meantime, bJustInitialize should probably be set to
-                    // FALSE even if it is not ideal performance wise, and for
-                    // lossy compression.
-
-                    if (iDstX < nLBlockX * nBlockXSize
-                            || iDstX - nBlockXSize >= nLBlockX * nBlockXSize
-                            || iDstY < nLBlockY * nBlockYSize
-                            || iDstY - nBlockYSize >= nLBlockY * nBlockYSize) {
-                        nLBlockX = iDstX / nBlockXSize;
-                        nLBlockY = iDstY / nBlockYSize;
-
-                        boolean bJustInitialize =
-                                nYOff <= nLBlockY * nBlockYSize
-                                        && nYOff + nYSize - nBlockYSize >= nLBlockY * nBlockYSize
-                                        && nXOff <= nLBlockX * nBlockXSize
-                                        && nXOff + nXSize - nBlockXSize >= nLBlockX * nBlockXSize;
-                        if (poBlock != null)
-                            poBlock.DropLock();
-
-                        poBlock = GetLockedBlockRef(nLBlockX, nLBlockY,
-                                bJustInitialize);
-                        if (poBlock == null) {
-                            return;
-                        }
-
-                        poBlock.MarkDirty();
-
-                        pabyDstBlock = (GByte) (poBlock.GetDataRef());
-                    }
-
-                    // To make Coverity happy. Should not happen by design.
-                    if (pabyDstBlock == null) {
-                        break;
-                    }
-
-                    iDstOffset =
-                            (static_cast < GPtrDiff_t > (iDstX)
-                                    - static_cast < GPtrDiff_t > (nLBlockX) * nBlockXSize
-                                    + (static_cast < GPtrDiff_t > (iDstY)
-                                    - static_cast < GPtrDiff_t > (nLBlockY) * nBlockYSize)
-                                    * nBlockXSize)
-                                    * nBandDataSize;
-
-                    if (eDataType == eBufType) {
-                        memcpy(
-                                pabyDstBlock + iDstOffset,
-                                static_cast < GByte * > (pData) + iBufOffset,
-                                nBandDataSize);
-                    } else {
-
-                        GDALCopyWords(
-                                static_cast < GByte * > (pData) + iBufOffset, eBufType, 0,
-                                pabyDstBlock + iDstOffset, eDataType, 0,
-                                1);
+                    String noDataValue = vrtRasterBandType.getNoDataValue();
+                    if (b != Integer.parseInt(noDataValue)) {
+                        sampleModel.setSample(realX + dstX, realY + dstY, complexSourceType.getSourceBand() - 1, b, interleavedRaster.getDataBuffer());
                     }
                 }
             }
         } else {
-            if (psExtraArg.eResampleAlg != GRIORA_NearestNeighbour) {
-                if ((psExtraArg.eResampleAlg == GRIORA_Cubic ||
-                        psExtraArg.eResampleAlg == GRIORA_CubicSpline ||
-                        psExtraArg.eResampleAlg == GRIORA_Bilinear ||
-                        psExtraArg.eResampleAlg == GRIORA_Lanczos) &&
-                        GetColorTable() != null) {
-                    throw new RuntimeException(
-                            "Resampling method not supported on paletted band. " +
-                                    "Falling back to nearest neighbour");
-                } else if (psExtraArg.eResampleAlg == GRIORA_Gauss &&
-                        GDALDataTypeIsComplex(eDataType)) {
-                    throw new RuntimeException(
-                            "Resampling method not supported on complex data type " +
-                                    "band. Falling back to nearest neighbour");
-                } else {
-                    return RasterIOResampled(eRWFlag,
-                            nXOff, nYOff, nXSize, nYSize, nBufXSize, nBufYSize,
-                            eBufType,
-                            nPixelSpace, nLineSpace,
-                            psExtraArg);
-                }
-            }
+            //should execute resampling
+            ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
 
-            double dfSrcX = 0.0;
-            double dfSrcY = 0.0;
-            int nLimitBlockY = 0;
-            boolean bByteCopy = eDataType == eBufType && nBandDataSize == 1;
-            int nStartBlockX = -nBlockXSize;
-            double EPS = 1e-10;
+            byte[] bytes = resamplingAlghorithmExecutor.imageRescaling(complexSourceType.getSourceBand(),
+                    srcRect,
+                    dstRect,
+                    Integer.parseInt(complexSourceType.getNODATA()),
+                    image,
+                    resampling);
 
-            for (iBufYOff = 0; iBufYOff < nBufYSize; iBufYOff++) {
-                // Add small epsilon to avoid some numeric precision issues.
-                dfSrcY = (iBufYOff + 0.5) * dfSrcYInc + dfYOff + EPS;
-                dfSrcX = 0.5 * dfSrcXInc + dfXOff + EPS;
-                iSrcY = (int) (Math.min(Math.max(0.0, dfSrcY),
-                        (double) (nRasterYSize - 1)));
+            for (int i = 0; i < bytes.length; i++) {
+                int x = i % dstXSize;
+                int y = i / dstYSize;
 
-                GPtrDiff_t iBufOffset =
-                        static_cast < GPtrDiff_t > (iBufYOff)
-                                * static_cast < GPtrDiff_t > (nLineSpace);
-
-                if (iSrcY >= nLimitBlockY) {
-                    nLBlockY = iSrcY / nBlockYSize;
-                    nLimitBlockY = nLBlockY * nBlockYSize;
-                    if (nLimitBlockY < Integer.MAX_VALUE - nBlockYSize)
-                        nLimitBlockY += nBlockYSize;
-                    else
-                        nLimitBlockY = Integer.MAX_VALUE;
-                    // Make sure a new block is loaded.
-                    nStartBlockX = -nBlockXSize;
-                } else if ((int) (dfSrcX) < nStartBlockX) {
-                    // Make sure a new block is loaded.
-                    nStartBlockX = -nBlockXSize;
-                }
-
-                GPtrDiff_t iSrcOffsetCst =
-                        (iSrcY - nLBlockY * nBlockYSize)
-                                * static_cast < GPtrDiff_t > (nBlockXSize);
-
-                GPtrDiff_t iSrcOffset = 0;
-
-                for (iBufXOff = 0;
-                     iBufXOff < nBufXSize;
-                     iBufXOff++, dfSrcX += dfSrcXInc) {
-                    // TODO?: try to avoid the clamping for most iterations
-                    iSrcX = (int) (Math.min(Math.max(0.0, dfSrcX),
-                            (double) (nRasterXSize - 1)));
-
-                    if (iSrcX >= nBlockXSize + nStartBlockX) {
-                        nLBlockX = iSrcX / nBlockXSize;
-                        nStartBlockX = nLBlockX * nBlockXSize;
-
-                        if (poBlock != null)
-                            poBlock.DropLock();
-
-                        poBlock = GetLockedBlockRef(nLBlockX, nLBlockY, false);
-                        if (poBlock == null) {
-                            eErr = CE_Failure;
-                            break;
-                        }
-
-                        pabySrcBlock = (GByte) (poBlock.GetDataRef());
-                    }
-                    GPtrDiff_t nDiffX = (GPtrDiff_t) (iSrcX - nStartBlockX);
-
-                    // To make Coverity happy.  Should not happen by design.
-                    if (pabySrcBlock == null) {
-                        CPLAssert(false);
-                        eErr = CE_Failure;
-                        break;
-                    }
-
-                    if (bByteCopy) {
-                        iSrcOffset = nDiffX + iSrcOffsetCst;
-                        static_cast<GByte *>(pData)[iBufOffset] =
-                                pabySrcBlock[iSrcOffset];
-                    } else if (eDataType == eBufType) {
-                        iSrcOffset =
-                                (nDiffX + iSrcOffsetCst)
-                                        * nBandDataSize;
-                        memcpy(static_cast < GByte * > (pData) + iBufOffset,
-                                pabySrcBlock + iSrcOffset, nBandDataSize);
-                    } else {
-                        // Type to type conversion ... ouch, this is expensive way
-                        // of handling single words.
-                        iSrcOffset =
-                                (nDiffX + iSrcOffsetCst)
-                                        * nBandDataSize;
-                        GDALCopyWords(
-                                pabySrcBlock + iSrcOffset, eDataType, 0,
-                                static_cast < GByte * > (pData) + iBufOffset, eBufType, 0,
-                                1);
-                    }
-
-                    iBufOffset += static_cast < int>(nPixelSpace);
-                }
-                if (eErr == CE_Failure)
-                    break;
-
-                if (psExtraArg.pfnProgress != null &&
-                        !psExtraArg.pfnProgress(1.0 * (iBufYOff + 1) / nBufYSize, "",
-                                psExtraArg.pProgressData)) {
-                    eErr = CE_Failure;
-                    break;
-                }
+                if (bytes[i] != (byte)Integer.parseInt(complexSourceType.getNODATA()))
+                    sampleModel.setSample(x + dstX, y + dstY,
+                            complexSourceType.getSourceBand() - 1,
+                            bytes[i], interleavedRaster.getDataBuffer());
             }
         }
 
-        if (poBlock != null)
-            poBlock.DropLock();
+        BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_3BYTE_BGR);
+        bufferedImage.getRaster().setRect(interleavedRaster);
+        ImageIO.write(bufferedImage, "tiff", new File(String.format("res%s.tiff", t++)));
+    }
 
-        return;
-    }*/
+    static int t = 0;
+
+    private void initSimpleSource(SampleModel sampleModel,
+                                  SimpleSourceType simpleSourceType,
+                                  String pathToVrtFolder,
+                                  VRTRasterBandType vrtRasterBandType,
+                                  WritableRaster interleavedRaster,
+                                  String resampling) throws IOException {
+        SourceFilenameType sourceFilename = simpleSourceType.getSourceFilename();
+
+        if (sourceFilename.getSourceFileName() == null){
+            throw new RuntimeException(String.format("Не указан источник для ComplexSource RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
+        }
+
+        Path sourceFileName = Paths.get(pathToVrtFolder, sourceFilename.getSourceFileName());
+        File file = sourceFileName.toFile();
+        if (!file.exists()){
+            throw new RuntimeException(String.format("Отсутствует файл-источник для ComplexSource для RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
+        }
+
+        BufferedImage image = ImageIO.read(file);
+
+        RectType srcRect = simpleSourceType.getSrcRect();
+
+        Rectangle rectangle = new Rectangle(srcRect.getxOff().intValue(), srcRect.getyOff().intValue(), srcRect.getxSize().intValue(), srcRect.getySize().intValue());
+
+        Raster data = image.getData(rectangle);
+
+        int startX = srcRect.getxOff().intValue();
+        int startY = srcRect.getyOff().intValue();
+        int xSize = srcRect.getxSize().intValue();
+        int ySize = srcRect.getySize().intValue();
+
+        RectType dstRect = simpleSourceType.getDstRect();
+
+        int dstX = dstRect.getxOff().intValue();
+        int dstY = dstRect.getyOff().intValue();
+        int dstXSize = dstRect.getxSize().intValue();
+        int dstYSize = dstRect.getySize().intValue();
+
+        if (dstXSize == xSize && dstYSize == ySize) {
+            for (int i = dstX; i < dstX + dstXSize; i++) {
+                for (int j = dstY; j < dstY + dstYSize; j++) {
+                    int realX = i - startX;
+                    int realY = j - startY;
+                    int b = RasterService.getValue(simpleSourceType.getSourceBand(),
+                            realX,
+                            realY,
+                            data);
+
+                    //int b = this.band[i - dstX][j - dstY];
+
+                    String noDataValue = vrtRasterBandType.getNoDataValue();
+                    if (b != Integer.parseInt(noDataValue)) {
+                        sampleModel.setSample(realX + dstX, realY + dstY,
+                                simpleSourceType.getSourceBand() - 1, b, interleavedRaster.getDataBuffer());
+                    }
+                }
+            }
+        } else {
+            //should execute resampling
+
+            ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
+
+            byte[] bytes = resamplingAlghorithmExecutor.imageRescaling(simpleSourceType.getSourceBand(),
+                    srcRect,
+                    dstRect,
+                    -1000000,
+                    image,
+                    resampling);
+
+            for (int i = 0; i < bytes.length; i++) {
+                int x = i % dstXSize;
+                int y = i / dstYSize;
+
+                sampleModel.setSample(x + dstX, y + dstY,
+                        simpleSourceType.getSourceBand(),
+                        bytes[i], interleavedRaster.getDataBuffer());
+            }
+        }
+    }
 }

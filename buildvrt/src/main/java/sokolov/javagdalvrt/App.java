@@ -3,15 +3,10 @@ package sokolov.javagdalvrt;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import org.geotools.coverage.grid.io.AbstractGridFormat;
-import org.geotools.coverage.grid.io.GridCoverage2DReader;
-import org.geotools.coverage.grid.io.GridFormatFinder;
-import org.geotools.coverageio.gdal.mrsid.MrSIDReader;
-import ru.sokolov.alghorithms.ResamplingAlghorithmExecutor;
-import ru.sokolov.alghorithms.maskimplementation.MaskExecutor;
+import sokolov.model.resamplng.ResamplingAlghorithmExecutor;
+import sokolov.model.resamplng.maskimplementation.MaskExecutor;
 import sokolov.model.datasets.*;
 import sokolov.model.enums.GdalAccess;
-import sokolov.model.enums.ResolutionStrategy;
 import sokolov.model.xmlmodel.*;
 
 import javax.imageio.ImageIO;
@@ -21,8 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Hashtable;
 
 public class App {
     public static void main(String[] args) throws IOException {
@@ -87,7 +80,7 @@ public class App {
                 value.getBytes(),
                 StandardOpenOption.CREATE_NEW);*/
 
-     /*   Path pathToXml = Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt", "test_mosaic.vrt");
+        Path pathToXml = Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt", "test_mosaic_2x_bigger.vrt");
         byte[] bytes = Files.readAllBytes(pathToXml);
 
         VRTDataset deserializedVrtDataset = xmlMapper.readValue(bytes, VRTDataset.class);
@@ -97,8 +90,11 @@ public class App {
 
         GdalDataset gdalDataset = new GdalDataset();
         gdalDataset.InitXml(deserializedVrtDataset);
-*/
-        System.out.println();
+
+        ImageIO.write(gdalDataset.bufferedImage, "tiff", new File(String.format("vrtres.tiff")));
+
+
+        /*System.out.println();
 
         BufferedImage read = ImageIO.read(Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt/MOS_CZ_KR_250.tif").toFile());
 
@@ -162,11 +158,11 @@ public class App {
 
         ImageIO.write(bufferedImage, "tiff", new File(String.format("resultaftermask.tiff")));
 
-        check();
+        //check();*/
     }
 
     public static void check() throws IOException {
-        BufferedImage read = ImageIO.read(Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt/html-color-codes-color-tutorials.jpg").toFile());
+        /*BufferedImage read = ImageIO.read(Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt/html-color-codes-color-tutorials.jpg").toFile());
 
         ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
 
@@ -197,6 +193,7 @@ public class App {
             byte[] nearests = resamplingAlghorithmExecutor.imageRescaling(band + 1,
                     0, 0, read.getRaster().getWidth(), read.getRaster().getHeight(),
                     0, 0, nRasterXSize, nRasterYSize,
+
                     read,
                     "bilinear");
 
@@ -211,7 +208,7 @@ public class App {
         bufferedImage.getRaster().setRect(interleavedRaster);
 
         ImageIO.write(bufferedImage, "tiff", new File(String.format("resultafterchangecolor.tiff")));
-
+*/
 
     }
 

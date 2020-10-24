@@ -1,6 +1,6 @@
-package ru.sokolov.alghorithms.resamplingimplementation;
+package sokolov.model.resamplng.resamplingimplementation;
 
-import ru.sokolov.alghorithms.ResamplingAlgorithm;
+import sokolov.model.resamplng.ResamplingAlgorithm;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -13,6 +13,7 @@ public class BilinearResampling implements ResamplingAlgorithm {
     public byte[] resampling(int bandNumber,
                              int xOffOriginal, int yOffOriginal, int xSizeOriginal, int ySizeOriginal,
                              int xOffResult, int yOffResult, int xSizeResult, int ySizeResult,
+                             int noDataValue,
                              BufferedImage originalImage) {
         byte[] resultedArray = new byte[xSizeResult * ySizeResult];
 
@@ -54,6 +55,7 @@ public class BilinearResampling implements ResamplingAlgorithm {
                 int lerp = (int)lerp(
                         lerp(c00, c10, xOriginalIndex - intXOriginalIndex),
                         lerp(c01, c11, xOriginalIndex - intXOriginalIndex), yOriginalIndex - intYOriginalIndex);
+
                 resultedArray[index++] = (byte)lerp;
             }
 

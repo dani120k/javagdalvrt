@@ -1,4 +1,4 @@
-package ru.sokolov.alghorithms.maskimplementation;
+package sokolov.model.resamplng.maskimplementation;
 
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
@@ -19,7 +19,8 @@ public class MaskExecutor {
                 int[] pixel = sampleModel.getPixel(x, y, array, dataBuffer);
 
                 for(int i = 0; i < nBand; i++){
-                    pixel[i] = pixel[i] & maskBand[x + y * bandRasterYSize];
+                    if (maskBand[x + y * bandRasterYSize] == 0)
+                        pixel[i] = 0;
                 }
 
                 sampleModel.setPixel(x, y, array, dataBuffer);

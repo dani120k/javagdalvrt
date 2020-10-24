@@ -10,7 +10,7 @@ public class ComplexSourceType {
     private OpenOptionsType openOptions;
 
     @JacksonXmlProperty(localName = "SourceBand")
-    private String sourceBand;
+    private Integer sourceBand;
 
     @JacksonXmlProperty(localName = "SourceProperties")
     private SourcePropertiesType sourceProperties;
@@ -83,11 +83,11 @@ public class ComplexSourceType {
         this.openOptions = openOptions;
     }
 
-    public String getSourceBand() {
+    public Integer getSourceBand() {
         return sourceBand;
     }
 
-    public void setSourceBand(String sourceBand) {
+    public void setSourceBand(Integer sourceBand) {
         this.sourceBand = sourceBand;
     }
 

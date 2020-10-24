@@ -1,11 +1,10 @@
-package ru.sokolov.alghorithms.resamplingimplementation;
+package sokolov.model.resamplng.resamplingimplementation;
 
-import ru.sokolov.alghorithms.ResamplingAlgorithm;
+import sokolov.model.resamplng.ResamplingAlgorithm;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
-import java.awt.image.SampleModel;
 
 public class NearestNeighbourResampling implements ResamplingAlgorithm {
     @Override
@@ -18,6 +17,7 @@ public class NearestNeighbourResampling implements ResamplingAlgorithm {
                                int yOffResult,
                                int xSizeResult,
                                int ySizeResult,
+                               int noDataValue,
                                BufferedImage originalImage){
         byte[] resultedArray = new byte[xSizeResult * ySizeResult];
 
@@ -43,6 +43,7 @@ public class NearestNeighbourResampling implements ResamplingAlgorithm {
                         );
 
                 int resultedValue = array[bandNumber - 1];
+
                 resultedArray[index++] = (byte)resultedValue;
             }
 
