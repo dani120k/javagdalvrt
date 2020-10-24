@@ -7,10 +7,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="buildvrt" />
+        <module name="alghoritms" />
         <module name="model" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="alghoritms" target="1.8" />
       <module name="buildvrt" target="1.8" />
       <module name="javagdalvrt" target="1.8" />
       <module name="model" target="1.8" />

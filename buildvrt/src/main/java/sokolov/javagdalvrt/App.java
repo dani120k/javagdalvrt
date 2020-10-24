@@ -7,20 +7,26 @@ import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridCoverage2DReader;
 import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.coverageio.gdal.mrsid.MrSIDReader;
+import ru.sokolov.alghorithms.ResamplingAlghorithmExecutor;
+import ru.sokolov.alghorithms.maskimplementation.MaskExecutor;
 import sokolov.model.datasets.*;
 import sokolov.model.enums.GdalAccess;
 import sokolov.model.enums.ResolutionStrategy;
 import sokolov.model.xmlmodel.*;
 
+import javax.imageio.ImageIO;
+import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Hashtable;
 
 public class App {
     public static void main(String[] args) throws IOException {
+
 
         System.out.println();
 
@@ -81,7 +87,7 @@ public class App {
                 value.getBytes(),
                 StandardOpenOption.CREATE_NEW);*/
 
-        Path pathToXml = Paths.get("/home/dani120k/workspace/javagdalvrt", "test_mosaic.vrt");
+     /*   Path pathToXml = Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt", "test_mosaic.vrt");
         byte[] bytes = Files.readAllBytes(pathToXml);
 
         VRTDataset deserializedVrtDataset = xmlMapper.readValue(bytes, VRTDataset.class);
@@ -91,8 +97,130 @@ public class App {
 
         GdalDataset gdalDataset = new GdalDataset();
         gdalDataset.InitXml(deserializedVrtDataset);
-
+*/
         System.out.println();
+
+        BufferedImage read = ImageIO.read(Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt/MOS_CZ_KR_250.tif").toFile());
+
+        ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
+
+        int nRasterXSize = read.getRaster().getWidth() / 4;
+        int nRasterYSize = read.getRaster().getHeight() / 4;
+
+
+        byte[][] pixels = new byte[3][nRasterXSize * nRasterYSize];
+        DataBuffer dataBuffer = new DataBufferByte(pixels, nRasterXSize * nRasterYSize, new int[]{0, 1, 2});
+
+
+        ColorModel colorModel = createColorModel(0);
+        SampleModel sampleModel = colorModel.createCompatibleSampleModel(nRasterXSize, nRasterYSize);
+
+        WritableRaster raster = colorModel.createCompatibleWritableRaster(
+                nRasterXSize, nRasterYSize);
+
+
+        BufferedImage bufferedImage = new BufferedImage(colorModel, raster, false, null);
+
+
+        //BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_CUSTOM);
+        //WritableRaster interleavedRaster = Raster.create(DataBuffer.TYPE_BYTE, nRasterXSize, nRasterYSize, 3, null);
+        WritableRaster interleavedRaster = colorModel.createCompatibleWritableRaster(nRasterXSize, nRasterYSize);
+        SampleModel model = interleavedRaster.getSampleModel();
+
+        for (int band = 0; band < 3; band++) {
+            byte[] nearests = resamplingAlghorithmExecutor.imageRescaling(band + 1,
+                    0, 0, read.getRaster().getWidth(), read.getRaster().getHeight(),
+                    0, 0, nRasterXSize, nRasterYSize,
+                    read,
+                    "bilinear");
+
+            for (int i = 0; i < nearests.length; i++) {
+                int x = i % nRasterXSize;
+                int y = i / nRasterXSize;
+
+                int value = 0x00420420 ^ 0x00ff0000;
+
+                model.setSample(x, y, band, (band == 0) ? nearests[i] ^ value : nearests[i], interleavedRaster.getDataBuffer());
+            }
+        }
+
+        bufferedImage.getRaster().setRect(interleavedRaster);
+
+        ImageIO.write(bufferedImage, "tiff", new File(String.format("resultafterbilinearresampling.tiff")));
+
+
+        byte[] maskBand = new byte[9];
+
+        MaskExecutor maskExecutor = new MaskExecutor();
+
+        maskExecutor.executeMask(bufferedImage.getRaster(),
+                maskBand,
+                3,
+                3,
+                3
+        );
+
+        ImageIO.write(bufferedImage, "tiff", new File(String.format("resultaftermask.tiff")));
+
+        check();
+    }
+
+    public static void check() throws IOException {
+        BufferedImage read = ImageIO.read(Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt/html-color-codes-color-tutorials.jpg").toFile());
+
+        ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
+
+        int nRasterXSize = read.getRaster().getWidth() * 4;
+        int nRasterYSize = read.getRaster().getHeight() * 4;
+
+
+        byte[][] pixels = new byte[3][nRasterXSize * nRasterYSize];
+        DataBuffer dataBuffer = new DataBufferByte(pixels, nRasterXSize * nRasterYSize, new int[]{0, 1, 2});
+
+
+        ColorModel colorModel = createColorModel(0);
+        SampleModel sampleModel = colorModel.createCompatibleSampleModel(nRasterXSize, nRasterYSize);
+
+        WritableRaster raster = colorModel.createCompatibleWritableRaster(
+                nRasterXSize, nRasterYSize);
+
+
+        BufferedImage bufferedImage = new BufferedImage(colorModel, raster, false, null);
+
+
+        //BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_CUSTOM);
+        //WritableRaster interleavedRaster = Raster.create(DataBuffer.TYPE_BYTE, nRasterXSize, nRasterYSize, 3, null);
+        WritableRaster interleavedRaster = colorModel.createCompatibleWritableRaster(nRasterXSize, nRasterYSize);
+        SampleModel model = interleavedRaster.getSampleModel();
+
+        for (int band = 0; band < 3; band++) {
+            byte[] nearests = resamplingAlghorithmExecutor.imageRescaling(band + 1,
+                    0, 0, read.getRaster().getWidth(), read.getRaster().getHeight(),
+                    0, 0, nRasterXSize, nRasterYSize,
+                    read,
+                    "bilinear");
+
+            for (int i = 0; i < nearests.length; i++) {
+                int x = i % nRasterXSize;
+                int y = i / nRasterXSize;
+
+                model.setSample(x, y, band, nearests[i], interleavedRaster.getDataBuffer());
+            }
+        }
+
+        bufferedImage.getRaster().setRect(interleavedRaster);
+
+        ImageIO.write(bufferedImage, "tiff", new File(String.format("resultafterchangecolor.tiff")));
+
+
+    }
+
+    private static ColorModel createColorModel(int n) {
+        return new DirectColorModel(24,
+                0x00ff0000,       // Red
+                0x0000ff00,       // Green
+                0x000000ff       // Bl// Alpha
+        );
     }
 
     private static GdalDataset extractFromVRTXml(VRTDataset deserializedVrtDataset, String path) {
@@ -101,10 +229,10 @@ public class App {
         boolean bIsPansharpened = "VRTPansharpenedDataset".equals(subClass);
 
         if (!bIsPansharpened &&
-        deserializedVrtDataset.getGroup() == null &&
-        deserializedVrtDataset.getRasterXSize() == null &&
-        deserializedVrtDataset.getRasterYSize() == null &&
-        deserializedVrtDataset.getVrtRasterBand() == null){
+                deserializedVrtDataset.getGroup() == null &&
+                deserializedVrtDataset.getRasterXSize() == null &&
+                deserializedVrtDataset.getRasterYSize() == null &&
+                deserializedVrtDataset.getVrtRasterBand() == null) {
             throw new RuntimeException("Missing one of rasterXSize, rasterYSize or bands on VRTDataset");
         }
 
@@ -122,7 +250,7 @@ public class App {
 
         VrtDataset poDS = null;
 
-        if (subClass.equals("VRTWarpedDataset")){
+        if (subClass.equals("VRTWarpedDataset")) {
             poDS = new VrtWarpedDataset();
         } else if (bIsPansharpened) {
             poDS = new VrtPansharpenedDataset(nXSize, nYSize);
@@ -137,8 +265,7 @@ public class App {
     }
 
 
-
-    public static VRTDataset serializeToVrtDataset(GdalDataset gdalDataset){
+    public static VRTDataset serializeToVrtDataset(GdalDataset gdalDataset) {
         /*VRTDataset vrtDataset = new VRTDataset();
 
         vrtDataset.setBlockXSize(128L);
