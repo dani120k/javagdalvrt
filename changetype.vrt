@@ -1,0 +1,43 @@
+<VRTDataset rasterXSize="815" rasterYSize="828">
+  <SRS dataAxisToSRSAxisMapping="1,2">LOCAL_CS["KRON        D211"]</SRS>
+  <GeoTransform> -9.0700000000000000e+05,  2.5000000000000000e+02,  0.0000000000000000e+00, -9.3300000000000000e+05,  0.0000000000000000e+00, -2.5000000000000000e+02</GeoTransform>
+  <VRTRasterBand dataType="Byte" band="1">
+    <ColorInterp>Red</ColorInterp>
+    <ComplexSource>
+      <SourceFilename relativeToVRT="1">spectralimage.TIF</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="815" RasterYSize="828" DataType="Byte" BlockXSize="815" BlockYSize="828" />
+      <SrcRect xOff="0" yOff="0" xSize="815" ySize="828" />
+      <DstRect xOff="0" yOff="0" xSize="815" ySize="828" />
+      <Exponent>0.75</Exponent>
+        <DstMin>0</DstMin>
+        <DstMax>255</DstMax>
+    </ComplexSource>
+  </VRTRasterBand>
+  <VRTRasterBand dataType="Byte" band="2">
+    <ColorInterp>Green</ColorInterp>
+    <ComplexSource>
+      <SourceFilename relativeToVRT="1">spectralimage.TIF</SourceFilename>
+      <SourceBand>2</SourceBand>
+      <SourceProperties RasterXSize="815" RasterYSize="828" DataType="Byte" BlockXSize="815" BlockYSize="828" />
+      <SrcRect xOff="0" yOff="0" xSize="815" ySize="828" />
+      <DstRect xOff="0" yOff="0" xSize="815" ySize="828" />
+<Exponent>0.75</Exponent>
+  <DstMin>0</DstMin>
+  <DstMax>255</DstMax>
+    </ComplexSource>
+  </VRTRasterBand>
+  <VRTRasterBand dataType="Byte" band="3">
+    <ColorInterp>Blue</ColorInterp>
+    <ComplexSource>
+      <SourceFilename relativeToVRT="1">spectralimage.TIF</SourceFilename>
+      <SourceBand>3</SourceBand>
+      <Exponent>0.75</Exponent>
+        <DstMin>0</DstMin>
+        <DstMax>255</DstMax>
+      <SourceProperties RasterXSize="815" RasterYSize="828" DataType="Byte" BlockXSize="815" BlockYSize="828" />
+      <SrcRect xOff="0" yOff="0" xSize="815" ySize="828" />
+      <DstRect xOff="0" yOff="0" xSize="815" ySize="828" />
+    </ComplexSource>
+  </VRTRasterBand>
+</VRTDataset>

@@ -1,0 +1,20 @@
+<VRTDataset subClass="VRTPansharpenedDataset">
+    <PansharpeningOptions>
+        <PanchroBand>
+            <SourceFilename relativeToVRT="1">pancromatic.TIF</SourceFilename>
+            <SourceBand>1</SourceBand>
+        </PanchroBand>
+        <SpectralBand dstBand="1">
+            <SourceFilename relativeToVRT="1">spectralforpansharp_1.tif</SourceFilename>
+            <SourceBand>1</SourceBand>
+        </SpectralBand>
+        <SpectralBand dstBand="2">
+            <SourceFilename relativeToVRT="1">spectralforpansharp_1.tif</SourceFilename>
+            <SourceBand>2</SourceBand>
+        </SpectralBand>
+        <SpectralBand dstBand="3">
+            <SourceFilename relativeToVRT="1">spectralforpansharp_1.tif</SourceFilename>
+            <SourceBand>3</SourceBand>
+        </SpectralBand>
+    </PansharpeningOptions>
+</VRTDataset>
