@@ -1,6 +1,9 @@
 package sokolov.model.xmlmodel;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+import java.util.List;
 
 public class PansharpeningOptionsType {
     @JacksonXmlProperty(localName = "Algorithm")
@@ -28,7 +31,8 @@ public class PansharpeningOptionsType {
     private PanchroBandType panchroBand;
 
     @JacksonXmlProperty(localName = "SpectralBand")
-    private SpectralBandType spectralBand;
+    @JacksonXmlElementWrapper(useWrapping = false)
+    private List<SpectralBandType> spectralBand;
 
     public String getAlghorithm() {
         return alghorithm;
@@ -94,11 +98,11 @@ public class PansharpeningOptionsType {
         this.panchroBand = panchroBand;
     }
 
-    public SpectralBandType getSpectralBand() {
+    public List<SpectralBandType> getSpectralBand() {
         return spectralBand;
     }
 
-    public void setSpectralBand(SpectralBandType spectralBand) {
+    public void setSpectralBand(List<SpectralBandType> spectralBand) {
         this.spectralBand = spectralBand;
     }
 }

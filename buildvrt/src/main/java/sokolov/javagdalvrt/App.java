@@ -3,11 +3,16 @@ package sokolov.javagdalvrt;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import sokolov.model.resamplng.ResamplingAlghorithmExecutor;
-import sokolov.model.resamplng.maskimplementation.MaskExecutor;
-import sokolov.model.datasets.*;
+import sokolov.model.alghorithms.ResamplingAlghorithmExecutor;
+import sokolov.model.alghorithms.maskimplementation.MaskExecutor;
+import sokolov.model.alghorithms.pansharpening.PansharpeningAlghorithm;
+import sokolov.model.alghorithms.warping.WapredAlghorithm;
+import sokolov.model.datasets.GdalDataset;
+import sokolov.model.datasets.VrtDataset;
+import sokolov.model.datasets.VrtPansharpenedDataset;
+import sokolov.model.datasets.VrtWarpedDataset;
 import sokolov.model.enums.GdalAccess;
-import sokolov.model.xmlmodel.*;
+import sokolov.model.xmlmodel.VRTDataset;
 
 import javax.imageio.ImageIO;
 import java.awt.image.*;
@@ -60,7 +65,6 @@ public class App {
         );*/
 
         System.out.println();
-        String pszVRTPathIn = null;
 
         //VRTDataset vrtDataset = gdalDataset.SerializeToXML(pszVRTPathIn);
 
@@ -80,7 +84,8 @@ public class App {
                 value.getBytes(),
                 StandardOpenOption.CREATE_NEW);*/
 
-        Path pathToXml = Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt", "test_mosaic_2x_bigger.vrt");
+        String pszVRTPathIn = "C:\\Users\\forol\\IdeaProjects\\javagdalvrt";
+        Path pathToXml = Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt", "pansharpening.vrt");
         byte[] bytes = Files.readAllBytes(pathToXml);
 
         VRTDataset deserializedVrtDataset = xmlMapper.readValue(bytes, VRTDataset.class);
@@ -89,14 +94,22 @@ public class App {
         //GdalDataset resultedDataset = extractFromVRTXml(deserializedVrtDataset, Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder", "test.vrt").toString());
 
         GdalDataset gdalDataset = new GdalDataset();
-        gdalDataset.InitXml(deserializedVrtDataset);
 
-        ImageIO.write(gdalDataset.bufferedImage, "tiff", new File(String.format("vrtres.tiff")));
+        if (deserializedVrtDataset.getSubClass() != null && deserializedVrtDataset.getSubClass().equals("VRTPansharpenedDataset")){
+            PansharpeningAlghorithm pansharpeningAlghorithm = new PansharpeningAlghorithm();
+            pansharpeningAlghorithm.executePansharpening(gdalDataset, pszVRTPathIn, deserializedVrtDataset);
+        } else if (deserializedVrtDataset.getSubClass() != null && deserializedVrtDataset.getSubClass().equals("VRTWarpedDataset")) {
+            WapredAlghorithm wapredAlghorithm = new WapredAlghorithm();
+            //wapredAlghorithm.executeWarping(gdalDataset);
+        } else {
+            gdalDataset.InitXml(deserializedVrtDataset);
+        }
+
 
 
         /*System.out.println();
 
-        BufferedImage read = ImageIO.read(Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt/MOS_CZ_KR_250.tif").toFile());
+        BufferedImage read = ImageIO.read(Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\MOS_CZ_KR_250.tif").toFile());
 
         ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
 
@@ -127,6 +140,7 @@ public class App {
             byte[] nearests = resamplingAlghorithmExecutor.imageRescaling(band + 1,
                     0, 0, read.getRaster().getWidth(), read.getRaster().getHeight(),
                     0, 0, nRasterXSize, nRasterYSize,
+                    -100000,
                     read,
                     "bilinear");
 
@@ -158,11 +172,11 @@ public class App {
 
         ImageIO.write(bufferedImage, "tiff", new File(String.format("resultaftermask.tiff")));
 
-        //check();*/
+        check();*/
     }
 
-    public static void check() throws IOException {
-        /*BufferedImage read = ImageIO.read(Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt/html-color-codes-color-tutorials.jpg").toFile());
+   /* public static void check() throws IOException {
+        BufferedImage read = ImageIO.read(Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\MOS_CZ_KR_250.tif").toFile());
 
         ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
 
@@ -193,7 +207,7 @@ public class App {
             byte[] nearests = resamplingAlghorithmExecutor.imageRescaling(band + 1,
                     0, 0, read.getRaster().getWidth(), read.getRaster().getHeight(),
                     0, 0, nRasterXSize, nRasterYSize,
-
+                    -100000,
                     read,
                     "bilinear");
 
@@ -208,9 +222,9 @@ public class App {
         bufferedImage.getRaster().setRect(interleavedRaster);
 
         ImageIO.write(bufferedImage, "tiff", new File(String.format("resultafterchangecolor.tiff")));
-*/
 
-    }
+
+    }*/
 
     private static ColorModel createColorModel(int n) {
         return new DirectColorModel(24,

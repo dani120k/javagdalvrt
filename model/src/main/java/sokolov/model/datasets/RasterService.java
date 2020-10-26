@@ -10,4 +10,16 @@ public class RasterService {
 
         return pixel[bandNumber-1];
     }
+
+    public static byte getSingleBandValue(byte[] resampledArray, int x, int y, int nRasterXSize, int nRasterYSize) {
+        return resampledArray[x + y * nRasterXSize];
+    }
+
+    public static int getSingleBandValue(int[] resampledArray, int x, int y, int nRasterXSize, int nRasterYSize) {
+        return resampledArray[x + y * nRasterXSize];
+    }
+
+    public static short getSingleBandValue(short[] resampledArray, int x, int y, int nRasterXSize, int nRasterYSize) {
+        return resampledArray[x + y * nRasterXSize];
+    }
 }

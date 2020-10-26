@@ -1,29 +1,20 @@
 package sokolov.model.datasets;
 
-import org.geotools.coverage.processing.operation.Resample;
 import sokolov.model.enums.*;
-import sokolov.model.resamplng.ResamplingAlghorithmExecutor;
-import sokolov.model.supclasses.GByte;
+import sokolov.model.alghorithms.ResamplingAlghorithmExecutor;
 import sokolov.model.xmlmodel.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.*;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static sokolov.model.datasets.GDALRIOResampleAlg.*;
 import static sokolov.model.enums.GDALColorInterp.GCI_Undefined;
-import static sokolov.model.enums.GDALRWFlag.GF_Read;
-import static sokolov.model.enums.GDALRWFlag.GF_Write;
-import static sokolov.model.enums.GdalAccess.GA_Update;
 
 public class GdalRasterBand extends GdalMajorObject {
     private int GMO_VALID = 0x0001;
@@ -604,7 +595,8 @@ public class GdalRasterBand extends GdalMajorObject {
             //should execute resampling
             ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
 
-            byte[] bytes = resamplingAlghorithmExecutor.imageRescaling(complexSourceType.getSourceBand(),
+            //TODO
+            int[] bytes = resamplingAlghorithmExecutor.imageRescaling(complexSourceType.getSourceBand(),
                     srcRect,
                     dstRect,
                     Integer.parseInt(complexSourceType.getNODATA()),
@@ -622,7 +614,7 @@ public class GdalRasterBand extends GdalMajorObject {
             }
         }
 
-        BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_INT_RGB);
         bufferedImage.getRaster().setRect(interleavedRaster);
         ImageIO.write(bufferedImage, "tiff", new File(String.format("res%s.tiff", t++)));
     }
@@ -691,7 +683,8 @@ public class GdalRasterBand extends GdalMajorObject {
 
             ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
 
-            byte[] bytes = resamplingAlghorithmExecutor.imageRescaling(simpleSourceType.getSourceBand(),
+            //TODO
+            int[] bytes = resamplingAlghorithmExecutor.imageRescaling(simpleSourceType.getSourceBand(),
                     srcRect,
                     dstRect,
                     -1000000,
