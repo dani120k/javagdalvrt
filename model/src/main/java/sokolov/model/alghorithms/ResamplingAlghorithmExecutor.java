@@ -3,25 +3,27 @@ package sokolov.model.alghorithms;
 import sokolov.model.alghorithms.resamplingimplementation.AverageResampling;
 import sokolov.model.alghorithms.resamplingimplementation.BilinearResampling;
 import sokolov.model.alghorithms.resamplingimplementation.NearestNeighbourResampling;
+import sokolov.model.common.PixelValue;
 import sokolov.model.xmlmodel.RectType;
 
 import java.awt.image.BufferedImage;
 
 public class ResamplingAlghorithmExecutor {
 
-    public int[] imageRescaling(int bandNumber,
+    public PixelValue[] imageRescaling(int bandNumber,
                                RectType srcRect,
                                RectType dstRect,
                                int noDataValue,
+                               String type,
                                BufferedImage originalImage,
                                String resampling){
         return this.imageRescaling(bandNumber,
                 srcRect.getxOff().intValue(), srcRect.getyOff().intValue(), srcRect.getxSize().intValue(), srcRect.getySize().intValue(),
                 dstRect.getxOff().intValue(),  dstRect.getyOff().intValue(), dstRect.getxSize().intValue(),dstRect.getySize().intValue(),
-                noDataValue, originalImage, resampling);
+                noDataValue, type, originalImage, resampling);
     }
 
-    public int[] imageRescaling(int bandNumber,
+    public PixelValue[] imageRescaling(int bandNumber,
                                int xOffOriginal,
                                int yOffOriginal,
                                int xSizeOriginal,
@@ -31,6 +33,7 @@ public class ResamplingAlghorithmExecutor {
                                int xSizeResult,
                                int ySizeResult,
                                int noDataValue,
+                               String type,
                                BufferedImage originalImage,
                                String resampling){
         ResamplingAlgorithm resamplingAlgorithm = null;
@@ -40,20 +43,21 @@ public class ResamplingAlghorithmExecutor {
                 resamplingAlgorithm = new NearestNeighbourResampling();
                 break;
             case "bilinear":
-                resamplingAlgorithm = new BilinearResampling();
+                //TODO resamplingAlgorithm = new BilinearResampling();
                 break;
             case "average":
-                resamplingAlgorithm = new AverageResampling();
+                //TODO resamplingAlgorithm = new AverageResampling();
                 break;
         }
 
         if (resamplingAlgorithm == null)
             return null;
 
-        int[] resamplingResultedArray = resamplingAlgorithm.resamplingInt(bandNumber,
+        PixelValue[] resamplingResultedArray = resamplingAlgorithm.resampling(bandNumber,
                 xOffOriginal, yOffOriginal, xSizeOriginal, ySizeOriginal,
                 xOffResult, yOffResult, xSizeResult, ySizeResult,
                 noDataValue,
+                type,
                 originalImage);
 
         return resamplingResultedArray;
@@ -78,10 +82,10 @@ public class ResamplingAlghorithmExecutor {
                 resamplingAlgorithm = new NearestNeighbourResampling();
                 break;
             case "bilinear":
-                resamplingAlgorithm = new BilinearResampling();
+                //TODO resamplingAlgorithm = new BilinearResampling();
                 break;
             case "average":
-                resamplingAlgorithm = new AverageResampling();
+                //TODO resamplingAlgorithm = new AverageResampling();
                 break;
         }
 
@@ -116,10 +120,10 @@ public class ResamplingAlghorithmExecutor {
                 resamplingAlgorithm = new NearestNeighbourResampling();
                 break;
             case "bilinear":
-                resamplingAlgorithm = new BilinearResampling();
+                //TODO resamplingAlgorithm = new BilinearResampling();
                 break;
             case "average":
-                resamplingAlgorithm = new AverageResampling();
+                //TODO resamplingAlgorithm = new AverageResampling();
                 break;
         }
 

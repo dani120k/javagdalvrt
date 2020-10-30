@@ -6,13 +6,11 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 
-public class BilinearResampling implements ResamplingAlgorithm {
-    @Override
+public class BilinearResampling{ //implements ResamplingAlgorithm {
     public int[] resamplingInt(int bandNumber, int xOffOriginal, int yOffOriginal, int xSizeOriginal, int ySizeOriginal, int xOffResult, int yOffResult, int xSizeResult, int ySizeResult, int noDataValue, BufferedImage originalImage) {
         return new int[0];
     }
 
-    @Override
     public byte[] resampling(int bandNumber,
                              int xOffOriginal, int yOffOriginal, int xSizeOriginal, int ySizeOriginal,
                              int xOffResult, int yOffResult, int xSizeResult, int ySizeResult,
@@ -23,8 +21,6 @@ public class BilinearResampling implements ResamplingAlgorithm {
         Rectangle rectangle = new Rectangle(xOffOriginal, yOffOriginal, xSizeOriginal, ySizeOriginal);
 
         Raster data = originalImage.getData(rectangle);
-
-
 
         int index = 0;
 
@@ -85,12 +81,6 @@ public class BilinearResampling implements ResamplingAlgorithm {
         }
     }
 
-    private double calculateDistance(double x, double y,
-                                     int x1, int y1){
-        return (x - x1) * (x - x1) + (y - y1)* (y - y1);
-    }
-
-    @Override
     public short[] resamplingUShort(int bandNumber, int xOffOriginal, int yOffOriginal, int xSizeOriginal, int ySizeOriginal, int xOffResult, int yOffResult, int xSizeResult, int ySizeResult, int noDataValue, BufferedImage originalImage) {
         return new short[0];
     }

@@ -10,11 +10,11 @@
         </SpectralBand>
         <SpectralBand dstBand="2">
             <SourceFilename relativeToVRT="1">spectral.tif</SourceFilename>
-            <SourceBand>2</SourceBand>
+            <SourceBand>3</SourceBand>
         </SpectralBand>
         <SpectralBand dstBand="3">
             <SourceFilename relativeToVRT="1">spectral.tif</SourceFilename>
-            <SourceBand>3</SourceBand>
+            <SourceBand>2</SourceBand>
         </SpectralBand>
     </PansharpeningOptions>
 </VRTDataset>

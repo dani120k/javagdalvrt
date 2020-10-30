@@ -10,7 +10,7 @@ public class KernelFilteredSourceType {
     private OpenOptionsType openOptions;
 
     @JacksonXmlProperty(localName = "SourceBand")
-    private String sourceBand;
+    private Integer sourceBand;
 
     @JacksonXmlProperty(localName = "SourceProperties")
     private SourcePropertiesType sourceProperties;
@@ -46,7 +46,7 @@ public class KernelFilteredSourceType {
     private Double dstMax;
 
     @JacksonXmlProperty(localName = "NODATA")
-    private Double NODATA;
+    private String NODATA;
 
     @JacksonXmlProperty(localName = "LUT")
     private String LUT;
@@ -73,11 +73,11 @@ public class KernelFilteredSourceType {
         this.openOptions = openOptions;
     }
 
-    public String getSourceBand() {
+    public int getSourceBand() {
         return sourceBand;
     }
 
-    public void setSourceBand(String sourceBand) {
+    public void setSourceBand(int sourceBand) {
         this.sourceBand = sourceBand;
     }
 
@@ -169,11 +169,11 @@ public class KernelFilteredSourceType {
         this.dstMax = dstMax;
     }
 
-    public Double getNODATA() {
+    public String getNODATA() {
         return NODATA;
     }
 
-    public void setNODATA(Double NODATA) {
+    public void setNODATA(String NODATA) {
         this.NODATA = NODATA;
     }
 

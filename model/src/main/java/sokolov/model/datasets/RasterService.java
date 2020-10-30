@@ -11,6 +11,14 @@ public class RasterService {
         return pixel[bandNumber-1];
     }
 
+    public static byte getByteValue(int bandNumber,
+                               int x, int y,
+                               Raster raster){
+        int[] pixel = raster.getSampleModel().getPixel(x, y, new int[3], raster.getDataBuffer());
+
+        return (byte)pixel[bandNumber-1];
+    }
+
     public static byte getSingleBandValue(byte[] resampledArray, int x, int y, int nRasterXSize, int nRasterYSize) {
         return resampledArray[x + y * nRasterXSize];
     }

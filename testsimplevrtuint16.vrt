@@ -1,0 +1,15 @@
+<VRTDataset rasterXSize="1284" rasterYSize="620">
+  <SRS dataAxisToSRSAxisMapping="1,2">LOCAL_CS["KRON        D211"]</SRS>
+  <GeoTransform> -9.0700000000000000e+05,  2.5000000000000000e+02,  0.0000000000000000e+00, -9.3300000000000000e+05,  0.0000000000000000e+00, -2.5000000000000000e+02</GeoTransform>
+  <VRTRasterBand dataType="UInt16" band="1">
+    <NoDataValue>255</NoDataValue>
+    <HideNoDataValue>1</HideNoDataValue>
+    <ComplexSource>
+      <SourceFilename relativeToVRT="1">panchro.tif</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="642" RasterYSize="310" DataType="Byte" BlockXSize="1912" BlockYSize="4" />
+      <SrcRect xOff="0" yOff="0" xSize="642" ySize="310" />
+      <DstRect xOff="0" yOff="0" xSize="1284" ySize="620" />
+    </ComplexSource>
+  </VRTRasterBand>
+</VRTDataset>

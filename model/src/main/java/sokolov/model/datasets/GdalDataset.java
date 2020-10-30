@@ -1,11 +1,14 @@
 package sokolov.model.datasets;
 
+import sokolov.model.alghorithms.maskimplementation.MaskExecutor;
+import sokolov.model.common.XmlDeserializer;
 import sokolov.model.enums.GDALDataType;
 import sokolov.model.enums.GdalAccess;
 import sokolov.model.enums.OSRAxisMappingStrategy;
 import sokolov.model.supclasses.GDALDefaultOverviews;
 import sokolov.model.supclasses.GdalDatasetPrivate;
 import sokolov.model.supclasses.GdalDriver;
+import sokolov.model.xmlmodel.MaskBandType;
 import sokolov.model.xmlmodel.VRTDataset;
 import sokolov.model.xmlmodel.VRTRasterBandType;
 
@@ -572,8 +575,12 @@ public class GdalDataset extends GdalMajorObject {
         this.nRasterXSize = deserializedVrtDataset.getRasterXSize();
         this.nRasterYSize = deserializedVrtDataset.getRasterYSize();
 
-        bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_3BYTE_BGR);
-        interleavedRaster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, nRasterXSize, nRasterYSize, 3, null);
+        int totalBandCount = deserializedVrtDataset.getVrtRasterBand().size();
+        int type = XmlDeserializer.getResultedImageType(deserializedVrtDataset.getVrtRasterBand());
+
+        bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, type);
+        //interleavedRaster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, nRasterXSize, nRasterYSize, 3, null);
+        interleavedRaster = Raster.createInterleavedRaster(XmlDeserializer.getRasterImageType(type), nRasterXSize, nRasterYSize, totalBandCount, null);
 
         if (deserializedVrtDataset.getVrtRasterBand() != null) {
             this.nBands = deserializedVrtDataset.getVrtRasterBand().size();
@@ -585,6 +592,14 @@ public class GdalDataset extends GdalMajorObject {
             int it = 0;
             for (VRTRasterBandType vrtRasterBandType : deserializedVrtDataset.getVrtRasterBand()) {
                 this.papoBands[it++].initXml(deserializedVrtDataset, vrtRasterBandType, it, interleavedRaster);
+            }
+
+            MaskBandType maskBand = deserializedVrtDataset.getMaskBand();
+
+            if (maskBand != null){
+                MaskExecutor maskExecutor = new MaskExecutor();
+
+                //TODO maskExecutor.executeMask(interleavedRaster, );
             }
 
             bufferedImage.getRaster().setRect(interleavedRaster);

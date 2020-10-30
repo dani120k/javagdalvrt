@@ -23,7 +23,7 @@ import static java.awt.image.DataBuffer.*;
 
 public class PansharpeningAlghorithm {
 
-    public void executePansharpening(GdalDataset GdalDataset, String pathToVrt, VRTDataset vrtDataset) throws IOException {
+    public void executePansharpening(GdalDataset gdalDataset, String pathToVrt, VRTDataset vrtDataset) throws IOException {
         PansharpeningOptionsType pansharpeningOptions = vrtDataset.getPansharpeningOptions();
 
         if (pansharpeningOptions != null) {
@@ -50,6 +50,8 @@ public class PansharpeningAlghorithm {
             BufferedImage pansharpenedImage = pansharpening(pachroImage, spectralBands);
 
             ImageIO.write(pansharpenedImage, "tif", Paths.get("pansdf.tif").toFile());
+
+            gdalDataset.bufferedImage = pansharpenedImage;
         } else {
             throw new RuntimeException("Указан subClass VRTPansharpenedDataset, но не указаны параметры pansharpening (тэг <PansharpeningOptions>)");
         }
@@ -57,8 +59,6 @@ public class PansharpeningAlghorithm {
 
     private BufferedImage pansharpening(BufferedImage pachroImage,
                                         List<BufferedImage> spectralBands) throws IOException {
-        int spectralCount = 3;//TODO
-
         int nRasterYSize = pachroImage.getRaster().getHeight();
         int nRasterXSize = pachroImage.getRaster().getWidth();
 
@@ -77,8 +77,6 @@ public class PansharpeningAlghorithm {
                     spectralBand,
                     "nearest"
             ));
-
-
         }
 
         XmlDeserializer.writeSpectralBandList(spectralBandList, nRasterXSize, nRasterYSize);

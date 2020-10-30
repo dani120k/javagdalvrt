@@ -2,7 +2,10 @@ package sokolov.model.common;
 
 import it.geosolutions.jaiext.range.Range;
 import sokolov.model.datasets.RasterService;
+import sokolov.model.datasets.VrtRasterBand;
+import sokolov.model.xmlmodel.RectType;
 import sokolov.model.xmlmodel.SourceFilenameType;
+import sokolov.model.xmlmodel.VRTRasterBandType;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -14,8 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static java.awt.image.DataBuffer.TYPE_BYTE;
-import static java.awt.image.DataBuffer.TYPE_USHORT;
+import static java.awt.image.DataBuffer.*;
 
 public class XmlDeserializer {
     public static String getPathForSourceFileName(SourceFilenameType sourceFilenameType, String pathToVrt) {
@@ -89,5 +91,140 @@ public class XmlDeserializer {
         bufferedImage.getRaster().setRect(interleavedRaster);
 
         ImageIO.write(bufferedImage, "tiff", new File(String.format("zxcv.tiff")));
+    }
+
+
+    public static boolean checkRectContains(int x, int y, RectType rectType){
+        if (x >= rectType.getxOff() && x <= rectType.getxOff() + rectType.getxSize())
+            if (y >= rectType.getyOff() && y <= rectType.getyOff() + rectType.getySize())
+                return true;
+
+        return false;
+    }
+
+    public static String getType(int dataType) {
+        switch (dataType){
+            case TYPE_BYTE:
+                return "byte";
+            case TYPE_USHORT:
+            case DataBuffer.TYPE_SHORT:
+                return "short";
+            case DataBuffer.TYPE_DOUBLE:
+                return "double";
+            case DataBuffer.TYPE_FLOAT:
+                return "float";
+            case DataBuffer.TYPE_INT:
+                return "int";
+            case DataBuffer.TYPE_UNDEFINED:
+                throw new RuntimeException("Невозможно узнать тип пикселя растрового изображения");
+        }
+
+        throw new RuntimeException("Невозможно узнать тип пикселя растрового изображения");
+    }
+
+    public static int getResultedImageType(List<VRTRasterBandType> vrtRasterBandList) {
+        String type = null;
+        int codeType = -1;
+
+
+        for (VRTRasterBandType vrtRasterBand : vrtRasterBandList) {
+            if (vrtRasterBand.getDataType().getValue().equals("Byte") && codeType < 0) {
+                type = "byte";
+                codeType = 0;
+            }
+
+            if (vrtRasterBand.getDataType().getValue().equals("UInt16") && codeType < 1){
+                type = "short";
+                codeType = 1;
+            }
+
+            if (vrtRasterBand.getDataType().getValue().equals("Int16") && codeType < 1){
+                type = "short";
+                codeType = 1;
+            }
+
+            if (vrtRasterBand.getDataType().getValue().equals("UInt32") && codeType < 2){
+                type = "int";
+                codeType = 2;
+            }
+
+            if (vrtRasterBand.getDataType().getValue().equals("Int32") && codeType < 2){
+                type = "int";
+                codeType = 2;
+            }
+
+            if (vrtRasterBand.getDataType().getValue().equals("Float32") && codeType < 3){
+                type = "float";
+                codeType = 3;
+            }
+
+            if (vrtRasterBand.getDataType().getValue().equals("Float64")  && codeType < 3){
+                type = "float";
+                codeType = 3;
+            }
+
+            if (vrtRasterBand.getDataType().getValue().equals("CInt16") && codeType < 2){
+                type = "int";
+                codeType = 2;
+            }
+
+            if (vrtRasterBand.getDataType().getValue().equals("CInt32") && codeType < 2){
+                type = "int";
+                codeType = 2;
+            }
+
+            if (vrtRasterBand.getDataType().getValue().equals("CFloat32 ") && codeType < 3){
+                type = "float";
+                codeType = 3;
+            }
+
+            if (vrtRasterBand.getDataType().getValue().equals("CFloat64") && codeType < 3){
+                type = "float";
+                codeType = 3;
+            }
+        }
+
+        switch (type){
+            case "byte":
+                if (vrtRasterBandList.size() == 1)
+                    return BufferedImage.TYPE_BYTE_GRAY;
+                else
+                    return BufferedImage.TYPE_INT_RGB;
+            case "short":
+                if (vrtRasterBandList.size() == 1)
+                    return BufferedImage.TYPE_USHORT_GRAY;
+                else
+                    return BufferedImage.TYPE_USHORT_555_RGB;
+            case "int":
+                if (vrtRasterBandList.size() == 1)
+                    return BufferedImage.TYPE_INT_BGR;
+                else
+                    return BufferedImage.TYPE_INT_RGB;
+            case "float":
+            case "double":
+                if (vrtRasterBandList.size() == 1)
+                    return BufferedImage.TYPE_4BYTE_ABGR;
+                else
+                    return BufferedImage.TYPE_4BYTE_ABGR;
+        }
+
+        return BufferedImage.TYPE_CUSTOM;
+    }
+
+    public static int getRasterImageType(int value) {
+        switch (value){
+            case BufferedImage.TYPE_USHORT_GRAY:
+                return TYPE_USHORT;
+            case BufferedImage.TYPE_4BYTE_ABGR:
+                return TYPE_INT;
+            case BufferedImage.TYPE_INT_RGB:
+                return TYPE_BYTE;
+            case BufferedImage.TYPE_BYTE_GRAY:
+                return TYPE_BYTE;
+            case BufferedImage.TYPE_USHORT_555_RGB:
+                return TYPE_USHORT;
+        }
+
+        return 0;
     }
 }
