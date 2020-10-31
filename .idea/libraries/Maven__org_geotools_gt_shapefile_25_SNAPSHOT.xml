@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="Maven: org.geotools:gt-shapefile:25-SNAPSHOT">
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-shapefile/25-SNAPSHOT/gt-shapefile-25-20201021.160203-34.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-shapefile/25-SNAPSHOT/gt-shapefile-25-20201026.173652-36.jar!/" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-shapefile/25-SNAPSHOT/gt-shapefile-25-20201021.160203-34-javadoc.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-shapefile/25-SNAPSHOT/gt-shapefile-25-20201026.173652-36-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-shapefile/25-SNAPSHOT/gt-shapefile-25-20201021.160203-34-sources.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-shapefile/25-SNAPSHOT/gt-shapefile-25-20201026.173652-36-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

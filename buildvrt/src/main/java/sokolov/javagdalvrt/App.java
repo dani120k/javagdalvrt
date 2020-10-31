@@ -84,8 +84,8 @@ public class App {
                 value.getBytes(),
                 StandardOpenOption.CREATE_NEW);*/
 
-        String pszVRTPathIn = "C:\\Users\\forol\\IdeaProjects\\javagdalvrt";
-        Path pathToXml = Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt", "pansharpening.vrt");
+        String pszVRTPathIn = "/Users/danilsokolov/IdeaProjects/javagdalvrt";
+        Path pathToXml = Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt","test_mosaic_2x_bigger.vrt");
         byte[] bytes = Files.readAllBytes(pathToXml);
 
         VRTDataset deserializedVrtDataset = xmlMapper.readValue(bytes, VRTDataset.class);

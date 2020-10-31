@@ -1,21 +1,23 @@
 package sokolov.model.common;
 
+import com.ctc.wstx.shaded.msv_core.datatype.xsd.UnsignedByteType;
+
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 
 public class PixelValue {
-    byte byteValue;
+    public byte byteValue;
 
-    short shortValue;
+    public short shortValue;
 
-    int intValue;
+    public int intValue;
 
-    float floatValue;
+    public float floatValue;
 
-    double doubleValue;
+    public double doubleValue;
 
-    String type;
+    public String type;
 
     public static PixelValue getPixelValue(int x, int y, String type, Integer bandNumber, Raster data) {
         PixelValue pixelValue = new PixelValue();
@@ -98,10 +100,31 @@ public class PixelValue {
         return pixelValue;
     }
 
-    public static PixelValue parse(String noDataValue) {
-        //TODO
+    public static PixelValue parse(String noDataValue, String type) {
+        PixelValue pixelValue = new PixelValue();
+        pixelValue.type = type;
 
-        return new PixelValue();
+        if (type.equals("byte")) {
+            pixelValue.byteValue = (byte)Integer.parseInt(noDataValue);
+        }
+
+        if (type.equals("int")){
+            pixelValue.intValue = Integer.parseInt(noDataValue);
+        }
+
+        if (type.equals("double")){
+            pixelValue.doubleValue = Double.parseDouble(noDataValue);
+        }
+
+        if (type.equals("short")){
+            pixelValue.shortValue = (short)Integer.parseInt(noDataValue);
+        }
+
+        if (type.equals("float")){
+            pixelValue.floatValue = Float.parseFloat(noDataValue);
+        }
+
+        return pixelValue;
     }
 
     @Override

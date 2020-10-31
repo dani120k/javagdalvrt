@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="Maven: org.geotools.ogc:net.opengis.ows:25-SNAPSHOT">
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/ogc/net.opengis.ows/25-SNAPSHOT/net.opengis.ows-25-20201021.155709-24.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/ogc/net.opengis.ows/25-SNAPSHOT/net.opengis.ows-25-20201026.173233-26.jar!/" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/ogc/net.opengis.ows/25-SNAPSHOT/net.opengis.ows-25-20201021.155709-24-javadoc.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/ogc/net.opengis.ows/25-SNAPSHOT/net.opengis.ows-25-20201026.173233-26-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/ogc/net.opengis.ows/25-SNAPSHOT/net.opengis.ows-25-20201021.155709-24-sources.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/ogc/net.opengis.ows/25-SNAPSHOT/net.opengis.ows-25-20201026.173233-26-sources.jar!/" />
     </SOURCES>
   </library>
 </component>
