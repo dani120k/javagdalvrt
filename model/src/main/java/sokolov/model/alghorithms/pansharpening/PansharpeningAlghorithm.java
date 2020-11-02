@@ -1,6 +1,7 @@
 package sokolov.model.alghorithms.pansharpening;
 
 import sokolov.model.alghorithms.ResamplingAlghorithmExecutor;
+import sokolov.model.common.PixelValue;
 import sokolov.model.common.XmlDeserializer;
 import sokolov.model.datasets.GdalDataset;
 import sokolov.model.datasets.RasterService;
@@ -30,6 +31,7 @@ public class PansharpeningAlghorithm {
             //get pachroband
             PanchroBandType panchroBand = pansharpeningOptions.getPanchroBand();
 
+            String type = "int";
             BufferedImage pachroImage = ImageIO.read(Paths.get(XmlDeserializer.getPathForSourceFileName(panchroBand.getSourceFilename(), pathToVrt)).toFile());
 
             //get each spectral band
@@ -47,7 +49,7 @@ public class PansharpeningAlghorithm {
 
             //calculate pansharpening result
 
-            BufferedImage pansharpenedImage = pansharpening(pachroImage, spectralBands);
+            BufferedImage pansharpenedImage = pansharpening(pachroImage, spectralBands, type);
 
             ImageIO.write(pansharpenedImage, "tif", Paths.get("pansdf.tif").toFile());
 
@@ -58,28 +60,30 @@ public class PansharpeningAlghorithm {
     }
 
     private BufferedImage pansharpening(BufferedImage pachroImage,
-                                        List<BufferedImage> spectralBands) throws IOException {
+                                        List<BufferedImage> spectralBands,
+                                        String type) throws IOException {
         int nRasterYSize = pachroImage.getRaster().getHeight();
         int nRasterXSize = pachroImage.getRaster().getWidth();
 
         int bN = 1;
-        List<int[]> spectralBandList = new ArrayList<>();
+        List<PixelValue[]> spectralBandList = new ArrayList<>();
 
         for (BufferedImage spectralBand : spectralBands) {
             int spectralRasterXSize = spectralBand.getWidth();
             int spectralRasterYSize = spectralBand.getHeight();
 
             ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
-            spectralBandList.add(resamplingAlghorithmExecutor.imageRescalingInt(bN++,
+            spectralBandList.add(resamplingAlghorithmExecutor.imageRescaling(bN++,
                     0, 0, spectralRasterXSize, spectralRasterYSize,
                     0, 0, nRasterXSize, nRasterYSize,
                     -1000000,
+                    type,
                     spectralBand,
                     "nearest"
             ));
         }
 
-        XmlDeserializer.writeSpectralBandList(spectralBandList, nRasterXSize, nRasterYSize);
+        //XmlDeserializer.writeSpectralBandList(spectralBandList, nRasterXSize, nRasterYSize);
 
         ColorModel colorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), false, false, Transparency.OPAQUE, DataBuffer.TYPE_USHORT);
 
@@ -126,7 +130,7 @@ public class PansharpeningAlghorithm {
 
                 int realNumber = 0;
                 boolean isInvalid = false;
-                for (int[] resampledArray : spectralBandList) {
+                for (PixelValue[] resampledArray : spectralBandList) {
                     /*model.setSample(x, y, realNumber++,
                             Math.abs(RasterService.getSingleBandValue(resampledArray,
                                     x, y, nRasterXSize, nRasterYSize) * ratio) %256 ,

@@ -84,8 +84,8 @@ public class App {
                 value.getBytes(),
                 StandardOpenOption.CREATE_NEW);*/
 
-        String pszVRTPathIn = "/Users/danilsokolov/IdeaProjects/javagdalvrt";
-        Path pathToXml = Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt","test_mosaic_2x_bigger.vrt");
+        String pszVRTPathIn = "C:\\Users\\forol\\IdeaProjects\\javagdalvrt";
+        Path pathToXml = Paths.get(pszVRTPathIn,"pansharpening.vrt");
         byte[] bytes = Files.readAllBytes(pathToXml);
 
         VRTDataset deserializedVrtDataset = xmlMapper.readValue(bytes, VRTDataset.class);
@@ -100,7 +100,7 @@ public class App {
             pansharpeningAlghorithm.executePansharpening(gdalDataset, pszVRTPathIn, deserializedVrtDataset);
         } else if (deserializedVrtDataset.getSubClass() != null && deserializedVrtDataset.getSubClass().equals("VRTWarpedDataset")) {
             WapredAlghorithm wapredAlghorithm = new WapredAlghorithm();
-            //wapredAlghorithm.executeWarping(gdalDataset);
+            wapredAlghorithm.executeWarping(gdalDataset, pszVRTPathIn, deserializedVrtDataset);
         } else {
             gdalDataset.InitXml(deserializedVrtDataset);
         }

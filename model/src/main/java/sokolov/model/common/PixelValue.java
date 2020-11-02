@@ -104,27 +104,39 @@ public class PixelValue {
         PixelValue pixelValue = new PixelValue();
         pixelValue.type = type;
 
-        if (type.equals("byte")) {
-            pixelValue.byteValue = (byte)Integer.parseInt(noDataValue);
-        }
+        if (noDataValue != null) {
+            if (type.equals("byte")) {
+                pixelValue.byteValue = (byte) Integer.parseInt(noDataValue);
+            }
 
-        if (type.equals("int")){
-            pixelValue.intValue = Integer.parseInt(noDataValue);
-        }
+            if (type.equals("int")) {
+                pixelValue.intValue = Integer.parseInt(noDataValue);
+            }
 
-        if (type.equals("double")){
-            pixelValue.doubleValue = Double.parseDouble(noDataValue);
-        }
+            if (type.equals("double")) {
+                pixelValue.doubleValue = Double.parseDouble(noDataValue);
+            }
 
-        if (type.equals("short")){
-            pixelValue.shortValue = (short)Integer.parseInt(noDataValue);
-        }
+            if (type.equals("short")) {
+                pixelValue.shortValue = (short) Integer.parseInt(noDataValue);
+            }
 
-        if (type.equals("float")){
-            pixelValue.floatValue = Float.parseFloat(noDataValue);
+            if (type.equals("float")) {
+                pixelValue.floatValue = Float.parseFloat(noDataValue);
+            }
         }
 
         return pixelValue;
+    }
+
+    public static String getStringType(int type) {
+        //TODO
+        switch (type){
+            case 0-100:
+                return "int";
+        }
+
+        return null;
     }
 
     @Override
@@ -178,6 +190,9 @@ public class PixelValue {
 
     public void setNoDataValue(int x, int y, int bandNumber, DataBuffer dataBuffer, SampleModel sampleModel, String noDataValue) {
         //TODO parse noDataValue
+
+        if (noDataValue == null)
+            noDataValue = "0";
 
         sampleModel.setSample(x, y, bandNumber, (byte)Integer.parseInt(noDataValue), dataBuffer);
     }

@@ -1,5 +1,6 @@
 package sokolov.model.datasets;
 
+import sokolov.model.alghorithms.kernelfiltering.KernelFilterExecutor;
 import sokolov.model.alghorithms.maskimplementation.MaskExecutor;
 import sokolov.model.common.PixelValue;
 import sokolov.model.common.XmlDeserializer;
@@ -455,10 +456,11 @@ public class GdalRasterBand extends GdalMajorObject {
     }
 
 
-    public void initXml(VRTDataset vrtDataset, VRTRasterBandType vrtRasterBandType, int nBand, WritableRaster interleavedRaster) throws IOException {
+    public void initXml(VRTDataset vrtDataset, VRTRasterBandType vrtRasterBandType, int nBand, WritableRaster interleavedRaster, Integer type) throws IOException {
         this.nBand = nBand;
         this.nRasterXSize = vrtDataset.getRasterXSize();
         this.nRasterYSize = vrtDataset.getRasterYSize();
+
 
         if (vrtDataset.getBlockXSize() != null)
             this.nBlockXSize = new AtomicInteger(vrtDataset.getBlockXSize().intValue());
@@ -544,8 +546,7 @@ public class GdalRasterBand extends GdalMajorObject {
                         pathToVrtFolder,
                         vrtRasterBandType,
                         interleavedRaster,
-                        resampling,
-                        previousDstRectArray);
+                        resampling);
             }
 
         }
@@ -553,16 +554,18 @@ public class GdalRasterBand extends GdalMajorObject {
         MaskBandType maskBand = vrtRasterBandType.getMaskBand();
 
         if (maskBand != null) {
+            VRTRasterBandType vrtRasterBand = maskBand.getVrtRasterBand();
+
             MaskExecutor maskExecutor = new MaskExecutor();
 
-            //TODO maskExecutor.executeMask(interleavedRaster, );
+            maskExecutor.executeMask(interleavedRaster, vrtDataset, vrtRasterBand, nRasterXSize, nRasterYSize, type, nBand);
         }
 
     }
 
     private void initKernelFilterSource(SampleModel sampleModel, KernelFilteredSourceType kernelFilteredSourceType, String pathToVrtFolder,
                                         VRTRasterBandType vrtRasterBandType, WritableRaster interleavedRaster,
-                                        String resampling, List<RectType> previousDstRect) throws IOException {
+                                        String resampling) throws IOException {
         SourceFilenameType sourceFilename = kernelFilteredSourceType.getSourceFilename();
 
         if (sourceFilename.getSourceFileName() == null) {
@@ -578,115 +581,38 @@ public class GdalRasterBand extends GdalMajorObject {
         BufferedImage image = ImageIO.read(file);
         String type = XmlDeserializer.getType(image.getRaster().getDataBuffer().getDataType());
 
-        RectType srcRect = kernelFilteredSourceType.getSrcRect();
+        Raster data = image.getData();
 
-        Rectangle rectangle = new Rectangle(srcRect.getxOff().intValue(), srcRect.getyOff().intValue(), srcRect.getxSize().intValue(), srcRect.getySize().intValue());
+        for (int x = 0; x < nRasterXSize; x++) {
+            for (int y = 0; y < nRasterYSize; y++) {
+                PixelValue b = RasterService.getPixelValue(kernelFilteredSourceType.getSourceBand(),
+                        x,
+                        y,
+                        type,
+                        data);
 
-        Raster data = image.getData(rectangle);
-
-        int startX = srcRect.getxOff().intValue();
-        int startY = srcRect.getyOff().intValue();
-        int xSize = srcRect.getxSize().intValue();
-        int ySize = srcRect.getySize().intValue();
-
-
-        RectType dstRect = kernelFilteredSourceType.getDstRect();
-
-        int dstX = dstRect.getxOff().intValue();
-        int dstY = dstRect.getyOff().intValue();
-        int dstXSize = dstRect.getxSize().intValue();
-        int dstYSize = dstRect.getySize().intValue();
-
-        PixelValue[] pixelValues = new PixelValue[dstXSize * dstYSize];
-
-        if (xSize == dstXSize && ySize == dstYSize) {
-            for (int i = startX; i < startX + xSize; i++) {
-                for (int j = startY; j < startY + ySize; j++) {
-                    int realX = i - startX;
-                    int realY = j - startY;
-                    PixelValue b = RasterService.getPixelValue(kernelFilteredSourceType.getSourceBand(),
-                            realX,
-                            realY,
-                            type,
-                            data);
-
-                    //int b = this.band[i - dstX][j - dstY];
-
-                    String noDataValue = vrtRasterBandType.getNoDataValue();
-                    if (!b.equals(PixelValue.parse(noDataValue, type))) {
-                        b.setValueForSampleModel(realX+dstX, realY+dstY, kernelFilteredSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel);
-
-                    } else {
-                        boolean check = true;
-                        for (RectType rectType : previousDstRect) {
-                            if (XmlDeserializer.checkRectContains(realX+dstX, realY+dstY, rectType))
-                                check = false;
-                        }
-
-                        if (check) {
-                            if (sampleModel.getSample(realX +dstX, realY+dstY, kernelFilteredSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer()) == 0) {
-                                b.setNoDataValue(realX, realY, kernelFilteredSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel, noDataValue);
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            //should execute resampling
-            ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
-
-            if (kernelFilteredSourceType.getNODATA() == null)
-                kernelFilteredSourceType.setNODATA("-10000");
-
-
-            //TODO
-            PixelValue[] pixels = resamplingAlghorithmExecutor.imageRescaling(kernelFilteredSourceType.getSourceBand(),
-                    srcRect,
-                    dstRect,
-                    Integer.parseInt(kernelFilteredSourceType.getNODATA()),
-                    type,
-                    image,
-                    resampling);
-
-            for (int i = 0; i < pixels.length; i++) {
-                int x = i % dstXSize;
-                int y = i / dstXSize;
-
-                //System.out.println(dstXSize + " " + dstYSize + " " + i);
-                //System.out.println(x + " " + y);
-                //System.out.println((x + dstX) + " " + (y + dstY));
-                //System.out.println("\n");
-                /*if (bytes[i] != (byte)Integer.parseInt(complexSourceType.getNODATA()))
-                    sampleModel.setSample(x + dstX, y + dstY,
-                            complexSourceType.getSourceBand() - 1,
-                            bytes[i], interleavedRaster.getDataBuffer());*/
-                PixelValue b = pixels[i];
+                //int b = this.band[i - dstX][j - dstY];
 
                 String noDataValue = vrtRasterBandType.getNoDataValue();
-                if (b.equals(PixelValue.parse(noDataValue, type))) {
-                    b.setValueForSampleModel(x + dstX, y + dstY, kernelFilteredSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel);
+                if (!b.equals(PixelValue.parse(noDataValue, type))) {
+                    b.setValueForSampleModel(x, y, kernelFilteredSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel);
 
                 } else {
-                    boolean check = true;
-                    for (RectType rectType : previousDstRect) {
-                        if (XmlDeserializer.checkRectContains(x + dstX, y + dstY, rectType))
-                            check = false;
-                    }
-
-                    if (check) {
-                        if (sampleModel.getSample(x + dstX, y + dstY, kernelFilteredSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer()) == 0) {
-                            b.setNoDataValue(x + dstX, y + dstY, kernelFilteredSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel, noDataValue);
-                        }
+                    if (sampleModel.getSample(x, y, kernelFilteredSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer()) == 0) {
+                        b.setNoDataValue(x, y, kernelFilteredSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel, noDataValue);
                     }
                 }
             }
         }
 
-        BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_3BYTE_BGR);
+        //make kernel filter on resulted raster band
+        KernelFilterExecutor.executeKernel(kernelFilteredSourceType, interleavedRaster, nRasterXSize, nRasterYSize, nBand, kernelFilteredSourceType.getSourceBand() - 1);
+
+        //todo ONLY FOR TEST
+        /*BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_3BYTE_BGR);
         bufferedImage.getRaster().setRect(interleavedRaster);
         ImageIO.write(bufferedImage, "tiff", new File(String.format("res%s.tiff", t++)));
-
-        previousDstRect.add(dstRect);
+        //*/
     }
 
     private void initComplexSource(SampleModel sampleModel,
@@ -745,17 +671,17 @@ public class GdalRasterBand extends GdalMajorObject {
 
                     String noDataValue = vrtRasterBandType.getNoDataValue();
                     if (!b.equals(PixelValue.parse(noDataValue, type))) {
-                        b.setValueForSampleModel(realX+dstX, realY+dstY, complexSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel);
+                        b.setValueForSampleModel(realX + dstX, realY + dstY, complexSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel);
 
                     } else {
                         boolean check = true;
                         for (RectType rectType : previousDstRect) {
-                            if (XmlDeserializer.checkRectContains(realX+dstX, realY+dstY, rectType))
+                            if (XmlDeserializer.checkRectContains(realX + dstX, realY + dstY, rectType))
                                 check = false;
                         }
 
                         if (check) {
-                            if (sampleModel.getSample(realX +dstX, realY+dstY, complexSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer()) == 0) {
+                            if (sampleModel.getSample(realX + dstX, realY + dstY, complexSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer()) == 0) {
                                 b.setNoDataValue(realX, realY, complexSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel, noDataValue);
                             }
                         }
@@ -879,17 +805,17 @@ public class GdalRasterBand extends GdalMajorObject {
 
                     String noDataValue = vrtRasterBandType.getNoDataValue();
                     if (!b.equals(PixelValue.parse(noDataValue, type))) {
-                        b.setValueForSampleModel(realX+dstX, realY+dstY, simpleSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel);
+                        b.setValueForSampleModel(realX + dstX, realY + dstY, simpleSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel);
 
                     } else {
                         boolean check = true;
                         for (RectType rectType : previousDstRect) {
-                            if (XmlDeserializer.checkRectContains(realX+dstX, realY+dstY, rectType))
+                            if (XmlDeserializer.checkRectContains(realX + dstX, realY + dstY, rectType))
                                 check = false;
                         }
 
                         if (check) {
-                            if (sampleModel.getSample(realX +dstX, realY+dstY, simpleSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer()) == 0) {
+                            if (sampleModel.getSample(realX + dstX, realY + dstY, simpleSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer()) == 0) {
                                 b.setNoDataValue(realX, realY, simpleSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel, noDataValue);
                             }
                         }
@@ -914,18 +840,10 @@ public class GdalRasterBand extends GdalMajorObject {
                 int x = i % dstXSize;
                 int y = i / dstXSize;
 
-                //System.out.println(dstXSize + " " + dstYSize + " " + i);
-                //System.out.println(x + " " + y);
-                //System.out.println((x + dstX) + " " + (y + dstY));
-                //System.out.println("\n");
-                /*if (bytes[i] != (byte)Integer.parseInt(complexSourceType.getNODATA()))
-                    sampleModel.setSample(x + dstX, y + dstY,
-                            complexSourceType.getSourceBand() - 1,
-                            bytes[i], interleavedRaster.getDataBuffer());*/
                 PixelValue b = pixels[i];
 
                 String noDataValue = vrtRasterBandType.getNoDataValue();
-                if (b.equals(PixelValue.parse(noDataValue, type))) {
+                if (!b.equals(PixelValue.parse(noDataValue, type))) {
                     b.setValueForSampleModel(x + dstX, y + dstY, simpleSourceType.getSourceBand() - 1, interleavedRaster.getDataBuffer(), sampleModel);
 
                 } else {

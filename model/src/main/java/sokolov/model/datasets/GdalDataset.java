@@ -589,9 +589,17 @@ public class GdalDataset extends GdalMajorObject {
                 this.papoBands[i] = new GdalRasterBand();
 
 
+            int[] defPixelValue = new int[nRasterXSize* nRasterYSize * 3];
+            defPixelValue[0] = 255;
+            defPixelValue[1] = 255;
+            defPixelValue[2] = 255;
+            defPixelValue[3] = 255;
+
+            interleavedRaster.setPixels(0, 0, nRasterXSize, nRasterYSize, defPixelValue);
+
             int it = 0;
             for (VRTRasterBandType vrtRasterBandType : deserializedVrtDataset.getVrtRasterBand()) {
-                this.papoBands[it++].initXml(deserializedVrtDataset, vrtRasterBandType, it, interleavedRaster);
+                this.papoBands[it++].initXml(deserializedVrtDataset, vrtRasterBandType, it, interleavedRaster, type);
             }
 
             MaskBandType maskBand = deserializedVrtDataset.getMaskBand();
@@ -599,7 +607,7 @@ public class GdalDataset extends GdalMajorObject {
             if (maskBand != null){
                 MaskExecutor maskExecutor = new MaskExecutor();
 
-                //TODO maskExecutor.executeMask(interleavedRaster, );
+                maskExecutor.executeMask(interleavedRaster, deserializedVrtDataset, maskBand.getVrtRasterBand(), nRasterXSize, nRasterYSize, type);
             }
 
             bufferedImage.getRaster().setRect(interleavedRaster);

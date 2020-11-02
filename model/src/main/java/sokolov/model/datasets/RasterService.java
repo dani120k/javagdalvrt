@@ -73,4 +73,30 @@ public class RasterService {
 
         return pixelValue;
     }
+
+    public static double getSingleBandValue(PixelValue[] pixelValues, int x, int y, int nRasterXSize, int nRasterYSize) {
+        PixelValue pixelValue = pixelValues[x + y * nRasterXSize];
+
+        if (pixelValue.type.equals("int") ){
+            return pixelValue.intValue;
+        }
+
+        if (pixelValue.type.equals("short")) {
+            return pixelValue.shortValue;
+        }
+
+        if (pixelValue.type.equals("byte")){
+            return pixelValue.byteValue;
+        }
+
+        if (pixelValue.type.equals("double")){
+            return pixelValue.doubleValue;
+        }
+
+        if (pixelValue.type.equals("float")){
+            return pixelValue.floatValue;
+        }
+
+        return 0;
+    }
 }
