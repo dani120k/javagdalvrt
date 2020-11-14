@@ -1,22 +1,39 @@
 package sokolov.model.alghorithms.resamplingimplementation;
 
 import sokolov.model.alghorithms.ResamplingAlgorithm;
+import sokolov.model.common.PixelValue;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 
-public class BilinearResampling{ //implements ResamplingAlgorithm {
-    public int[] resamplingInt(int bandNumber, int xOffOriginal, int yOffOriginal, int xSizeOriginal, int ySizeOriginal, int xOffResult, int yOffResult, int xSizeResult, int ySizeResult, int noDataValue, BufferedImage originalImage) {
-        return new int[0];
+public class BilinearResampling implements ResamplingAlgorithm {
+    private PixelValue lerp(PixelValue s, PixelValue e, double t) {
+        double diff = PixelValue.calcDiff(e, s);
+        double value =  s.getAnyValue() + diff * t;
+
+        PixelValue resulted = new PixelValue();
+        resulted.type = s.type;
+        resulted.setDoubleValue(value);
+
+        return resulted;
     }
 
-    public byte[] resampling(int bandNumber,
-                             int xOffOriginal, int yOffOriginal, int xSizeOriginal, int ySizeOriginal,
-                             int xOffResult, int yOffResult, int xSizeResult, int ySizeResult,
-                             int noDataValue,
-                             BufferedImage originalImage) {
-        byte[] resultedArray = new byte[xSizeResult * ySizeResult];
+    private PixelValue getValue(int x, int y, int band, String type, Raster data){
+        try {
+            return PixelValue.getPixelValue(x, y, type, band, data);
+        }catch (Exception ex){
+            return PixelValue.getEmptyForType(type);
+        }
+    }
+
+    public short[] resamplingUShort(int bandNumber, int xOffOriginal, int yOffOriginal, int xSizeOriginal, int ySizeOriginal, int xOffResult, int yOffResult, int xSizeResult, int ySizeResult, int noDataValue, BufferedImage originalImage) {
+        return new short[0];
+    }
+
+    @Override
+    public PixelValue[] resampling(int bandNumber, int xOffOriginal, int yOffOriginal, int xSizeOriginal, int ySizeOriginal, int xOffResult, int yOffResult, int xSizeResult, int ySizeResult, int noDataValue, String type, BufferedImage originalImage) {
+        PixelValue[] resultedArray = new PixelValue[xSizeResult * ySizeResult];
 
         Rectangle rectangle = new Rectangle(xOffOriginal, yOffOriginal, xSizeOriginal, ySizeOriginal);
 
@@ -33,55 +50,36 @@ public class BilinearResampling{ //implements ResamplingAlgorithm {
                 int intYOriginalIndex = (int) yOriginalIndex;
                 int rgb = 0;
 
-                int c00 = getValue(intXOriginalIndex + xOffOriginal,
+                PixelValue c00 = getValue(intXOriginalIndex + xOffOriginal,
                         intYOriginalIndex + yOffOriginal,
                         bandNumber,
+                        type,
                         data);
 
-                int c10 = getValue(intXOriginalIndex + xOffOriginal + 1,
+                PixelValue c10 = getValue(intXOriginalIndex + xOffOriginal + 1,
                         intYOriginalIndex + yOffOriginal,
                         bandNumber,
+                        type,
                         data);
-                int c01 = getValue(intXOriginalIndex + xOffOriginal,
+                PixelValue c01 = getValue(intXOriginalIndex + xOffOriginal,
                         intYOriginalIndex + yOffOriginal + 1,
                         bandNumber,
+                        type,
                         data);
-                int c11 = getValue(intXOriginalIndex + xOffOriginal + 1,
+                PixelValue c11 = getValue(intXOriginalIndex + xOffOriginal + 1,
                         intYOriginalIndex + yOffOriginal + 1,
                         bandNumber,
+                        type,
                         data);
 
-                int lerp = (int)lerp(
+                PixelValue lerp = lerp(
                         lerp(c00, c10, xOriginalIndex - intXOriginalIndex),
                         lerp(c01, c11, xOriginalIndex - intXOriginalIndex), yOriginalIndex - intYOriginalIndex);
 
-                resultedArray[index++] = (byte)lerp;
+                resultedArray[index++] = lerp;
             }
 
         return resultedArray;
-    }
 
-    private double lerp(double s, double e, double t) {
-        return s + (e - s) * t;
-    }
-
-    private int getValue(int x, int y, int band, Raster data){
-        int[] array = new int[3];
-        try {
-            data.getSampleModel().getPixel(
-                    x,
-                    y,
-                    array,
-                    data.getDataBuffer()
-            );
-
-            return array[band - 1];
-        }catch (Exception ex){
-            return 0;
-        }
-    }
-
-    public short[] resamplingUShort(int bandNumber, int xOffOriginal, int yOffOriginal, int xSizeOriginal, int ySizeOriginal, int xOffResult, int yOffResult, int xSizeResult, int ySizeResult, int noDataValue, BufferedImage originalImage) {
-        return new short[0];
     }
 }

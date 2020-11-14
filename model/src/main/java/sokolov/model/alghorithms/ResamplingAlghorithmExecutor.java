@@ -43,7 +43,7 @@ public class ResamplingAlghorithmExecutor {
                 resamplingAlgorithm = new NearestNeighbourResampling();
                 break;
             case "bilinear":
-                //TODO resamplingAlgorithm = new BilinearResampling();
+                resamplingAlgorithm = new BilinearResampling();
                 break;
             case "average":
                 //TODO resamplingAlgorithm = new AverageResampling();

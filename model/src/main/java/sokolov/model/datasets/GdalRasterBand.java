@@ -500,7 +500,7 @@ public class GdalRasterBand extends GdalMajorObject {
             for (ComplexSourceType complexSourceType : complexSourceList) {
                 String resampling = complexSourceType.getResampling();
                 if (resampling == null)
-                    resampling = "nearest";
+                    resampling = "bilinear";
 
 
                 initComplexSource(sampleModel,
@@ -605,8 +605,12 @@ public class GdalRasterBand extends GdalMajorObject {
             }
         }
 
-        //make kernel filter on resulted raster band
-        KernelFilterExecutor.executeKernel(kernelFilteredSourceType, interleavedRaster, nRasterXSize, nRasterYSize, nBand, kernelFilteredSourceType.getSourceBand() - 1);
+        //make kernel filter on resulted raster ba
+        KernelFilterExecutor.executeKernel(
+                kernelFilteredSourceType,
+                interleavedRaster,
+                data,
+                nRasterXSize, nRasterYSize, nBand, kernelFilteredSourceType.getSourceBand() - 1);
 
         //todo ONLY FOR TEST
         /*BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_3BYTE_BGR);

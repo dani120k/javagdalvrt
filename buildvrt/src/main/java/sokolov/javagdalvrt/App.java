@@ -3,6 +3,7 @@ package sokolov.javagdalvrt;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.geotools.coverageio.gdal.vrt.VRTReader;
 import sokolov.model.alghorithms.ResamplingAlghorithmExecutor;
 import sokolov.model.alghorithms.maskimplementation.MaskExecutor;
 import sokolov.model.alghorithms.pansharpening.PansharpeningAlghorithm;
@@ -24,6 +25,7 @@ import java.nio.file.Paths;
 
 public class App {
     public static void main(String[] args) throws IOException {
+        //VRTReader vrtReader = new VRTReader(Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt/test_mosaic.vrt").toFile());
 
 
         System.out.println();
@@ -84,8 +86,8 @@ public class App {
                 value.getBytes(),
                 StandardOpenOption.CREATE_NEW);*/
 
-        String pszVRTPathIn = "C:\\Users\\forol\\IdeaProjects\\javagdalvrt";
-        Path pathToXml = Paths.get(pszVRTPathIn,"pansharpening.vrt");
+        String pszVRTPathIn = "/Users/danilsokolov/IdeaProjects/javagdalvrt/";
+        Path pathToXml = Paths.get(pszVRTPathIn,"test_mosaic_2x_bigger.vrt");
         byte[] bytes = Files.readAllBytes(pathToXml);
 
         VRTDataset deserializedVrtDataset = xmlMapper.readValue(bytes, VRTDataset.class);
@@ -103,6 +105,9 @@ public class App {
             wapredAlghorithm.executeWarping(gdalDataset, pszVRTPathIn, deserializedVrtDataset);
         } else {
             gdalDataset.InitXml(deserializedVrtDataset);
+
+            ImageIO.write(gdalDataset.bufferedImage, "tiff", new File(String.format("resterf.tiff")));
+
         }
 
 

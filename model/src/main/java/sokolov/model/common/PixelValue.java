@@ -139,6 +139,43 @@ public class PixelValue {
         return null;
     }
 
+    public static PixelValue getEmptyForType(String type) {
+        PixelValue pixelValue = new PixelValue();
+        pixelValue.type = type;
+
+        switch (type){
+            case "byte":
+                pixelValue.byteValue = 0;
+            case "int":
+                pixelValue.intValue =0;
+            case "double":
+                pixelValue.doubleValue = 0.0;
+            case "short":
+                pixelValue.shortValue = 0;
+            case "float":
+                pixelValue.floatValue = 0;
+        }
+
+        return pixelValue;
+    }
+
+    public static double calcDiff(PixelValue e, PixelValue s) {
+        switch (e.type){
+            case "byte":
+                return e.byteValue - s.byteValue;
+            case "int":
+                return e.intValue - s.intValue;
+            case "double":
+                return e.doubleValue - s.doubleValue;
+            case "short":
+                return e.shortValue - s.shortValue;
+            case "float":
+                return e.floatValue - s.floatValue;
+            default:
+                return 0;
+        }
+    }
+
     @Override
     public int hashCode() {
         return super.hashCode();
@@ -195,5 +232,37 @@ public class PixelValue {
             noDataValue = "0";
 
         sampleModel.setSample(x, y, bandNumber, (byte)Integer.parseInt(noDataValue), dataBuffer);
+    }
+
+    public double getAnyValue() {
+        switch (type){
+            case "byte":
+                return this.byteValue;
+            case "int":
+                return this.intValue;
+            case "double":
+                return this.doubleValue;
+            case "short":
+                return this.shortValue;
+            case "float":
+                return this.floatValue;
+            default:
+                return 0;
+        }
+    }
+
+    public void setDoubleValue(double value) {
+        switch (type){
+            case "byte":
+                this.byteValue = (byte)value;
+            case "int":
+                this.intValue = (int)value;
+            case "double":
+                this.doubleValue = (double) value;
+            case "short":
+                this.shortValue = (short) value;
+            case "float":
+                this.floatValue = (float) value;
+        }
     }
 }

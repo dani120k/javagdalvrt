@@ -1,0 +1,35 @@
+<VRTDataset rasterXSize="20" rasterYSize="20" subClass="VRTWarpedDataset">
+  <SRS dataAxisToSRSAxisMapping="1,2">LOCAL_CS["KRON        D211"]</SRS>
+  <GeoTransform> -9.0700000000000000e+05,  2.5000000000000000e+02,  0.0000000000000000e+00, -9.3300000000000000e+05,  0.0000000000000000e+00, -2.5000000000000000e+02</GeoTransform>
+    <Metadata>
+        <MDI key="AREA_OR_POINT">Area</MDI>
+    </Metadata>
+    <VRTRasterBand dataType="Byte" band="1" subClass="VRTWarpedRasterBand">
+        <ColorInterp>Red</ColorInterp>
+    </VRTRasterBand>
+    <BlockXSize>20</BlockXSize>
+    <BlockYSize>20</BlockYSize>
+    <GDALWarpOptions>
+        <WarpMemoryLimit>6.71089e+07</WarpMemoryLimit>
+        <ResampleAlg>NearestNeighbour</ResampleAlg>
+        <WorkingDataType>Byte</WorkingDataType>
+        <Option name="INIT_DEST">0</Option>
+        <SourceDataset relativeToVRT="1">MOS_CZ_KR_250.tif</SourceDataset>
+        <Transformer>
+        <ApproxTransformer>
+            <MaxError>0.125</MaxError>
+            <BaseTransformer>
+            <GenImgProjTransformer>
+                <SrcGeoTransform>-9.0700000000000000e+05,  2.5000000000000000e+02,  0.0000000000000000e+00, -9.3300000000000000e+05,  0.0000000000000000e+00, -2.5000000000000000e+02</SrcGeoTransform>
+                <SrcInvGeoTransform>-7345.33333333333303,0.0166666666666666664,0,62522,0,-0.0166666666666666664</SrcInvGeoTransform>
+                <DstGeoTransform>440720,60,0,3751320,0,-60</DstGeoTransform>
+                <DstInvGeoTransform>-7345.33333333333303,0.0166666666666666664,0,62522,0,-0.0166666666666666664</DstInvGeoTransform>
+            </GenImgProjTransformer>
+            </BaseTransformer>
+        </ApproxTransformer>
+        </Transformer>
+        <BandList>
+        <BandMapping src="1" dst="1" />
+        </BandList>
+    </GDALWarpOptions>
+</VRTDataset>
