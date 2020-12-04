@@ -2,6 +2,7 @@ package sokolov.model.alghorithms;
 
 import sokolov.model.alghorithms.resamplingimplementation.AverageResampling;
 import sokolov.model.alghorithms.resamplingimplementation.BilinearResampling;
+import sokolov.model.alghorithms.resamplingimplementation.CubicResampling;
 import sokolov.model.alghorithms.resamplingimplementation.NearestNeighbourResampling;
 import sokolov.model.common.PixelValue;
 import sokolov.model.xmlmodel.RectType;
@@ -47,6 +48,9 @@ public class ResamplingAlghorithmExecutor {
                 break;
             case "average":
                 //TODO resamplingAlgorithm = new AverageResampling();
+                break;
+            case "cubic":
+                resamplingAlgorithm = new CubicResampling();
                 break;
         }
 

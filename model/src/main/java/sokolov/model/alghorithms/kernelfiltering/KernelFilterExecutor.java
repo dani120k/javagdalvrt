@@ -10,6 +10,7 @@ import java.util.List;
 
 public class KernelFilterExecutor {
 
+    //TODO some fixes
     public static void executeKernel(KernelFilteredSourceType kernelFilteredSourceType,
                                                WritableRaster interleavedRaster,
                                      Raster realRaster,

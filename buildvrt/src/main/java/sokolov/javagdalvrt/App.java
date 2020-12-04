@@ -87,7 +87,7 @@ public class App {
                 StandardOpenOption.CREATE_NEW);*/
 
         String pszVRTPathIn = "/Users/danilsokolov/IdeaProjects/javagdalvrt/";
-        Path pathToXml = Paths.get(pszVRTPathIn,"test_mosaic_2x_bigger.vrt");
+        Path pathToXml = Paths.get(pszVRTPathIn,"test_mosaic_custom_resampling_2x_bigger.vrt");
         byte[] bytes = Files.readAllBytes(pathToXml);
 
         VRTDataset deserializedVrtDataset = xmlMapper.readValue(bytes, VRTDataset.class);

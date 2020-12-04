@@ -27,10 +27,6 @@ public class BilinearResampling implements ResamplingAlgorithm {
         }
     }
 
-    public short[] resamplingUShort(int bandNumber, int xOffOriginal, int yOffOriginal, int xSizeOriginal, int ySizeOriginal, int xOffResult, int yOffResult, int xSizeResult, int ySizeResult, int noDataValue, BufferedImage originalImage) {
-        return new short[0];
-    }
-
     @Override
     public PixelValue[] resampling(int bandNumber, int xOffOriginal, int yOffOriginal, int xSizeOriginal, int ySizeOriginal, int xOffResult, int yOffResult, int xSizeResult, int ySizeResult, int noDataValue, String type, BufferedImage originalImage) {
         PixelValue[] resultedArray = new PixelValue[xSizeResult * ySizeResult];
