@@ -3,9 +3,6 @@ package sokolov.javagdalvrt;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import org.geotools.coverageio.gdal.vrt.VRTReader;
-import sokolov.model.alghorithms.ResamplingAlghorithmExecutor;
-import sokolov.model.alghorithms.maskimplementation.MaskExecutor;
 import sokolov.model.alghorithms.pansharpening.PansharpeningAlghorithm;
 import sokolov.model.alghorithms.warping.WapredAlghorithm;
 import sokolov.model.datasets.GdalDataset;
@@ -86,8 +83,8 @@ public class App {
                 value.getBytes(),
                 StandardOpenOption.CREATE_NEW);*/
 
-        String pszVRTPathIn = "/Users/danilsokolov/IdeaProjects/javagdalvrt/";
-        Path pathToXml = Paths.get(pszVRTPathIn,"test_mosaic_custom_resampling_2x_bigger.vrt");
+        String pszVRTPathIn = "C:\\Users\\forol\\IdeaProjects\\javagdalvrt";
+        Path pathToXml = Paths.get(pszVRTPathIn,"test_mosaic_custom_resampling_2x_bigger_nearest.vrt");
         byte[] bytes = Files.readAllBytes(pathToXml);
 
         VRTDataset deserializedVrtDataset = xmlMapper.readValue(bytes, VRTDataset.class);
@@ -107,7 +104,6 @@ public class App {
             gdalDataset.InitXml(deserializedVrtDataset);
 
             ImageIO.write(gdalDataset.bufferedImage, "tiff", new File(String.format("resterf.tiff")));
-
         }
 
 

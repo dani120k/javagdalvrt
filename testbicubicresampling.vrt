@@ -5,36 +5,36 @@
     <NoDataValue>255</NoDataValue>
     <HideNoDataValue>1</HideNoDataValue>
     <ColorInterp>Red</ColorInterp>
-    <ComplexSource >
+    <ComplexSource resampling="cubicspline">
       <SourceFilename relativeToVRT="1">MOS_CZ_KR_250.tif</SourceFilename>
       <SourceBand>1</SourceBand>
       <SourceProperties RasterXSize="1912" RasterYSize="1188" DataType="Byte" BlockXSize="1912" BlockYSize="4" />
       <SrcRect xOff="0" yOff="0" xSize="1912" ySize="1188" />
-      <DstRect xOff="0" yOff="0" xSize="3824" ySize="2376" />
+      <DstRect xOff="0" yOff="0" xSize="956" ySize="594" />
     </ComplexSource>
   </VRTRasterBand>
   <VRTRasterBand dataType="Byte" band="2">
     <NoDataValue>255</NoDataValue>
     <HideNoDataValue>1</HideNoDataValue>
     <ColorInterp>Green</ColorInterp>
-    <ComplexSource >
+    <ComplexSource resampling="cubicspline">
       <SourceFilename relativeToVRT="1">MOS_CZ_KR_250.tif</SourceFilename>
       <SourceBand>2</SourceBand>
       <SourceProperties RasterXSize="1912" RasterYSize="1188" DataType="Byte" BlockXSize="1912" BlockYSize="4" />
       <SrcRect xOff="0" yOff="0" xSize="1912" ySize="1188" />
-      <DstRect xOff="0" yOff="0" xSize="3824" ySize="2376" />
+      <DstRect xOff="0" yOff="0" xSize="956" ySize="594" />
     </ComplexSource>
   </VRTRasterBand>
   <VRTRasterBand dataType="Byte" band="3">
     <NoDataValue>255</NoDataValue>
     <HideNoDataValue>1</HideNoDataValue>
     <ColorInterp>Blue</ColorInterp>
-    <ComplexSource >
+    <ComplexSource resampling="cubicspline">
       <SourceFilename relativeToVRT="1">MOS_CZ_KR_250.tif</SourceFilename>
       <SourceBand>3</SourceBand>
       <SourceProperties RasterXSize="1912" RasterYSize="1188" DataType="Byte" BlockXSize="1912" BlockYSize="4" />
       <SrcRect xOff="0" yOff="0" xSize="1912" ySize="1188" />
-      <DstRect xOff="0" yOff="0" xSize="3824" ySize="2376" />
+      <DstRect xOff="0" yOff="0" xSize="956" ySize="594" />
     </ComplexSource>
   </VRTRasterBand>
 </VRTDataset>

@@ -5,7 +5,7 @@
     <NoDataValue>255</NoDataValue>
     <HideNoDataValue>1</HideNoDataValue>
     <ColorInterp>Red</ColorInterp>
-    <ComplexSource resampling="cubic">
+    <ComplexSource resampling="cubicspline">
       <SourceFilename relativeToVRT="1">MOS_CZ_KR_250.tif</SourceFilename>
       <SourceBand>1</SourceBand>
       <SourceProperties RasterXSize="1912" RasterYSize="1188" DataType="Byte" BlockXSize="1912" BlockYSize="4" />
@@ -13,7 +13,7 @@
       <DstRect xOff="0" yOff="0" xSize="3824" ySize="2376" />
       <NODATA>255</NODATA>
     </ComplexSource>
-    <ComplexSource resampling="cubic">
+    <ComplexSource resampling="cubicspline">
       <SourceFilename relativeToVRT="1">MOS_SK_KR_250.tif</SourceFilename>
       <SourceBand>1</SourceBand>
       <SourceProperties RasterXSize="1724" RasterYSize="828" DataType="Byte" BlockXSize="1724" BlockYSize="4" />
@@ -26,7 +26,7 @@
     <NoDataValue>255</NoDataValue>
     <HideNoDataValue>1</HideNoDataValue>
     <ColorInterp>Green</ColorInterp>
-    <ComplexSource resampling="cubic">
+    <ComplexSource resampling="cubicspline">
       <SourceFilename relativeToVRT="1">MOS_CZ_KR_250.tif</SourceFilename>
       <SourceBand>2</SourceBand>
       <SourceProperties RasterXSize="1912" RasterYSize="1188" DataType="Byte" BlockXSize="1912" BlockYSize="4" />
@@ -34,7 +34,7 @@
       <DstRect xOff="0" yOff="0" xSize="3824" ySize="2376" />
       <NODATA>255</NODATA>
     </ComplexSource>
-    <ComplexSource resampling="cubic">
+    <ComplexSource resampling="cubicspline">
       <SourceFilename relativeToVRT="1">MOS_SK_KR_250.tif</SourceFilename>
       <SourceBand>2</SourceBand>
       <SourceProperties RasterXSize="1724" RasterYSize="828" DataType="Byte" BlockXSize="1724" BlockYSize="4" />
@@ -47,7 +47,7 @@
     <NoDataValue>255</NoDataValue>
     <HideNoDataValue>1</HideNoDataValue>
     <ColorInterp>Blue</ColorInterp>
-    <ComplexSource resampling="cubic">
+    <ComplexSource resampling="cubicspline">
       <SourceFilename relativeToVRT="1">MOS_CZ_KR_250.tif</SourceFilename>
       <SourceBand>3</SourceBand>
       <SourceProperties RasterXSize="1912" RasterYSize="1188" DataType="Byte" BlockXSize="1912" BlockYSize="4" />
@@ -55,7 +55,7 @@
       <DstRect xOff="0" yOff="0" xSize="3824" ySize="2376" />
       <NODATA>255</NODATA>
     </ComplexSource>
-    <ComplexSource resampling="cubic">
+    <ComplexSource resampling="cubicspline">
       <SourceFilename relativeToVRT="1">MOS_SK_KR_250.tif</SourceFilename>
       <SourceBand>3</SourceBand>
       <SourceProperties RasterXSize="1724" RasterYSize="828" DataType="Byte" BlockXSize="1724" BlockYSize="4" />

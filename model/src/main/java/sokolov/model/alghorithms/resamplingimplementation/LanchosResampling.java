@@ -7,7 +7,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 
-public class CubicSplineResampling implements ResamplingAlgorithm {
+public class LanchosResampling implements ResamplingAlgorithm {
     private PixelValue getValue(int x, int y, int band, String type, Raster data) {
         try {
             return PixelValue.getPixelValue(x, y, type, band, data);
@@ -36,12 +36,11 @@ public class CubicSplineResampling implements ResamplingAlgorithm {
 
                 double nSum = 0;
                 double nDenom = 0;
-                double average = 0;
 
                 for(int m = -1; m <= 2; m++)
                     for(int n = -1; n <= 2; n++){
-                        double f = BSpline(m - (xOriginalIndex - (int)xOriginalIndex));
-                        double f1 = BSpline(- (n - (yOriginalIndex - (int)yOriginalIndex)));
+                        double f = Lanchos2(m - (xOriginalIndex - (int)xOriginalIndex));
+                        double f1 = Lanchos2(- (n - (yOriginalIndex - (int)yOriginalIndex)));
 
                         PixelValue pixel = getValue(intXOriginalIndex + xOffOriginal + m,
                                 intYOriginalIndex + yOffOriginal + n,
@@ -49,7 +48,6 @@ public class CubicSplineResampling implements ResamplingAlgorithm {
                                 type,
                                 data);
 
-                        average += pixel.byteValue;
                         nSum += pixel.byteValue * f * f1;
                         nDenom += f * f1;
                     }
@@ -72,14 +70,17 @@ public class CubicSplineResampling implements ResamplingAlgorithm {
         return resultedArray;
     }
 
-    private double BSpline(double x) {
+    private double Lanchos2(double x) {
+        //System.out.println(x);
+
         if (x < 0.0)
             x = -x;
 
-        if (x >= 0.0 && x <= 1.0)
-            return (2.0 / 3.0) + 0.5 * (x * x * x) - (x * x);
-        else if (x > 1.0 && x <= 2.0)
-            return 1.0 / 6.0 * Math.pow((2.0 - x), 3.0);
+        if (x == 0.0)
+            return 0.0;
+
+        if (x > 0.0 && x <= 2.0)
+            return (2 * Math.sin(Math.PI * x)*Math.sin(Math.PI * x / 2))/ (Math.PI * Math.PI *x *x);
 
         return 1.0;
     }

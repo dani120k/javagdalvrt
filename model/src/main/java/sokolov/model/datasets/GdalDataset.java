@@ -1,5 +1,6 @@
 package sokolov.model.datasets;
 
+import org.jaitools.imageutils.ImageDataType;
 import sokolov.model.alghorithms.maskimplementation.MaskExecutor;
 import sokolov.model.common.XmlDeserializer;
 import sokolov.model.enums.GDALDataType;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.awt.image.BufferedImage.*;
 import static sokolov.model.enums.GdalAccess.GA_ReadOnly;
 import static sokolov.model.enums.GdalAccess.GA_Update;
 
@@ -578,9 +580,10 @@ public class GdalDataset extends GdalMajorObject {
         int totalBandCount = deserializedVrtDataset.getVrtRasterBand().size();
         int type = XmlDeserializer.getResultedImageType(deserializedVrtDataset.getVrtRasterBand());
 
-        bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, type);
-        //interleavedRaster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, nRasterXSize, nRasterYSize, 3, null);
-        interleavedRaster = Raster.createInterleavedRaster(XmlDeserializer.getRasterImageType(type), nRasterXSize, nRasterYSize, totalBandCount, null);
+        //TODO check types
+        bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, TYPE_INT_RGB);
+        interleavedRaster = Raster.createInterleavedRaster(DataBuffer.TYPE_INT, nRasterXSize, nRasterYSize, 3, null);
+        //interleavedRaster = Raster.createInterleavedRaster(XmlDeserializer.getRasterImageType(type), nRasterXSize, nRasterYSize, totalBandCount, null);
 
         if (deserializedVrtDataset.getVrtRasterBand() != null) {
             this.nBands = deserializedVrtDataset.getVrtRasterBand().size();

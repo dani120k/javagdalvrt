@@ -742,12 +742,6 @@ public class GdalRasterBand extends GdalMajorObject {
             }
         }
 
-        BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_USHORT_GRAY);
-        bufferedImage.getRaster().setRect(interleavedRaster);
-        ImageIO.write(bufferedImage, "tiff", new
-
-                File(String.format("res%s.tiff", t++)));
-
         previousDstRect.add(dstRect);
     }
 

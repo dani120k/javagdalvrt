@@ -1,9 +1,6 @@
 package sokolov.model.alghorithms;
 
-import sokolov.model.alghorithms.resamplingimplementation.AverageResampling;
-import sokolov.model.alghorithms.resamplingimplementation.BilinearResampling;
-import sokolov.model.alghorithms.resamplingimplementation.CubicResampling;
-import sokolov.model.alghorithms.resamplingimplementation.NearestNeighbourResampling;
+import sokolov.model.alghorithms.resamplingimplementation.*;
 import sokolov.model.common.PixelValue;
 import sokolov.model.xmlmodel.RectType;
 
@@ -51,6 +48,12 @@ public class ResamplingAlghorithmExecutor {
                 break;
             case "cubic":
                 resamplingAlgorithm = new CubicResampling();
+                break;
+            case "cubicspline":
+                resamplingAlgorithm = new CubicSplineResampling();
+                break;
+            case "lanczos":
+                resamplingAlgorithm = new LanchosResampling();
                 break;
         }
 
