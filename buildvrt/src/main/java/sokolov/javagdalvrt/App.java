@@ -3,6 +3,9 @@ package sokolov.javagdalvrt;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.geotools.referencing.operation.matrix.AffineTransform2D;
+import org.geotools.referencing.operation.matrix.Matrix3;
+import sokolov.model.alghorithms.VrtOpener;
 import sokolov.model.alghorithms.pansharpening.PansharpeningAlghorithm;
 import sokolov.model.alghorithms.warping.WapredAlghorithm;
 import sokolov.model.datasets.GdalDataset;
@@ -13,6 +16,9 @@ import sokolov.model.enums.GdalAccess;
 import sokolov.model.xmlmodel.VRTDataset;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.WarpAffine;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
@@ -21,11 +27,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class App {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NoninvertibleTransformException {
         //VRTReader vrtReader = new VRTReader(Paths.get("/Users/danilsokolov/IdeaProjects/javagdalvrt/test_mosaic.vrt").toFile());
 
+        //AffineTransform affine = new AffineTransform2D(new Matrix3(-907000, 250, 0, -933000, 0, -250, 0, 0, 1));
+        //AffineTransform inverse = affine.createInverse();
 
         System.out.println();
+
 
         /*VrtBuilder vrtBuilder = new VrtBuilder("test.tiff",
                 2,
@@ -84,13 +93,16 @@ public class App {
                 StandardOpenOption.CREATE_NEW);*/
 
         String pszVRTPathIn = "C:\\Users\\forol\\IdeaProjects\\javagdalvrt";
-        Path pathToXml = Paths.get(pszVRTPathIn,"test_mosaic_custom_resampling_2x_bigger_nearest.vrt");
-        byte[] bytes = Files.readAllBytes(pathToXml);
+        //Path pathToXml = Paths.get(pszVRTPathIn,"pansharpening.vrt");
+
+        BufferedImage bufferedImage = VrtOpener.openVrt(pszVRTPathIn, "vrtfromvrt.vrt");
+
+        ImageIO.write(bufferedImage, "tif", new File("res.tif"));
+
+        /*byte[] bytes = Files.readAllBytes(pathToXml);
 
         VRTDataset deserializedVrtDataset = xmlMapper.readValue(bytes, VRTDataset.class);
         deserializedVrtDataset.setPathToFile(pathToXml.toString());
-
-        //GdalDataset resultedDataset = extractFromVRTXml(deserializedVrtDataset, Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\destfolder", "test.vrt").toString());
 
         GdalDataset gdalDataset = new GdalDataset();
 
@@ -104,136 +116,10 @@ public class App {
             gdalDataset.InitXml(deserializedVrtDataset);
 
             ImageIO.write(gdalDataset.bufferedImage, "tiff", new File(String.format("resterf.tiff")));
-        }
-
-
-
-        /*System.out.println();
-
-        BufferedImage read = ImageIO.read(Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\MOS_CZ_KR_250.tif").toFile());
-
-        ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
-
-        int nRasterXSize = read.getRaster().getWidth() / 4;
-        int nRasterYSize = read.getRaster().getHeight() / 4;
-
-
-        byte[][] pixels = new byte[3][nRasterXSize * nRasterYSize];
-        DataBuffer dataBuffer = new DataBufferByte(pixels, nRasterXSize * nRasterYSize, new int[]{0, 1, 2});
-
-
-        ColorModel colorModel = createColorModel(0);
-        SampleModel sampleModel = colorModel.createCompatibleSampleModel(nRasterXSize, nRasterYSize);
-
-        WritableRaster raster = colorModel.createCompatibleWritableRaster(
-                nRasterXSize, nRasterYSize);
-
-
-        BufferedImage bufferedImage = new BufferedImage(colorModel, raster, false, null);
-
-
-        //BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_CUSTOM);
-        //WritableRaster interleavedRaster = Raster.create(DataBuffer.TYPE_BYTE, nRasterXSize, nRasterYSize, 3, null);
-        WritableRaster interleavedRaster = colorModel.createCompatibleWritableRaster(nRasterXSize, nRasterYSize);
-        SampleModel model = interleavedRaster.getSampleModel();
-
-        for (int band = 0; band < 3; band++) {
-            byte[] nearests = resamplingAlghorithmExecutor.imageRescaling(band + 1,
-                    0, 0, read.getRaster().getWidth(), read.getRaster().getHeight(),
-                    0, 0, nRasterXSize, nRasterYSize,
-                    -100000,
-                    read,
-                    "bilinear");
-
-            for (int i = 0; i < nearests.length; i++) {
-                int x = i % nRasterXSize;
-                int y = i / nRasterXSize;
-
-                int value = 0x00420420 ^ 0x00ff0000;
-
-                model.setSample(x, y, band, (band == 0) ? nearests[i] ^ value : nearests[i], interleavedRaster.getDataBuffer());
-            }
-        }
-
-        bufferedImage.getRaster().setRect(interleavedRaster);
-
-        ImageIO.write(bufferedImage, "tiff", new File(String.format("resultafterbilinearresampling.tiff")));
-
-
-        byte[] maskBand = new byte[9];
-
-        MaskExecutor maskExecutor = new MaskExecutor();
-
-        maskExecutor.executeMask(bufferedImage.getRaster(),
-                maskBand,
-                3,
-                3,
-                3
-        );
-
-        ImageIO.write(bufferedImage, "tiff", new File(String.format("resultaftermask.tiff")));
-
-        check();*/
+        }*/
     }
 
-   /* public static void check() throws IOException {
-        BufferedImage read = ImageIO.read(Paths.get("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\MOS_CZ_KR_250.tif").toFile());
 
-        ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
-
-        int nRasterXSize = read.getRaster().getWidth() * 4;
-        int nRasterYSize = read.getRaster().getHeight() * 4;
-
-
-        byte[][] pixels = new byte[3][nRasterXSize * nRasterYSize];
-        DataBuffer dataBuffer = new DataBufferByte(pixels, nRasterXSize * nRasterYSize, new int[]{0, 1, 2});
-
-
-        ColorModel colorModel = createColorModel(0);
-        SampleModel sampleModel = colorModel.createCompatibleSampleModel(nRasterXSize, nRasterYSize);
-
-        WritableRaster raster = colorModel.createCompatibleWritableRaster(
-                nRasterXSize, nRasterYSize);
-
-
-        BufferedImage bufferedImage = new BufferedImage(colorModel, raster, false, null);
-
-
-        //BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_CUSTOM);
-        //WritableRaster interleavedRaster = Raster.create(DataBuffer.TYPE_BYTE, nRasterXSize, nRasterYSize, 3, null);
-        WritableRaster interleavedRaster = colorModel.createCompatibleWritableRaster(nRasterXSize, nRasterYSize);
-        SampleModel model = interleavedRaster.getSampleModel();
-
-        for (int band = 0; band < 3; band++) {
-            byte[] nearests = resamplingAlghorithmExecutor.imageRescaling(band + 1,
-                    0, 0, read.getRaster().getWidth(), read.getRaster().getHeight(),
-                    0, 0, nRasterXSize, nRasterYSize,
-                    -100000,
-                    read,
-                    "bilinear");
-
-            for (int i = 0; i < nearests.length; i++) {
-                int x = i % nRasterXSize;
-                int y = i / nRasterXSize;
-
-                model.setSample(x, y, band, nearests[i], interleavedRaster.getDataBuffer());
-            }
-        }
-
-        bufferedImage.getRaster().setRect(interleavedRaster);
-
-        ImageIO.write(bufferedImage, "tiff", new File(String.format("resultafterchangecolor.tiff")));
-
-
-    }*/
-
-    private static ColorModel createColorModel(int n) {
-        return new DirectColorModel(24,
-                0x00ff0000,       // Red
-                0x0000ff00,       // Green
-                0x000000ff       // Bl// Alpha
-        );
-    }
 
     private static GdalDataset extractFromVRTXml(VRTDataset deserializedVrtDataset, String path) {
         String subClass = deserializedVrtDataset.getSubClass();
@@ -274,45 +160,5 @@ public class App {
         poDS.initDataset(deserializedVrtDataset, path);
 
         return poDS;
-    }
-
-
-    public static VRTDataset serializeToVrtDataset(GdalDataset gdalDataset) {
-        /*VRTDataset vrtDataset = new VRTDataset();
-
-        vrtDataset.setBlockXSize(128L);
-        vrtDataset.setBlockYSize(128L);
-
-        vrtDataset.setSubClass("subclass");
-        vrtDataset.setSrs(new SRSType());
-        vrtDataset.setRasterYSize(gdalDataset.nRasterXSize);
-        vrtDataset.setRasterXSize(gdalDataset.nRasterYSize);
-        vrtDataset.setPansharpeningOptions(new PansharpeningOptionsType());
-        vrtDataset.setOverviewList(new OverviewListType());
-        vrtDataset.setMetadata(new MetadataType());
-        vrtDataset.setMaskBand(new MaskBandType());
-        vrtDataset.setGroup(new GroupType());
-
-        StringBuilder geoTransform = new StringBuilder();
-        geoTransform.append("0.0, 1.0, 0.0, 0.0, 1.0, 0.0");
-        vrtDataset.setGeoTransform(geoTransform.toString());
-        vrtDataset.setGDALWarpOptions(new GDALWarpOptionsType());
-        vrtDataset.setGcpList(new GCPListType());
-
-        int rasterCount = gdalDataset.getRasterCount();
-        for (int i = 0; i < rasterCount; i++) {
-            GdalRasterBand gdalRasterBand = gdalDataset.GetRasterBand(i + 1);
-
-            VRTRasterBandType vrtRasterBandType = new VRTRasterBandType();
-            vrtRasterBandType.setSubClass(VRTRasterBandSubClassType.VRTPansharpenedRasterBand);
-            System.out.println();
-        }
-
-
-
-        vrtDataset.setVrtRasterBand(vrtRasterBandType);
-
-        return vrtDataset;*/
-        return null;
     }
 }

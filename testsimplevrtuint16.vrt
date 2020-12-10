@@ -1,5 +1,5 @@
 <VRTDataset rasterXSize="1284" rasterYSize="620">
-  <SRS dataAxisToSRSAxisMapping="1,2">LOCAL_CS["KRON        D211"]</SRS>
+  <SRS dataAxisToSRSAxisMapping="1,2">LOCAL_CS["KRON        D211",UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH]]</SRS>
   <GeoTransform> -9.0700000000000000e+05,  2.5000000000000000e+02,  0.0000000000000000e+00, -9.3300000000000000e+05,  0.0000000000000000e+00, -2.5000000000000000e+02</GeoTransform>
   <VRTRasterBand dataType="UInt16" band="1">
     <NoDataValue>255</NoDataValue>

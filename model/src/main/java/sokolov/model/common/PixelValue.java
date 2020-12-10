@@ -1,19 +1,25 @@
 package sokolov.model.common;
 
-import com.ctc.wstx.shaded.msv_core.datatype.xsd.UnsignedByteType;
-
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 
 public class PixelValue {
-    public byte byteValue;
+    public int byteValue;
 
-    public short shortValue;
+    public int uInt16Value;
 
-    public int intValue;
+    public int int16Value;
 
-    public float floatValue;
+    public int uIntValue;
+
+    public long uInt32Value;
+
+    public float float32Value;
+
+    public float uFloat32Value;
+
+    public float uFloat64Value;
 
     public double doubleValue;
 
@@ -34,7 +40,7 @@ public class PixelValue {
             int resultedValue = array[bandNumber - 1];
 
             pixelValue.type = type;
-            pixelValue.byteValue = (byte)resultedValue;
+            pixelValue.byteValue = resultedValue;
         }
 
         if (type.equals("int")){
@@ -49,10 +55,10 @@ public class PixelValue {
             int resultedValue = array[bandNumber - 1];
 
             pixelValue.type = type;
-            pixelValue.intValue = (int)resultedValue;
+            pixelValue.uIntValue = (int)resultedValue;
         }
 
-        if (type.equals("short")){
+        if (type.equals("ushort")){
             int[] array = new int[3];
             data.getSampleModel().getPixel(
                     x,
@@ -64,7 +70,7 @@ public class PixelValue {
             int resultedValue = array[bandNumber - 1];
 
             pixelValue.type = type;
-            pixelValue.shortValue = (short)resultedValue;
+            pixelValue.uInt16Value = resultedValue;
         }
 
         if (type.equals("double")){
@@ -94,7 +100,7 @@ public class PixelValue {
             float resultedValue = array[bandNumber - 1];
 
             pixelValue.type = type;
-            pixelValue.floatValue = (float) resultedValue;
+            pixelValue.float32Value = (float) resultedValue;
         }
 
         return pixelValue;
@@ -106,23 +112,23 @@ public class PixelValue {
 
         if (noDataValue != null) {
             if (type.equals("byte")) {
-                pixelValue.byteValue = (byte) Integer.parseInt(noDataValue);
+                pixelValue.byteValue =  Integer.parseInt(noDataValue);
             }
 
             if (type.equals("int")) {
-                pixelValue.intValue = Integer.parseInt(noDataValue);
+                pixelValue.uIntValue = Integer.parseInt(noDataValue);
             }
 
             if (type.equals("double")) {
                 pixelValue.doubleValue = Double.parseDouble(noDataValue);
             }
 
-            if (type.equals("short")) {
-                pixelValue.shortValue = (short) Integer.parseInt(noDataValue);
+            if (type.equals("ushort")) {
+                pixelValue.uInt16Value = Integer.parseInt(noDataValue);
             }
 
             if (type.equals("float")) {
-                pixelValue.floatValue = Float.parseFloat(noDataValue);
+                pixelValue.float32Value = Float.parseFloat(noDataValue);
             }
         }
 
@@ -147,13 +153,13 @@ public class PixelValue {
             case "byte":
                 pixelValue.byteValue = 0;
             case "int":
-                pixelValue.intValue =0;
+                pixelValue.uIntValue =0;
             case "double":
                 pixelValue.doubleValue = 0.0;
-            case "short":
-                pixelValue.shortValue = 0;
+            case "ushort":
+                pixelValue.uInt16Value = 0;
             case "float":
-                pixelValue.floatValue = 0;
+                pixelValue.float32Value = 0;
         }
 
         return pixelValue;
@@ -164,13 +170,51 @@ public class PixelValue {
             case "byte":
                 return e.byteValue - s.byteValue;
             case "int":
-                return e.intValue - s.intValue;
+                return e.uIntValue - s.uIntValue;
             case "double":
                 return e.doubleValue - s.doubleValue;
-            case "short":
-                return e.shortValue - s.shortValue;
+            case "ushort":
+                return e.uInt16Value - s.uInt16Value;
             case "float":
-                return e.floatValue - s.floatValue;
+                return e.float32Value - s.float32Value;
+            default:
+                return 0;
+        }
+    }
+
+    public static double getMaxForType(String type) {
+        switch (type){
+            case "byte":
+                return 255;
+            case "int":
+                return 2147483647;
+            case "double":
+                return Double.MAX_VALUE;
+            case "short":
+                return 32767;
+            case "ushort":
+                return 65535;
+            case "float":
+                return Float.MAX_VALUE;
+            default:
+                return 0;
+        }
+    }
+
+    public static double getMinForType(String type) {
+        switch (type){
+            case "byte":
+                return 0;
+            case "int":
+                return 0;
+            case "double":
+                return Double.MIN_VALUE;
+            case "short":
+                return -32768;
+            case "ushort":
+                return 0;
+            case "float":
+                return Float.MIN_VALUE;
             default:
                 return 0;
         }
@@ -190,13 +234,13 @@ public class PixelValue {
                 case "byte":
                     return this.byteValue == pixelValue.byteValue;
                 case "int":
-                    return this.intValue == pixelValue.intValue;
+                    return this.uIntValue == pixelValue.uIntValue;
                 case "double":
                     return this.doubleValue == pixelValue.doubleValue;
-                case "short":
-                    return this.shortValue == pixelValue.shortValue;
+                case "ushort":
+                    return this.uInt16Value == pixelValue.uInt16Value;
                 case "float":
-                    return this.floatValue == pixelValue.floatValue;
+                    return this.float32Value == pixelValue.float32Value;
             }
         }
 
@@ -209,19 +253,19 @@ public class PixelValue {
         }
 
         if (type.equals("int")){
-            sampleModel.setSample(x, y, band, this.intValue, dataBuffer);
+            sampleModel.setSample(x, y, band, this.uIntValue, dataBuffer);
         }
 
         if (type.equals("double")){
             sampleModel.setSample(x, y, band, this.doubleValue, dataBuffer);
         }
 
-        if (type.equals("short")){
-            sampleModel.setSample(x, y, band, this.shortValue, dataBuffer);
+        if (type.equals("ushort")){
+            sampleModel.setSample(x, y, band, this.uInt16Value, dataBuffer);
         }
 
         if (type.equals("float")){
-            sampleModel.setSample(x, y, band, this.floatValue, dataBuffer);
+            sampleModel.setSample(x, y, band, this.float32Value, dataBuffer);
         }
     }
 
@@ -231,7 +275,7 @@ public class PixelValue {
         if (noDataValue == null)
             noDataValue = "0";
 
-        sampleModel.setSample(x, y, bandNumber, (byte)Integer.parseInt(noDataValue), dataBuffer);
+        sampleModel.setSample(x, y, bandNumber, Integer.parseInt(noDataValue), dataBuffer);
     }
 
     public double getAnyValue() {
@@ -239,13 +283,13 @@ public class PixelValue {
             case "byte":
                 return this.byteValue;
             case "int":
-                return this.intValue;
+                return this.uIntValue;
             case "double":
                 return this.doubleValue;
-            case "short":
-                return this.shortValue;
+            case "ushort":
+                return this.uInt16Value;
             case "float":
-                return this.floatValue;
+                return this.float32Value;
             default:
                 return 0;
         }
@@ -254,15 +298,15 @@ public class PixelValue {
     public void setDoubleValue(double value) {
         switch (type){
             case "byte":
-                this.byteValue = (byte)value;
+                this.byteValue = (int)value;
             case "int":
-                this.intValue = (int)value;
+                this.uIntValue = (int)value;
             case "double":
                 this.doubleValue = (double) value;
-            case "short":
-                this.shortValue = (short) value;
+            case "ushort":
+                this.uInt16Value = (int)value;
             case "float":
-                this.floatValue = (float) value;
+                this.float32Value = (float) value;
         }
     }
 }

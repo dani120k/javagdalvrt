@@ -1,5 +1,6 @@
 package sokolov.model.alghorithms.pansharpening;
 
+import sokolov.model.alghorithms.FileOpenService;
 import sokolov.model.alghorithms.ResamplingAlghorithmExecutor;
 import sokolov.model.common.PixelValue;
 import sokolov.model.common.XmlDeserializer;
@@ -43,6 +44,9 @@ public class PansharpeningAlghorithm {
 
             for (SpectralBandType spectralBandType : spectralBand) {
                 spectralBands.add(ImageIO.read(Paths.get(XmlDeserializer.getPathForSourceFileName(spectralBandType.getSourceFilename(), pathToVrt)).toFile()));
+
+                //spectralBands.add(FileOpenService.openFile(Paths.get(XmlDeserializer.getPathForSourceFileName(spectralBandType.getSourceFilename(), pathToVrt), pathToVrt).toFile()));
+                //BufferedImage image =
             }
 
             System.out.println();
@@ -51,7 +55,7 @@ public class PansharpeningAlghorithm {
 
             BufferedImage pansharpenedImage = pansharpening(pachroImage, spectralBands, type);
 
-            ImageIO.write(pansharpenedImage, "tif", Paths.get("pansdf.tif").toFile());
+            //ImageIO.write(pansharpenedImage, "tif", Paths.get("pansdf.tif").toFile());
 
             gdalDataset.bufferedImage = pansharpenedImage;
         } else {
@@ -83,15 +87,8 @@ public class PansharpeningAlghorithm {
             ));
         }
 
-        //XmlDeserializer.writeSpectralBandList(spectralBandList, nRasterXSize, nRasterYSize);
-
         ColorModel colorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), false, false, Transparency.OPAQUE, DataBuffer.TYPE_USHORT);
 
-        //BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_USHORT_565_RGB);
-
-
-        //BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_CUSTOM);
-        //WritableRaster interleavedRaster = Raster.create(DataBuffer.TYPE_BYTE, nRasterXSize, nRasterYSize, 3, null);
         WritableRaster interleavedRaster = Raster.createBandedRaster(TYPE_USHORT, nRasterXSize, nRasterYSize, 3, null);
         BufferedImage bufferedImage = new BufferedImage(colorModel, interleavedRaster, false, null);
         SampleModel model = interleavedRaster.getSampleModel();
@@ -113,29 +110,15 @@ public class PansharpeningAlghorithm {
                     psevdo += weight * RasterService.getSingleBandValue(spectralBandList.get(w),
                             x, y, nRasterXSize, nRasterYSize);
                 }
-                //psevdo += (1/4.0) * RasterService.getValue(1, x, y, pachroImage.getRaster());
-
-                //psevdoPachro = 1/3* spectral[x,y][1] + 1/3* spectral[x,y][2] + 1/3 * spectral[x,y][3];
 
                 double ratio = 0.0;
-
-                //if (psevdo == 0.0)
-                //  psevdo = 1.0;
 
                 if (psevdo != 0.0)
                     ratio = RasterService.getValue(1, x, y, pachroImage.getRaster()) / (1.0 * psevdo);
 
-
-                //ratio = panchro[x,y] / psevdoPachro;
-
                 int realNumber = 0;
                 boolean isInvalid = false;
                 for (PixelValue[] resampledArray : spectralBandList) {
-                    /*model.setSample(x, y, realNumber++,
-                            Math.abs(RasterService.getSingleBandValue(resampledArray,
-                                    x, y, nRasterXSize, nRasterYSize) * ratio) %256 ,
-                            interleavedRaster.getDataBuffer());*/
-                    System.out.println(x + " " + y);
                     if (ratio == 0.0) {
                         model.setSample(x, y, realNumber++,
                                 0,
@@ -154,38 +137,21 @@ public class PansharpeningAlghorithm {
 
                 if (isInvalid) {
                     model.setSample(x, y, 0,
-                            (short)(255* 65535),
+                            PixelValue.getMaxForType(type),
                             interleavedRaster.getDataBuffer());
                     model.setSample(x, y, 1,
-                            (short)(255* 65535),
+                            PixelValue.getMaxForType(type),
                             interleavedRaster.getDataBuffer());
                     model.setSample(x, y, 2,
-                            (short)(255* 65535),
+                            PixelValue.getMaxForType(type),
                             interleavedRaster.getDataBuffer());
                 }
-
-                //output[x,y][1] = spectral[x,y][1] * ratio;
-                //output[x,y][2] = spectral[x,y][2] * ratio;
-                //output[x,y][3] = spectral[x,y][3] * ratio;
             }
         }
 
-
-        /*for (int x = 0; x < nRasterXSize; x++){
-            for(int y = 0; y < nRasterYSize; y++){
-                psevdoPachro = 1/3* spectral[x,y][1] + 1/3* spectral[x,y][2] + 1/3 * spectral[x,y][3];
-
-                ratio = panchro[x,y] / psevdoPachro;
-
-                output[x,y][1] = spectral[x,y][1] * ratio;
-                output[x,y][2] = spectral[x,y][2] * ratio;
-                output[x,y][3] = spectral[x,y][3] * ratio;
-            }
-        }*/
-
         bufferedImage.getRaster().setRect(interleavedRaster);
 
-        ImageIO.write(bufferedImage, "tiff", new File(String.format("pansharped.tiff")));
+        //ImageIO.write(bufferedImage, "tiff", new File(String.format("pansharped.tiff")));
 
         return bufferedImage;
     }

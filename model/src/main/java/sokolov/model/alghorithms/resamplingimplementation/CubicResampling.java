@@ -8,10 +8,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 
 public class CubicResampling implements ResamplingAlgorithm {
-    private PixelValue getValue(int x, int y, int band, String type, Raster data){
+    private PixelValue getValue(int x, int y, int band, String type, Raster data) {
         try {
             return PixelValue.getPixelValue(x, y, type, band, data);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return PixelValue.getEmptyForType(type);
         }
     }
@@ -28,8 +28,8 @@ public class CubicResampling implements ResamplingAlgorithm {
 
         for (int yRes = yOffResult; yRes < yOffResult + ySizeResult; yRes++)
             for (int xRes = xOffResult; xRes < xOffResult + xSizeResult; xRes++) {
-                double xOriginalIndex = (((xSizeOriginal)/(1.0 * xSizeResult)) * (xRes - xOffResult));
-                double yOriginalIndex = (((ySizeOriginal)/(1.0 * ySizeResult)) * (yRes - yOffResult));
+                double xOriginalIndex = (((xSizeOriginal) / (1.0 * xSizeResult)) * (xRes - xOffResult));
+                double yOriginalIndex = (((ySizeOriginal) / (1.0 * ySizeResult)) * (yRes - yOffResult));
 
                 int intXOriginalIndex = (int) xOriginalIndex;
                 int intYOriginalIndex = (int) yOriginalIndex;
@@ -82,7 +82,7 @@ public class CubicResampling implements ResamplingAlgorithm {
                         type,
                         data);
 
-                PixelValue p02 = getValue(intXOriginalIndex + xOffOriginal -1,
+                PixelValue p02 = getValue(intXOriginalIndex + xOffOriginal - 1,
                         intYOriginalIndex + yOffOriginal + 1,
                         bandNumber,
                         type,
@@ -94,13 +94,13 @@ public class CubicResampling implements ResamplingAlgorithm {
                         type,
                         data);
 
-                PixelValue p22 = getValue(intXOriginalIndex + xOffOriginal+1,
+                PixelValue p22 = getValue(intXOriginalIndex + xOffOriginal + 1,
                         intYOriginalIndex + yOffOriginal + 1,
                         bandNumber,
                         type,
                         data);
 
-                PixelValue p32 = getValue(intXOriginalIndex + xOffOriginal+2,
+                PixelValue p32 = getValue(intXOriginalIndex + xOffOriginal + 2,
                         intYOriginalIndex + yOffOriginal + 1,
                         bandNumber,
                         type,
@@ -112,19 +112,19 @@ public class CubicResampling implements ResamplingAlgorithm {
                         type,
                         data);
 
-                PixelValue p13 = getValue(intXOriginalIndex + xOffOriginal+0,
+                PixelValue p13 = getValue(intXOriginalIndex + xOffOriginal + 0,
                         intYOriginalIndex + yOffOriginal + 2,
                         bandNumber,
                         type,
                         data);
 
-                PixelValue p23 = getValue(intXOriginalIndex + xOffOriginal+1,
+                PixelValue p23 = getValue(intXOriginalIndex + xOffOriginal + 1,
                         intYOriginalIndex + yOffOriginal + 2,
                         bandNumber,
                         type,
                         data);
 
-                PixelValue p33 = getValue(intXOriginalIndex + xOffOriginal+2,
+                PixelValue p33 = getValue(intXOriginalIndex + xOffOriginal + 2,
                         intYOriginalIndex + yOffOriginal + 2,
                         bandNumber,
                         type,
@@ -136,30 +136,38 @@ public class CubicResampling implements ResamplingAlgorithm {
                 double col3 = CubicHermite(p03.getAnyValue(), p13.getAnyValue(), p23.getAnyValue(), p33.getAnyValue(), xOriginalIndex - intXOriginalIndex);
                 double value = CubicHermite(col0, col1, col2, col3, yOriginalIndex - intYOriginalIndex);
 
-                //TODO > then pixelvalue.maxvalue
-                if (value > 255)
-                    value = 255;
+                if (value > PixelValue.getMaxForType(type))
+                    value = PixelValue.getMaxForType(type);
+
+                if (value < PixelValue.getMinForType(type))
+                    value = PixelValue.getMinForType(type);
 
                 PixelValue pixelValue = new PixelValue();
                 pixelValue.type = "byte";
-                pixelValue.byteValue = (byte)value;
+                pixelValue.byteValue = (int) value;
 
                 resultedArray[index++] = pixelValue;
-        }
+            }
 
         return resultedArray;
     }
 
-    // t is a value that goes from 0 to 1 to interpolate in a C1 continuous way across uniformly sampled data points.
-// when t is 0, this will return B.  When t is 1, this will return C.  Inbetween values will return an interpolation
-// between B and C.  A and B are used to calculate slopes at the edges.
-    double CubicHermite (double A, double B, double C, double D, double t)
-    {
-        double a = -A / 2.0f + (3.0f*B) / 2.0f - (3.0f*C) / 2.0f + D / 2.0f;
-        double b = A - (5.0f*B) / 2.0f + 2.0f*C - D / 2.0f;
+    private double BiCubic(double x) {
+        x = x / 2.0;
+
+        if (x < 0.0) {
+            return (x + 1.0);
+        } else {
+            return (1.0 - x);
+        }
+    }
+
+    double CubicHermite(double A, double B, double C, double D, double t) {
+        double a = -A / 2.0f + (3.0f * B) / 2.0f - (3.0f * C) / 2.0f + D / 2.0f;
+        double b = A - (5.0f * B) / 2.0f + 2.0f * C - D / 2.0f;
         double c = -A / 2.0f + C / 2.0f;
         double d = B;
 
-        return a*t*t*t + b*t*t + c*t + d;
+        return a * t * t * t + b * t * t + c * t + d;
     }
 }

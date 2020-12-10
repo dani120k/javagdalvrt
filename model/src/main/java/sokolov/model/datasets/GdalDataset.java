@@ -580,9 +580,19 @@ public class GdalDataset extends GdalMajorObject {
         int totalBandCount = deserializedVrtDataset.getVrtRasterBand().size();
         int type = XmlDeserializer.getResultedImageType(deserializedVrtDataset.getVrtRasterBand());
 
-        //TODO check types
+        //TODO check types test with short
+        //TODO works with byte
+        /*
         bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, TYPE_INT_RGB);
-        interleavedRaster = Raster.createInterleavedRaster(DataBuffer.TYPE_INT, nRasterXSize, nRasterYSize, 3, null);
+        interleavedRaster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, nRasterXSize, nRasterYSize, 3, null);
+         */
+        bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, TYPE_INT_RGB);
+        interleavedRaster = Raster.createInterleavedRaster(XmlDeserializer.getRasterImageType(
+                deserializedVrtDataset.getVrtRasterBand().get(0).getDataType()),
+                nRasterXSize, nRasterYSize, 3, null);
+        /* interleavedRaster = Raster.createInterleavedRaster(XmlDeserializer.getRasterImageType(
+                deserializedVrtDataset.getVrtRasterBand().get(0).getDataType()),
+                nRasterXSize, nRasterYSize, 3, null);*/
         //interleavedRaster = Raster.createInterleavedRaster(XmlDeserializer.getRasterImageType(type), nRasterXSize, nRasterYSize, totalBandCount, null);
 
         if (deserializedVrtDataset.getVrtRasterBand() != null) {
@@ -615,7 +625,7 @@ public class GdalDataset extends GdalMajorObject {
 
             bufferedImage.getRaster().setRect(interleavedRaster);
 
-            ImageIO.write(bufferedImage, "tiff", new File(String.format("result-%s.tiff", t)));
+            //ImageIO.write(bufferedImage, "tiff", new File(String.format("result-%s.tiff", t)));
 
             System.out.println();
         }

@@ -1,5 +1,5 @@
 <VRTDataset rasterXSize="3824" rasterYSize="2376">
-  <SRS dataAxisToSRSAxisMapping="1,2">LOCAL_CS["KRON        D211"]</SRS>
+  <SRS dataAxisToSRSAxisMapping="1,2">LOCAL_CS["KRON        D211",UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH]]</SRS>
   <GeoTransform> -9.0700000000000000e+05,  2.5000000000000000e+02,  0.0000000000000000e+00, -9.3300000000000000e+05,  0.0000000000000000e+00, -2.5000000000000000e+02</GeoTransform>
   <VRTRasterBand dataType="Byte" band="1">
     <NoDataValue>255</NoDataValue>
@@ -42,6 +42,7 @@
       <SimpleSource>
         <SourceFilename relativeToVRT="1">MOS_CZ_KR_250.tif</SourceFilename>
         <SourceBand>1</SourceBand>
+        <SourceProperties RasterXSize="1912" RasterYSize="1188" DataType="Byte" BlockXSize="1912" BlockYSize="4" />
         <SrcRect xOff="0" yOff="0" xSize="1912" ySize="1188" />
         <DstRect xOff="0" yOff="0" xSize="1912" ySize="1188" />
       </SimpleSource>

@@ -5,6 +5,7 @@
     <NoDataValue>255</NoDataValue>
     <HideNoDataValue>1</HideNoDataValue>
     <ColorInterp>Red</ColorInterp>
+
     <ComplexSource >
       <SourceFilename relativeToVRT="1">MOS_CZ_KR_250.tif</SourceFilename>
       <SourceBand>1</SourceBand>

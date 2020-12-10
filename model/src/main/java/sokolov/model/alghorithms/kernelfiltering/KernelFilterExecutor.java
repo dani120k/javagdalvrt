@@ -54,7 +54,6 @@ public class KernelFilterExecutor {
                 for(int i = 0; i < array.length; i+=3){
                     resultedArray[j++] = array[i];
                 }
-                System.out.println(x + " " + y);
 
                 //TODO this is shit
 //                for (int i = 0; i < array.length; i++) {
@@ -66,7 +65,7 @@ public class KernelFilterExecutor {
                 //resultedArray[5] = value;
 
                 //interleavedRaster.setPixels(xIndex, yIndex, xSize, ySize, array);
-                int[] pixelArray = new int[nBand];
+                int[] pixelArray = new int[interleavedRaster.getNumBands()];
                 interleavedRaster.getPixel(x, y, pixelArray);
                 pixelArray[bandNumber] = value;
                 interleavedRaster.setPixel(x, y, pixelArray);

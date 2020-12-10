@@ -51,6 +51,7 @@ public class ZoomPane {
 
         public TestPane() {
             try {
+                //TODO this is test
                 img = ImageIO.read(new File("C:\\Users\\forol\\IdeaProjects\\javagdalvrt\\result-0.tiff"));
             } catch (IOException ex) {
                 ex.printStackTrace();

@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="Maven: org.geotools:gt-main:25-SNAPSHOT">
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-main/25-SNAPSHOT/gt-main-25-20201030.145322-39.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-main/25-SNAPSHOT/gt-main-25-20201130.115919-71.jar!/" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-main/25-SNAPSHOT/gt-main-25-20201030.145322-39-javadoc.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-main/25-SNAPSHOT/gt-main-25-20201130.115919-71-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-main/25-SNAPSHOT/gt-main-25-20201030.145322-39-sources.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/geotools/gt-main/25-SNAPSHOT/gt-main-25-20201130.115919-71-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

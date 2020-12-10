@@ -1,5 +1,6 @@
 package sokolov.model.datasets;
 
+import sokolov.model.alghorithms.FileOpenService;
 import sokolov.model.alghorithms.kernelfiltering.KernelFilterExecutor;
 import sokolov.model.alghorithms.maskimplementation.MaskExecutor;
 import sokolov.model.common.PixelValue;
@@ -420,7 +421,6 @@ public class GdalRasterBand extends GdalMajorObject {
      * @return the raster scale.
      */
     public double getRasterScale(Boolean pbSuccess) {
-        //TODO link doesnt work yet
         if (pbSuccess != null)
             pbSuccess = false;
 
@@ -448,7 +448,7 @@ public class GdalRasterBand extends GdalMajorObject {
     }
 
     public void flushCache() {
-        //TODO call from VrtSimpleSource
+        this.poDS = null;
     }
 
     public int GetBand() {
@@ -493,8 +493,6 @@ public class GdalRasterBand extends GdalMajorObject {
 
         List<ComplexSourceType> complexSourceList = vrtRasterBandType.getComplexSource();
         if (complexSourceList != null) {
-
-
             SampleModel sampleModel = interleavedRaster.getSampleModel();
 
             for (ComplexSourceType complexSourceType : complexSourceList) {
@@ -548,7 +546,6 @@ public class GdalRasterBand extends GdalMajorObject {
                         interleavedRaster,
                         resampling);
             }
-
         }
 
         MaskBandType maskBand = vrtRasterBandType.getMaskBand();
@@ -578,7 +575,7 @@ public class GdalRasterBand extends GdalMajorObject {
             throw new RuntimeException(String.format("Отсутствует файл-источник для ComplexSource для RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
         }
 
-        BufferedImage image = ImageIO.read(file);
+        BufferedImage image = FileOpenService.openFile(pathToVrtFolder, sourceFilename.getSourceFileName());
         String type = XmlDeserializer.getType(image.getRaster().getDataBuffer().getDataType());
 
         Raster data = image.getData();
@@ -590,8 +587,6 @@ public class GdalRasterBand extends GdalMajorObject {
                         y,
                         type,
                         data);
-
-                //int b = this.band[i - dstX][j - dstY];
 
                 String noDataValue = vrtRasterBandType.getNoDataValue();
                 if (!b.equals(PixelValue.parse(noDataValue, type))) {
@@ -611,12 +606,6 @@ public class GdalRasterBand extends GdalMajorObject {
                 interleavedRaster,
                 data,
                 nRasterXSize, nRasterYSize, nBand, kernelFilteredSourceType.getSourceBand() - 1);
-
-        //todo ONLY FOR TEST
-        /*BufferedImage bufferedImage = new BufferedImage(nRasterXSize, nRasterYSize, BufferedImage.TYPE_3BYTE_BGR);
-        bufferedImage.getRaster().setRect(interleavedRaster);
-        ImageIO.write(bufferedImage, "tiff", new File(String.format("res%s.tiff", t++)));
-        //*/
     }
 
     private void initComplexSource(SampleModel sampleModel,
@@ -638,7 +627,8 @@ public class GdalRasterBand extends GdalMajorObject {
             throw new RuntimeException(String.format("Отсутствует файл-источник для ComplexSource для RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
         }
 
-        BufferedImage image = ImageIO.read(file);
+        //BufferedImage image = ImageIO.read(file);
+        BufferedImage image = FileOpenService.openFile(pathToVrtFolder.toString(), sourceFilename.getSourceFileName());
         String type = XmlDeserializer.getType(image.getRaster().getDataBuffer().getDataType());
 
         RectType srcRect = complexSourceType.getSrcRect();
@@ -670,8 +660,6 @@ public class GdalRasterBand extends GdalMajorObject {
                             realY,
                             type,
                             data);
-
-                    //int b = this.band[i - dstX][j - dstY];
 
                     String noDataValue = vrtRasterBandType.getNoDataValue();
                     if (!b.equals(PixelValue.parse(noDataValue, type))) {
@@ -712,14 +700,6 @@ public class GdalRasterBand extends GdalMajorObject {
                 int x = i % dstXSize;
                 int y = i / dstXSize;
 
-                //System.out.println(dstXSize + " " + dstYSize + " " + i);
-                //System.out.println(x + " " + y);
-                //System.out.println((x + dstX) + " " + (y + dstY));
-                //System.out.println("\n");
-                /*if (bytes[i] != (byte)Integer.parseInt(complexSourceType.getNODATA()))
-                    sampleModel.setSample(x + dstX, y + dstY,
-                            complexSourceType.getSourceBand() - 1,
-                            bytes[i], interleavedRaster.getDataBuffer());*/
                 PixelValue b = pixels[i];
 
                 String noDataValue = vrtRasterBandType.getNoDataValue();
@@ -745,8 +725,6 @@ public class GdalRasterBand extends GdalMajorObject {
         previousDstRect.add(dstRect);
     }
 
-    static int t = 0;
-
     private void initSimpleSource(SampleModel sampleModel,
                                   SimpleSourceType simpleSourceType,
                                   String pathToVrtFolder,
@@ -766,7 +744,8 @@ public class GdalRasterBand extends GdalMajorObject {
             throw new RuntimeException(String.format("Отсутствует файл-источник для ComplexSource для RasterBand c nBand=%s", vrtRasterBandType.getBand().toString()));
         }
 
-        BufferedImage image = ImageIO.read(file);
+        //BufferedImage image = ImageIO.read(file);
+        BufferedImage image = FileOpenService.openFile(pathToVrtFolder.toString(), sourceFilename.getSourceFileName());
         //TODO
         String type = XmlDeserializer.getType(image.getRaster().getDataBuffer().getDataType());
 
@@ -822,7 +801,6 @@ public class GdalRasterBand extends GdalMajorObject {
             }
         } else {
             //should execute resampling
-
             ResamplingAlghorithmExecutor resamplingAlghorithmExecutor = new ResamplingAlghorithmExecutor();
 
             //TODO

@@ -23,7 +23,7 @@ public class MaskExecutor {
                             int nBand) throws IOException {
         GdalRasterBand gdalRasterBand = new GdalRasterBand();
 
-        WritableRaster interleavedRaster = Raster.createInterleavedRaster(XmlDeserializer.getRasterImageType(type),
+        WritableRaster interleavedRaster = Raster.createInterleavedRaster(XmlDeserializer.getRasterImageType(vrtRasterBandType.getDataType()),
                 bandRasterXSize, bandRasterYSize, 1, null);
 
 
@@ -40,7 +40,7 @@ public class MaskExecutor {
                             Integer type) throws IOException {
         GdalRasterBand gdalRasterBand = new GdalRasterBand();
 
-        WritableRaster interleavedRaster = Raster.createInterleavedRaster(XmlDeserializer.getRasterImageType(type),
+        WritableRaster interleavedRaster = Raster.createInterleavedRaster(XmlDeserializer.getRasterImageType(vrtRasterBandType.getDataType()),
                 bandRasterXSize, bandRasterYSize, 1, null);
 
 

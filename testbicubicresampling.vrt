@@ -1,7 +1,15 @@
 <VRTDataset rasterXSize="3824" rasterYSize="2376">
-  <SRS dataAxisToSRSAxisMapping="1,2">LOCAL_CS["KRON        D211"]</SRS>
+  <SRS dataAxisToSRSAxisMapping="1,2">LOCAL_CS["KRON        D211",UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH]]</SRS>
   <GeoTransform> -9.0700000000000000e+05,  2.5000000000000000e+02,  0.0000000000000000e+00, -9.3300000000000000e+05,  0.0000000000000000e+00, -2.5000000000000000e+02</GeoTransform>
   <VRTRasterBand dataType="Byte" band="1">
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">255</MDI>
+      <MDI key="STATISTICS_MEAN">248.89653932225</MDI>
+      <MDI key="STATISTICS_MINIMUM">3</MDI>
+      <MDI key="STATISTICS_STDDEV">30.409549068749</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
     <NoDataValue>255</NoDataValue>
     <HideNoDataValue>1</HideNoDataValue>
     <ColorInterp>Red</ColorInterp>
@@ -14,6 +22,14 @@
     </ComplexSource>
   </VRTRasterBand>
   <VRTRasterBand dataType="Byte" band="2">
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">255</MDI>
+      <MDI key="STATISTICS_MEAN">250.41548113811</MDI>
+      <MDI key="STATISTICS_MINIMUM">34</MDI>
+      <MDI key="STATISTICS_STDDEV">23.335603513271</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
     <NoDataValue>255</NoDataValue>
     <HideNoDataValue>1</HideNoDataValue>
     <ColorInterp>Green</ColorInterp>
@@ -26,6 +42,14 @@
     </ComplexSource>
   </VRTRasterBand>
   <VRTRasterBand dataType="Byte" band="3">
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">255</MDI>
+      <MDI key="STATISTICS_MEAN">248.26447110774</MDI>
+      <MDI key="STATISTICS_MINIMUM">3</MDI>
+      <MDI key="STATISTICS_STDDEV">33.142920553724</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
     <NoDataValue>255</NoDataValue>
     <HideNoDataValue>1</HideNoDataValue>
     <ColorInterp>Blue</ColorInterp>

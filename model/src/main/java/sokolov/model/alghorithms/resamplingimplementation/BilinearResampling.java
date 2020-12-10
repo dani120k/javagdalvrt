@@ -44,7 +44,6 @@ public class BilinearResampling implements ResamplingAlgorithm {
 
                 int intXOriginalIndex = (int) xOriginalIndex;
                 int intYOriginalIndex = (int) yOriginalIndex;
-                int rgb = 0;
 
                 PixelValue c00 = getValue(intXOriginalIndex + xOffOriginal,
                         intYOriginalIndex + yOffOriginal,

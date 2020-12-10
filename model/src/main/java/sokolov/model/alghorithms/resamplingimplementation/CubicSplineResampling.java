@@ -36,7 +36,6 @@ public class CubicSplineResampling implements ResamplingAlgorithm {
 
                 double nSum = 0;
                 double nDenom = 0;
-                double average = 0;
 
                 for(int m = -1; m <= 2; m++)
                     for(int n = -1; n <= 2; n++){
@@ -49,22 +48,24 @@ public class CubicSplineResampling implements ResamplingAlgorithm {
                                 type,
                                 data);
 
-                        average += pixel.byteValue;
-                        nSum += pixel.byteValue * f * f1;
+                        nSum += pixel.getAnyValue() * f * f1;
                         nDenom += f * f1;
                     }
 
                 double value = nSum/nDenom;
 
-                if (value > 128)
-                    value = 128;
+                if (value - (int)value != 0.0)
+                    value += 1;
 
-                if (value < -127)
-                    value = -127;
+                if (value > PixelValue.getMaxForType(type))
+                    value = PixelValue.getMaxForType(type);
+
+                if (value < PixelValue.getMinForType(type))
+                    value = PixelValue.getMinForType(type);
 
                 PixelValue pixelValue = new PixelValue();
                 pixelValue.type = "byte";
-                pixelValue.byteValue = (byte) value;
+                pixelValue.byteValue =  (int)value;
 
                 resultedArray[index++] = pixelValue;
             }

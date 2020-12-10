@@ -13,8 +13,15 @@
     <bytecodeTargetLevel>
       <module name="alghoritms" target="1.8" />
       <module name="buildvrt" target="1.8" />
+      <module name="demobackend" target="1.8" />
       <module name="javagdalvrt" target="1.8" />
       <module name="model" target="1.8" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="buildvrt" options="" />
+      <module name="demobackend" options="-parameters" />
+    </option>
   </component>
 </project>

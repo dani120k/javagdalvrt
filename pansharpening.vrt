@@ -1,20 +1,62 @@
-<VRTDataset subClass="VRTPansharpenedDataset">
-    <PansharpeningOptions>
-        <PanchroBand>
-            <SourceFilename relativeToVRT="1">panchro.tif</SourceFilename>
-            <SourceBand>1</SourceBand>
-        </PanchroBand>
-        <SpectralBand dstBand="1">
-            <SourceFilename relativeToVRT="1">spectral.tif</SourceFilename>
-            <SourceBand>1</SourceBand>
-        </SpectralBand>
-        <SpectralBand dstBand="2">
-            <SourceFilename relativeToVRT="1">spectral.tif</SourceFilename>
-            <SourceBand>3</SourceBand>
-        </SpectralBand>
-        <SpectralBand dstBand="3">
-            <SourceFilename relativeToVRT="1">spectral.tif</SourceFilename>
-            <SourceBand>2</SourceBand>
-        </SpectralBand>
-    </PansharpeningOptions>
+<VRTDataset rasterXSize="642" rasterYSize="310" subClass="VRTPansharpenedDataset">
+  <SRS dataAxisToSRSAxisMapping="1,2">PROJCS["WGS 84 / UTM zone 23S",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-45],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",10000000],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","32723"]]</SRS>
+  <GeoTransform>  4.0750350000000000e+05,  5.0000000000000000e-01,  0.0000000000000000e+00,  7.4313925000000000e+06,  0.0000000000000000e+00, -5.0000000000000000e-01</GeoTransform>
+  <Metadata domain="IMAGE_STRUCTURE">
+    <MDI key="INTERLEAVE">PIXEL</MDI>
+  </Metadata>
+  <VRTRasterBand dataType="UInt16" band="1" subClass="VRTPansharpenedRasterBand">
+    <Metadata>
+      <MDI key="STATISTICS_MAXIMUM">65535</MDI>
+      <MDI key="STATISTICS_MEAN">20164.168957894</MDI>
+      <MDI key="STATISTICS_MINIMUM">0</MDI>
+      <MDI key="STATISTICS_STDDEV">12555.515691456</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
+    <NoDataValue>1.797693134862316e+308</NoDataValue>
+    <ColorInterp>Gray</ColorInterp>
+  </VRTRasterBand>
+  <VRTRasterBand dataType="UInt16" band="2" subClass="VRTPansharpenedRasterBand">
+    <Metadata>
+      <MDI key="STATISTICS_MAXIMUM">65535</MDI>
+      <MDI key="STATISTICS_MEAN">16640.837292734</MDI>
+      <MDI key="STATISTICS_MINIMUM">0</MDI>
+      <MDI key="STATISTICS_STDDEV">9002.8602411636</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
+    <NoDataValue>1.797693134862316e+308</NoDataValue>
+  </VRTRasterBand>
+  <VRTRasterBand dataType="UInt16" band="3" subClass="VRTPansharpenedRasterBand">
+    <Metadata>
+      <MDI key="STATISTICS_MAXIMUM">65535</MDI>
+      <MDI key="STATISTICS_MEAN">22863.214229726</MDI>
+      <MDI key="STATISTICS_MINIMUM">0</MDI>
+      <MDI key="STATISTICS_STDDEV">11564.448889831</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
+    <NoDataValue>1.797693134862316e+308</NoDataValue>
+  </VRTRasterBand>
+  <PansharpeningOptions>
+    <Algorithm>WeightedBrovey</Algorithm>
+    <AlgorithmOptions>
+      <Weights>0.3333333333333333,0.3333333333333333,0.3333333333333333</Weights>
+    </AlgorithmOptions>
+    <Resampling>Cubic</Resampling>
+    <SpatialExtentAdjustment>Union</SpatialExtentAdjustment>
+    <PanchroBand>
+      <SourceFilename relativeToVRT="1">panchro.tif</SourceFilename>
+      <SourceBand>1</SourceBand>
+    </PanchroBand>
+    <SpectralBand dstBand="1">
+      <SourceFilename relativeToVRT="1">spectral.tif</SourceFilename>
+      <SourceBand>1</SourceBand>
+    </SpectralBand>
+    <SpectralBand dstBand="2">
+      <SourceFilename relativeToVRT="1">spectral.tif</SourceFilename>
+      <SourceBand>3</SourceBand>
+    </SpectralBand>
+    <SpectralBand dstBand="3">
+      <SourceFilename relativeToVRT="1">spectral.tif</SourceFilename>
+      <SourceBand>2</SourceBand>
+    </SpectralBand>
+  </PansharpeningOptions>
 </VRTDataset>

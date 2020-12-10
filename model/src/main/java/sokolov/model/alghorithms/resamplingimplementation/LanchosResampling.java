@@ -54,15 +54,18 @@ public class LanchosResampling implements ResamplingAlgorithm {
 
                 double value = nSum/nDenom;
 
-                if (value > 128)
-                    value = 128;
+                if (value - (int)value != 0.0)
+                    value += 1;
 
-                if (value < -127)
-                    value = -127;
+                if (value > PixelValue.getMaxForType(type))
+                    value = PixelValue.getMaxForType(type);
+
+                if (value < PixelValue.getMinForType(type))
+                    value = PixelValue.getMinForType(type);
 
                 PixelValue pixelValue = new PixelValue();
                 pixelValue.type = "byte";
-                pixelValue.byteValue = (byte) value;
+                pixelValue.byteValue =  (int)value;
 
                 resultedArray[index++] = pixelValue;
             }
@@ -71,8 +74,6 @@ public class LanchosResampling implements ResamplingAlgorithm {
     }
 
     private double Lanchos2(double x) {
-        //System.out.println(x);
-
         if (x < 0.0)
             x = -x;
 

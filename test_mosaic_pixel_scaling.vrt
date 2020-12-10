@@ -1,0 +1,151 @@
+<VRTDataset rasterXSize="5951" rasterYSize="3232">
+  <SRS dataAxisToSRSAxisMapping="1,2">LOCAL_CS["KRON        D211",UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH]]</SRS>
+  <GeoTransform> -9.0700000000000000e+05,  2.5000000000000000e+02,  0.0000000000000000e+00, -9.3300000000000000e+05,  0.0000000000000000e+00, -2.5000000000000000e+02</GeoTransform>
+  <VRTRasterBand dataType="UInt16" band="1">
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">255</MDI>
+      <MDI key="STATISTICS_MEAN">140.0570187767</MDI>
+      <MDI key="STATISTICS_MINIMUM">0</MDI>
+      <MDI key="STATISTICS_STDDEV">125.86852811155</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
+    <NoDataValue>255</NoDataValue>
+    <HideNoDataValue>1</HideNoDataValue>
+    <ColorInterp>Red</ColorInterp>
+    <Histograms>
+      <HistItem>
+        <HistMin>-0.498046875</HistMin>
+        <HistMax>255.498046875</HistMax>
+        <BucketCount>256</BucketCount>
+        <IncludeOutOfRange>0</IncludeOutOfRange>
+        <Approximate>1</Approximate>
+        <HistCounts>6820|46695|95622|100186|9516|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|310377</HistCounts>
+      </HistItem>
+    </Histograms>
+    <ComplexSource resampling="cubicspline">
+      <SourceFilename relativeToVRT="1">MOS_CZ_KR_250.tif</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="1912" RasterYSize="1188" DataType="Byte" BlockXSize="1912" BlockYSize="4" />
+      <SrcRect xOff="0" yOff="0" xSize="1912" ySize="1188" />
+      <DstRect xOff="0" yOff="0" xSize="3824" ySize="2376" />
+      <NODATA>255</NODATA>
+      <Exponent>0.75</Exponent>
+      <SrcMin>0</SrcMin>
+      <SrcMax>65535</SrcMax>
+      <DstMin>0</DstMin>
+      <DstMax>255</DstMax>
+    </ComplexSource>
+    <ComplexSource resampling="cubicspline">
+      <SourceFilename relativeToVRT="1">MOS_SK_KR_250.tif</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="1724" RasterYSize="828" DataType="Byte" BlockXSize="1724" BlockYSize="4" />
+      <SrcRect xOff="0" yOff="0" xSize="1724" ySize="828" />
+      <DstRect xOff="2503" yOff="1576" xSize="3448" ySize="1656" />
+      <NODATA>255</NODATA>
+      <Exponent>0.75</Exponent>
+      <SrcMin>0</SrcMin>
+      <SrcMax>65535</SrcMax>
+      <DstMin>0</DstMin>
+      <DstMax>255</DstMax>
+    </ComplexSource>
+  </VRTRasterBand>
+  <VRTRasterBand dataType="UInt16" band="2">
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">255</MDI>
+      <MDI key="STATISTICS_MEAN">140.24854009726</MDI>
+      <MDI key="STATISTICS_MINIMUM">0</MDI>
+      <MDI key="STATISTICS_STDDEV">125.67792382919</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
+    <NoDataValue>255</NoDataValue>
+    <HideNoDataValue>1</HideNoDataValue>
+    <ColorInterp>Green</ColorInterp>
+    <Histograms>
+      <HistItem>
+        <HistMin>-0.498046875</HistMin>
+        <HistMax>255.498046875</HistMax>
+        <BucketCount>256</BucketCount>
+        <IncludeOutOfRange>0</IncludeOutOfRange>
+        <Approximate>1</Approximate>
+        <HistCounts>165|17463|83413|140947|16807|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|310421</HistCounts>
+      </HistItem>
+    </Histograms>
+    <ComplexSource resampling="cubicspline">
+      <SourceFilename relativeToVRT="1">MOS_CZ_KR_250.tif</SourceFilename>
+      <SourceBand>2</SourceBand>
+      <SourceProperties RasterXSize="1912" RasterYSize="1188" DataType="Byte" BlockXSize="1912" BlockYSize="4" />
+      <SrcRect xOff="0" yOff="0" xSize="1912" ySize="1188" />
+      <DstRect xOff="0" yOff="0" xSize="3824" ySize="2376" />
+      <NODATA>255</NODATA>
+      <Exponent>0.75</Exponent>
+      <SrcMin>0</SrcMin>
+      <SrcMax>65535</SrcMax>
+      <DstMin>0</DstMin>
+      <DstMax>255</DstMax>
+    </ComplexSource>
+    <ComplexSource resampling="cubicspline">
+      <SourceFilename relativeToVRT="1">MOS_SK_KR_250.tif</SourceFilename>
+      <SourceBand>2</SourceBand>
+      <SourceProperties RasterXSize="1724" RasterYSize="828" DataType="Byte" BlockXSize="1724" BlockYSize="4" />
+      <SrcRect xOff="0" yOff="0" xSize="1724" ySize="828" />
+      <DstRect xOff="2503" yOff="1576" xSize="3448" ySize="1656" />
+      <NODATA>255</NODATA>
+      <Exponent>0.75</Exponent>
+      <SrcMin>0</SrcMin>
+      <SrcMax>65535</SrcMax>
+      <DstMin>0</DstMin>
+      <DstMax>255</DstMax>
+    </ComplexSource>
+  </VRTRasterBand>
+  <VRTRasterBand dataType="UInt16" band="3">
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">255</MDI>
+      <MDI key="STATISTICS_MEAN">139.86972256577</MDI>
+      <MDI key="STATISTICS_MINIMUM">0</MDI>
+      <MDI key="STATISTICS_STDDEV">126.0725274439</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">100</MDI>
+    </Metadata>
+    <NoDataValue>255</NoDataValue>
+    <HideNoDataValue>1</HideNoDataValue>
+    <ColorInterp>Blue</ColorInterp>
+    <Histograms>
+      <HistItem>
+        <HistMin>-0.498046875</HistMin>
+        <HistMax>255.498046875</HistMax>
+        <BucketCount>256</BucketCount>
+        <IncludeOutOfRange>0</IncludeOutOfRange>
+        <Approximate>1</Approximate>
+        <HistCounts>29030|78230|73286|67021|11276|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|310373</HistCounts>
+      </HistItem>
+    </Histograms>
+    <ComplexSource resampling="cubicspline">
+      <SourceFilename relativeToVRT="1">MOS_CZ_KR_250.tif</SourceFilename>
+      <SourceBand>3</SourceBand>
+      <SourceProperties RasterXSize="1912" RasterYSize="1188" DataType="Byte" BlockXSize="1912" BlockYSize="4" />
+      <SrcRect xOff="0" yOff="0" xSize="1912" ySize="1188" />
+      <DstRect xOff="0" yOff="0" xSize="3824" ySize="2376" />
+      <NODATA>255</NODATA>
+      <Exponent>0.75</Exponent>
+      <SrcMin>0</SrcMin>
+      <SrcMax>65535</SrcMax>
+      <DstMin>0</DstMin>
+      <DstMax>255</DstMax>
+    </ComplexSource>
+    <ComplexSource resampling="cubicspline">
+      <SourceFilename relativeToVRT="1">MOS_SK_KR_250.tif</SourceFilename>
+      <SourceBand>3</SourceBand>
+      <SourceProperties RasterXSize="1724" RasterYSize="828" DataType="Byte" BlockXSize="1724" BlockYSize="4" />
+      <SrcRect xOff="0" yOff="0" xSize="1724" ySize="828" />
+      <DstRect xOff="2503" yOff="1576" xSize="3448" ySize="1656" />
+      <NODATA>255</NODATA>
+      <Exponent>0.75</Exponent>
+      <SrcMin>0</SrcMin>
+      <SrcMax>65535</SrcMax>
+      <DstMin>0</DstMin>
+      <DstMax>255</DstMax>
+    </ComplexSource>
+  </VRTRasterBand>
+</VRTDataset>

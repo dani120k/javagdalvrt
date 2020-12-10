@@ -3,6 +3,7 @@ package sokolov.model.common;
 import it.geosolutions.jaiext.range.Range;
 import sokolov.model.datasets.RasterService;
 import sokolov.model.datasets.VrtRasterBand;
+import sokolov.model.xmlmodel.DataTypeType;
 import sokolov.model.xmlmodel.RectType;
 import sokolov.model.xmlmodel.SourceFilenameType;
 import sokolov.model.xmlmodel.VRTRasterBandType;
@@ -26,7 +27,7 @@ public class XmlDeserializer {
         if (sourceFilenameType == null || sourceFilenameType.getSourceFileName() == null)
             throw new RuntimeException("Неверное задан тэг SourceFilename");
 
-        if (sourceFilenameType.getRelativetoVRT() == 1) {
+        if (sourceFilenameType.getRelativetoVRT() == 1 || sourceFilenameType.getRelativeToVRT() == 1) {
             path = Paths.get(pathToVrt, sourceFilenameType.getSourceFileName());
         } else {
             path = Paths.get(sourceFilenameType.getSourceFileName());
@@ -90,7 +91,7 @@ public class XmlDeserializer {
 
         bufferedImage.getRaster().setRect(interleavedRaster);
 
-        ImageIO.write(bufferedImage, "tiff", new File(String.format("zxcv.tiff")));
+        //ImageIO.write(bufferedImage, "tiff", new File(String.format("zxcv.tiff")));
     }
 
 
@@ -108,7 +109,7 @@ public class XmlDeserializer {
                 return "byte";
             case TYPE_USHORT:
             case DataBuffer.TYPE_SHORT:
-                return "short";
+                return "ushort";
             case DataBuffer.TYPE_DOUBLE:
                 return "double";
             case DataBuffer.TYPE_FLOAT:
@@ -134,12 +135,12 @@ public class XmlDeserializer {
             }
 
             if (vrtRasterBand.getDataType().getValue().equals("UInt16") && codeType < 1){
-                type = "short";
+                type = "ushort";
                 codeType = 1;
             }
 
             if (vrtRasterBand.getDataType().getValue().equals("Int16") && codeType < 1){
-                type = "short";
+                type = "ushort";
                 codeType = 1;
             }
 
@@ -190,7 +191,7 @@ public class XmlDeserializer {
                     return BufferedImage.TYPE_BYTE_GRAY;
                 else
                     return BufferedImage.TYPE_INT_RGB;
-            case "short":
+            case "ushort":
                 if (vrtRasterBandList.size() == 1)
                     return BufferedImage.TYPE_USHORT_GRAY;
                 else
@@ -211,18 +212,17 @@ public class XmlDeserializer {
         return BufferedImage.TYPE_CUSTOM;
     }
 
-    public static int getRasterImageType(int value) {
-        switch (value){
-            case BufferedImage.TYPE_USHORT_GRAY:
+    public static int getRasterImageType(DataTypeType value) {
+        if (value == null)
+            return 0;
+
+        switch (value.getValue()){
+            case "UInt16":
                 return TYPE_USHORT;
-            case BufferedImage.TYPE_4BYTE_ABGR:
+            case "int":
                 return TYPE_INT;
-            case BufferedImage.TYPE_INT_RGB:
+            case "byte":
                 return TYPE_BYTE;
-            case BufferedImage.TYPE_BYTE_GRAY:
-                return TYPE_BYTE;
-            case BufferedImage.TYPE_USHORT_555_RGB:
-                return TYPE_USHORT;
         }
 
         return 0;

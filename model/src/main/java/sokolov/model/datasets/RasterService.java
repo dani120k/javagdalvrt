@@ -13,12 +13,12 @@ public class RasterService {
         return pixel[bandNumber-1];
     }
 
-    public static byte getByteValue(int bandNumber,
+    public static int getByteValue(int bandNumber,
                                int x, int y,
                                Raster raster){
         int[] pixel = raster.getSampleModel().getPixel(x, y, new int[3], raster.getDataBuffer());
 
-        return (byte)pixel[bandNumber-1];
+        return pixel[bandNumber-1];
     }
 
     public static byte getSingleBandValue(byte[] resampledArray, int x, int y, int nRasterXSize, int nRasterYSize) {
@@ -40,21 +40,21 @@ public class RasterService {
             int[] pixel = raster.getSampleModel().getPixel(x, y, new int[3], raster.getDataBuffer());
 
             pixelValue.type = "int";
-            pixelValue.intValue = pixel[bandNumber-1];
+            pixelValue.uIntValue = pixel[bandNumber-1];
         }
 
-        if (type.equals("short")) {
+        if (type.equals("ushort")) {
             int[] pixel = raster.getSampleModel().getPixel(x, y, new int[3], raster.getDataBuffer());
 
-            pixelValue.type = "short";
-            pixelValue.shortValue = (short)pixel[bandNumber-1];
+            pixelValue.type = "ushort";
+            pixelValue.uInt16Value = (int)pixel[bandNumber-1];
         }
 
         if (type.equals("byte")){
             int[] pixel = raster.getSampleModel().getPixel(x, y, new int[3], raster.getDataBuffer());
 
             pixelValue.type = "byte";
-            pixelValue.byteValue = (byte)pixel[bandNumber-1];
+            pixelValue.byteValue = pixel[bandNumber-1];
         }
 
         if (type.equals("double")){
@@ -68,7 +68,7 @@ public class RasterService {
             float[] pixel = raster.getSampleModel().getPixel(x, y, new float[3], raster.getDataBuffer());
 
             pixelValue.type = "float";
-            pixelValue.floatValue = (float)pixel[bandNumber-1];
+            pixelValue.float32Value = (float)pixel[bandNumber-1];
         }
 
         return pixelValue;
@@ -78,11 +78,11 @@ public class RasterService {
         PixelValue pixelValue = pixelValues[x + y * nRasterXSize];
 
         if (pixelValue.type.equals("int") ){
-            return pixelValue.intValue;
+            return pixelValue.uIntValue;
         }
 
-        if (pixelValue.type.equals("short")) {
-            return pixelValue.shortValue;
+        if (pixelValue.type.equals("ushort")) {
+            return pixelValue.uInt16Value;
         }
 
         if (pixelValue.type.equals("byte")){
@@ -94,7 +94,7 @@ public class RasterService {
         }
 
         if (pixelValue.type.equals("float")){
-            return pixelValue.floatValue;
+            return pixelValue.float32Value;
         }
 
         return 0;
